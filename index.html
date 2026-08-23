@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0713">
+<meta name="description" content="NumeraFlow — your family's numbers, decoded. Deep numerology readings for you and the people you love.">
+<meta property="og:title" content="NumeraFlow">
+<meta property="og:description" content="Your family's numbers, decoded.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<title>NumeraFlow App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{--ground:#0b0713;--surface:#160f24;--surface2:#1d1533;--border:#2c2145;--text:#f4f1fa;--muted:#a99fc0;--purple:#a78bfa;--lilac:#d8b4fe;--mint:#6ee7b7;--indigo:#818cf8;--ink:#17111f;--heading:"Manrope",ui-sans-serif,system-ui,sans-serif;--body:"DM Sans",ui-sans-serif,system-ui,sans-serif;}
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--ground);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  h1,h2,h3,h4{font-family:var(--heading);font-weight:800;margin:0;text-wrap:balance;line-height:1.1;}
+  .aurora{background-image:linear-gradient(120deg,var(--purple),var(--lilac),var(--mint),var(--indigo),var(--purple));background-size:300% 300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:aurora 9s ease infinite;}
+  @keyframes aurora{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  #app{position:relative;z-index:1;min-height:100vh;}
+  .screen{animation:fade .45s ease;}
+  .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(5,3,12,.72);backdrop-filter:blur(4px);}
+  .modal.on{display:flex;animation:fade .25s ease;}
+  .mbox{position:relative;max-width:400px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;box-shadow:0 24px 70px -20px #000;}
+  .mclose{position:absolute;top:12px;right:12px;background:none;border:0;color:var(--muted);font-size:1.05rem;cursor:pointer;padding:6px;}
+  .num-tap{cursor:pointer;}
+  .echo{display:inline-block;font-size:.62em;font-weight:700;color:var(--mint);background:rgba(110,231,183,.12);border:1px solid rgba(110,231,183,.35);border-radius:999px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+  .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--purple);}
+  .muted{color:var(--muted);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--heading);font-weight:700;border-radius:999px;padding:14px 26px;cursor:pointer;border:1px solid transparent;font-size:.98rem;transition:transform .15s,background .2s;user-select:none;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:#fff;color:#0b0713;}
+  .btn-glow{background:linear-gradient(120deg,#8b5cf6,#7c3aed);color:#fff;box-shadow:0 8px 30px -8px rgba(139,92,246,.7);}
+  .btn-ghost{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);color:#fff;}
+  .btn-block{width:100%;}
+  input,textarea{width:100%;background:rgba(11,7,19,.6);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:14px;font-family:var(--body);font-size:1rem;color-scheme:dark;}
+  input:focus,textarea:focus{outline:none;border-color:var(--purple);}
+  label.fl{display:block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 7px;}
+  .card{border:1px solid var(--border);background:rgba(22,15,36,.6);border-radius:18px;padding:20px;}
+  /* topbar */
+  .top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:rgba(11,7,19,.72);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+  .logo{display:flex;align-items:center;gap:9px;font-family:var(--heading);font-weight:800;font-size:1.1rem;cursor:pointer;}
+  .logo .mk{width:25px;height:25px;border-radius:7px;background:linear-gradient(135deg,var(--purple),var(--mint));display:flex;align-items:center;justify-content:center;color:var(--ink);}
+  .top .r{display:flex;gap:8px;align-items:center;}
+  /* hero */
+  .hero{text-align:center;padding:56px 20px 30px;position:relative;overflow:hidden;}
+  .halo{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% -5%,rgba(139,92,246,.30),transparent 65%);pointer-events:none;}
+  .hero h1{font-size:clamp(2.5rem,8vw,4.6rem);margin-top:18px;}
+  .hero .sub{max-width:560px;margin:18px auto 0;color:var(--muted);font-size:1.1rem;}
+  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);border-radius:999px;padding:7px 15px;font-size:.72rem;font-weight:700;color:var(--lilac);}
+  /* teaser */
+  .teaser{max-width:500px;margin:30px auto 0;text-align:left;}
+  .reveal{display:none;margin-top:18px;border-top:1px solid var(--border);padding-top:16px;text-align:center;}
+  .reveal.on{display:block;animation:fade .5s ease;}
+  .bignum{font-family:var(--heading);font-weight:800;font-size:4.2rem;line-height:1;}
+  /* journeys */
+  .journeys{display:grid;gap:16px;margin:34px auto 0;max-width:760px;}
+  @media(min-width:720px){.journeys{grid-template-columns:1fr 1fr;}}
+  .jcard{position:relative;overflow:hidden;border-radius:20px;padding:26px;border:1px solid var(--border);text-align:left;}
+  .jcard.me{background:linear-gradient(165deg,rgba(124,58,237,.22),rgba(22,15,36,.7));}
+  .jcard.fam{background:linear-gradient(165deg,rgba(110,231,183,.13),rgba(22,15,36,.7));}
+  .jcard .price{font-family:var(--heading);font-weight:800;font-size:3rem;margin:8px 0;}
+  .jcard ul{list-style:none;margin:14px 0 20px;padding:0;}
+  .jcard li{display:flex;gap:9px;color:var(--muted);font-size:.9rem;margin:8px 0;}
+  .jcard li b{color:var(--mint);}
+  /* progress stages */
+  .stages{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:0 auto 4px;padding:14px 20px 0;}
+  .stg{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 10px;}
+  .stg.done{background:color-mix(in srgb,var(--mint) 16%,transparent);color:var(--mint);border-color:transparent;}
+  .stg.now{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+  /* option chips */
+  .opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;}
+  .opt{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:14px;padding:12px 16px;cursor:pointer;font-weight:600;font-size:.95rem;transition:.15s;}
+  .opt:hover{border-color:var(--purple);}
+  .opt.sel{background:#7c3aed;border-color:#7c3aed;color:#fff;}
+  .say{color:var(--mint);font-style:italic;font-size:.9rem;margin-top:2px;animation:fade .5s ease;}
+  /* key numbers */
+  .keys{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px;}
+  @media(min-width:600px){.keys{grid-template-columns:repeat(5,1fr);}}
+  .key{border:1px solid var(--border);background:rgba(29,21,51,.6);border-radius:16px;padding:14px 8px;text-align:center;}
+  .key .l{font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  .key .v{font-family:var(--heading);font-weight:800;font-size:1.9rem;line-height:1;margin-top:6px;}
+  /* rail */
+  .rail{position:sticky;top:52px;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:rgba(11,7,19,.85);backdrop-filter:blur(8px);border-top:1px solid var(--border);border-bottom:1px solid var(--border);scrollbar-width:none;}
+  .rail::-webkit-scrollbar{display:none;}
+  .rail button{white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--muted);padding:6px 12px;border-radius:999px;border:0;background:none;cursor:pointer;}
+  .rail button.on{background:#3a2d5c;color:var(--text);}
+  section.blk{border-top:1px solid rgba(44,33,69,.6);padding:32px 0;scroll-margin-top:110px;}
+  .theme{margin-top:10px;}
+  .theme .tp{display:flex;justify-content:space-between;align-items:baseline;}
+  .track{height:6px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:8px;}
+  .fill{height:100%;border-radius:999px;}
+  .t-Dominant{color:var(--purple)}.b-Dominant{background:var(--purple)}
+  .t-Strong{color:var(--mint)}.b-Strong{background:var(--mint)}
+  .t-Supporting{color:var(--lilac)}.b-Supporting{background:var(--lilac)}
+  .disc{margin-top:12px;border-top:1px solid rgba(44,33,69,.5);padding-top:10px;}
+  .disc summary{color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;list-style:none;}
+  .disc pre{margin:10px 0 0;background:rgba(11,7,19,.6);border-radius:8px;padding:12px;font-size:.72rem;color:var(--muted);white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;}
+  .pin{border:1px solid var(--border);background:rgba(22,15,36,.5);border-radius:14px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .pin.now{border-color:var(--purple);background:var(--surface);}
+  .here{background:var(--purple);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;border-radius:999px;}
+  /* year wheel */
+  .wheel{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:14px 0;}
+  .yr{width:46px;height:50px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--surface2);font-family:var(--heading);font-weight:800;font-size:1.1rem;}
+  .yr small{font-size:.46rem;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-top:2px;}
+  .yr.on{background:var(--purple);color:var(--ink);border-color:var(--purple);}
+  .yr.on small{color:var(--ink);}
+  .trio{display:grid;gap:10px;margin-top:12px;}
+  @media(min-width:600px){.trio{grid-template-columns:repeat(3,1fr);}}
+  .trio .t{border:1px solid var(--border);border-radius:12px;padding:13px;background:rgba(22,15,36,.5);}
+  .trio .t.mid{border-color:var(--purple);}
+  .beam{position:relative;overflow:hidden;}
+  .beam::before{content:"";position:absolute;width:64px;height:64px;top:-32px;left:-32px;background:conic-gradient(from 0deg,transparent,var(--purple),var(--mint),transparent);animation:spin 7s linear infinite;opacity:.5;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* family */
+  .fnode{border:1px solid var(--border);background:rgba(22,15,36,.6);border-radius:16px;padding:16px;cursor:pointer;transition:.15s;}
+  .fnode:hover{border-color:var(--purple);}
+  .fnode.sel{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple);}
+  .foot{text-align:center;color:var(--muted);font-size:.76rem;padding:26px 20px 60px;}
+  @media(prefers-reduced-motion:reduce){.aurora,.beam::before{animation:none;}.screen{animation:none;}}
+</style>
+
+<canvas id="stars"></canvas>
+<div id="app"></div>
+<div id="nummodal" class="modal"></div>
+
+<script>
+/* ============================ ENGINE ============================ */
+const digitSum=v=>String(Math.abs(Number(v))).split('').reduce((s,d)=>s+ +d,0);
+const MFAM={2:11,4:22,6:33};// root -> its master higher-octave (11/22/33 all reduce to 2/4/6)
+function reduce(raw,preserve=[]){const route=[+raw];let cur=+raw;while(cur>9&&!preserve.includes(cur)){cur=digitSum(cur);route.push(cur);}const root=cur>9?digitSum(cur):cur;const isMaster=preserve.includes(cur);
+ // A compound like 20/2, 29→11→2, 38→11→2 carries the higher-octave master of its family.
+ // Flag when it's NOT already a master, came from a double digit, and its family has a master (2/4/6).
+ const masterEcho=(!isMaster&&+raw>9&&MFAM[root])?MFAM[root]:null;
+ // Strong echo = the reduction literally passed through the master (e.g. 29→11→2) or is a round master-anchor (20/40..).
+ const strongEcho=masterEcho&&(route.includes(masterEcho)||+raw===masterEcho*10||(+raw)%10===0)?masterEcho:null;
+ return{rawTotal:+raw,route,compound:+raw>9?+raw:null,number:cur,root,master:isMaster,masterEcho,strongEcho,display:route.join('/')};}
+const MM=[11,22,33];
+const PY={};'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((L,i)=>PY[L]=(i%9)+1);
+const CHG={1:'AIJQY',2:'BKR',3:'CGLS',4:'DMT',5:'EHNX',6:'UVW',7:'OZ',8:'FP'};const CH={};Object.entries(CHG).forEach(([v,ls])=>ls.split('').forEach(l=>CH[l]=+v));
+function classify(name){const out=[];String(name).toUpperCase().split(/\s+/).filter(Boolean).forEach(w=>{const hv=/[AEIOU]/.test(w);w.split('').forEach(ch=>{if(!/[A-Z]/.test(ch))return;let vowel=/[AEIOU]/.test(ch);if(ch==='Y')vowel=!hv;out.push({letter:ch,vowel});});});return out;}
+function nameCalc(name,map,pre){const L=classify(name);const val=a=>a.reduce((s,l)=>s+(map[l.letter]||0),0);return{expression:reduce(val(L),pre),soulUrge:reduce(val(L.filter(l=>l.vowel)),pre),personality:reduce(val(L.filter(l=>!l.vowel)),pre)};}
+const ANIMALS=['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
+const ELEMENTS=['Metal','Metal','Water','Water','Wood','Wood','Fire','Fire','Earth','Earth'];
+function chineseYear(dob,year){let by;try{const p=new Intl.DateTimeFormat('en-u-ca-chinese',{year:'numeric',timeZone:'UTC'}).formatToParts(new Date(dob+'T12:00:00Z'));by=+p.find(x=>x.type==='relatedYear').value;}catch(e){by=+dob.slice(0,4);}const ey=y=>({animal:ANIMALS[((y-4)%12+12)%12],element:ELEMENTS[((y%10)+10)%10],yinYang:y%2===0?'Yang':'Yin',year:y});return{birth:ey(by),forecast:ey(year)};}
+const personalYearFor=(m,d,year)=>reduce(reduce(m).root+reduce(d).root+digitSum(year)).root;
+function lifePathFromDob(dob){const[y,m,d]=dob.split('-').map(Number);const lp=reduce(reduce(m,MM).number+reduce(d,MM).number+reduce(digitSum(y),MM).number,MM);return lp;}
+function buildProfile(dob,fullName,currentName,door,year){const[y,m,d]=dob.split('-').map(Number);const mo=reduce(m,MM),da=reduce(d,MM),yr=reduce(digitSum(y),MM);const lifePath=reduce(mo.number+da.number+yr.number,MM);const pyth=nameCalc(fullName,PY,MM),chal=nameCalc(fullName,CH,[]);const p1=reduce(mo.number+da.number,MM),p2=reduce(da.number+yr.number,MM);const pinnacles=[p1,p2,reduce(p1.number+p2.number,MM),reduce(mo.number+yr.number,MM)];const hn=String(door||'').toUpperCase().replace(/^(FLAT|APARTMENT|APT|UNIT)\s*/i,'').replace(/[^A-Z0-9]/g,'');const home=hn?reduce(hn.split('').reduce((s,ch)=>s+(/\d/.test(ch)?+ch:(PY[ch]||0)),0),MM):null;return{dob,name:fullName,currentName,door,homeNorm:hn,year,lifePath,birthday:reduce(d,MM),attitude:reduce(m+d).root,pyth,chal,pinnacles,home,personalYear:personalYearFor(m,d,year),personalYearPrev:personalYearFor(m,d,year-1),personalYearNext:personalYearFor(m,d,year+1),chinese:chineseYear(dob,year),month:m,day:d};}
+/* intelligence */
+const NP={1:{t:['independence','leadership'],s:['control','impatience'],need:'autonomy',m:'independence, initiative and the nerve to lead'},2:{t:['sensitivity','partnership'],s:['avoidance','over-dependence'],need:'harmony',m:'sensitivity, partnership and emotional intelligence'},3:{t:['expression','creativity'],s:['scattered attention','restlessness'],need:'recognition',m:'expression, creativity and visible communication'},4:{t:['stability','discipline'],s:['rigidity','over-work'],need:'security',m:'structure, discipline and dependable foundations'},5:{t:['freedom','adaptability'],s:['restlessness','scattered attention'],need:'freedom',m:'freedom, change and learning through experience'},6:{t:['responsibility','stability'],s:['over-responsibility','control'],need:'being needed',m:'responsibility, care and the standards held at home'},7:{t:['introspection','sensitivity'],s:['withdrawal','perfectionism'],need:'understanding',m:'analysis, intuition and the need to understand what sits underneath'},8:{t:['ambition','leadership'],s:['control','over-work'],need:'achievement',m:'authority, material lessons and the responsible use of power'},9:{t:['service','sensitivity'],s:['emotional overwhelm','avoidance'],need:'meaning',m:'completion, compassion and the wider human pattern'},11:{t:['sensitivity','expression'],s:['anxiety','over-responsibility'],need:'expression',m:'heightened intuition and the pressure to express insight clearly'},22:{t:['ambition','stability'],s:['over-work','control'],need:'achievement',m:'master-builder energy that must make a large vision practical'},33:{t:['service','responsibility'],s:['self-erasure','over-responsibility'],need:'meaning',m:'compassionate teacher energy that must not erase itself'}};
+const LABEL={independence:'Independence',leadership:'Leadership',sensitivity:'Sensitivity',partnership:'Partnership',expression:'Expression',creativity:'Creativity',stability:'Stability',discipline:'Discipline',freedom:'Freedom',adaptability:'Adaptability',responsibility:'Responsibility',introspection:'Introspection',ambition:'Ambition',service:'Service'};
+const NEEDL={autonomy:'Autonomy',harmony:'Harmony',recognition:'Recognition',security:'Security',freedom:'Freedom','being needed':'To be needed',understanding:'Understanding',achievement:'Achievement',meaning:'Meaning'};
+const THEME_INFO={
+ independence:{best:'self-reliant, decisive and able to start things on your own',shadow:'isolation, stubbornness and struggling to ask for help',grow:'let people in without losing your autonomy'},
+ leadership:{best:'takes charge, makes the call and carries responsibility for others',shadow:'controlling, and impatient with other people\'s pace',grow:'lead through trust, not just force of will'},
+ sensitivity:{best:'emotionally attuned, empathetic and quick to read a room',shadow:'easily overwhelmed and prone to taking things personally',grow:'protect your energy without shutting down your feeling'},
+ partnership:{best:'cooperative, diplomatic and able to build deep bonds',shadow:'over-dependence and losing yourself inside a relationship',grow:'stay whole while staying close'},
+ expression:{best:'communicates, creates and turns ideas into something visible',shadow:'scattered, superficial, or all talk and no follow-through',grow:'finish what you start and let it go deeper'},
+ creativity:{best:'original, playful and endlessly generative',shadow:'restless, unfocused and forever chasing the next novelty',grow:'give your ideas structure so they actually become real'},
+ stability:{best:'dependable, grounded and a builder of lasting foundations',shadow:'rigidity, resistance to change and over-caution',grow:'stay solid without getting stuck'},
+ discipline:{best:'consistent, hard-working and able to see things through',shadow:'harsh on yourself, and all work with no play',grow:'balance real effort with real rest'},
+ freedom:{best:'adaptable, adventurous and a learner through experience',shadow:'restlessness, commitment-shyness and scattered focus',grow:'choose commitments that still feel like freedom'},
+ adaptability:{best:'flexible, quick and genuinely thrives in change',shadow:'inconsistency and being hard to pin down',grow:'let a few things stay steady on purpose'},
+ responsibility:{best:'caring, reliable and the one who holds things together',shadow:'over-giving, control and quiet martyrdom',grow:'care for others without abandoning yourself'},
+ introspection:{best:'thoughtful, insightful and drawn to the truth beneath the surface',shadow:'withdrawal, over-analysis and isolating yourself',grow:'share what you find rather than disappearing into it'},
+ ambition:{best:'driven, capable and able to actually get results',shadow:'workaholism, control and tying your worth to output',grow:'let success serve your life instead of consuming it'},
+ service:{best:'compassionate, generous and tuned to the bigger picture',shadow:'self-erasure, burnout and carrying everyone else',grow:'give from overflow, not from depletion'}
+};
+const CONTRA=[['freedom','stability','Freedom vs Structure','One side wants movement and room to breathe; the other wants dependable foundations. The tension shows up whenever commitment starts to feel like confinement.'],['freedom','responsibility','Freedom vs Responsibility','Part of you resists obligation, while another part takes duty seriously. The friction appears when caring for others limits your own movement.'],['independence','partnership','Independence vs Closeness','You are wired to run your own life, yet you also need real connection. The pull is between doing it alone and letting someone in.'],['expression','introspection','Expression vs Privacy','One side needs to be seen and heard; the other needs solitude to process. You can swing between visible and completely withdrawn.'],['ambition','sensitivity','Drive vs Feeling','A strong push toward achievement sits next to real emotional sensitivity. The difficulty is protecting the softer part of you while you chase the result.'],['leadership','sensitivity','Command vs Care','You can take charge and make the hard call, but you also feel things deeply. The tension is staying decisive without going numb.']];
+const npFor=n=>NP[n]||NP[digitSum(n)]||{t:[],s:[],need:'meaning',m:'a distinct pattern requiring context'};
+const joinL=a=>a.length<=1?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+function ageFrom(dob,now){const[y,m,d]=dob.split('-').map(Number);let a=now.getUTCFullYear()-y;if(now.getUTCMonth()+1<m||(now.getUTCMonth()+1===m&&now.getUTCDate()<d))a--;return Math.max(a,0);}
+function buildIntelligence(p,now){now=now||new Date();const firstEnd=36-p.lifePath.root;const bands=[[0,firstEnd],[firstEnd+1,firstEnd+9],[firstEnd+10,firstEnd+18],[firstEnd+19,120]];const age=ageFrom(p.dob,now);const cpi=Math.max(0,bands.findIndex(([lo,hi])=>age>=lo&&age<=hi));const ranges=['birth–around '+firstEnd,'around '+(firstEnd+1)+'–'+(firstEnd+9),'around '+(firstEnd+10)+'–'+(firstEnd+18),'around '+(firstEnd+19)+' onward'];const cp=p.pinnacles[cpi]||p.pinnacles[0];
+  const sources=[{label:'Life Path',value:p.lifePath.display,root:p.lifePath.number,w:3},{label:'Inner Drive',value:p.pyth.soulUrge.display,root:p.pyth.soulUrge.number,w:3},{label:'Expression',value:p.pyth.expression.display,root:p.pyth.expression.number,w:3},{label:'Birthday',value:p.birthday.display,root:p.birthday.root,w:2.5},{label:'Current Pinnacle',value:cp.display,root:cp.root,w:2},{label:'Attitude',value:String(p.attitude),root:p.attitude,w:2},{label:'Personality',value:p.pyth.personality.display,root:p.pyth.personality.number,w:2},{label:'Chaldean name',value:p.chal.expression.display,root:p.chal.expression.root,w:2},{label:'Personal Year',value:String(p.personalYear),root:p.personalYear,w:1.5}];
+  if(p.home)sources.push({label:'Home',value:p.home.display,root:p.home.root,w:1});
+  const map={};const add=(th,w,src)=>{if(!th)return;map[th]=map[th]||{theme:th,label:LABEL[th]||th,score:0,sources:[]};map[th].score+=w;if(!map[th].sources.some(s=>s.label===src.label))map[th].sources.push({label:src.label,value:src.value});};
+  sources.forEach(s=>{const np=npFor(s.root);add(np.t[0],s.w,s);add(np.t[1],s.w*.5,s);});
+  const ranked=Object.values(map).sort((a,b)=>b.score-a.score);const max=ranked.length?ranked[0].score:1;
+  const band=(sc,i)=>i<2&&sc>=.55*max?'Dominant':sc>=.4*max?'Strong':sc>=.25*max?'Supporting':'Background';
+  const themes=ranked.map((t,i)=>({...t,band:band(t.score,i),pct:Math.round(t.score/max*100)}));
+  const present=new Set(themes.filter(t=>t.band!=='Background').map(t=>t.theme));
+  const reinforcements=themes.filter(t=>t.sources.length>=2&&(t.band==='Dominant'||t.band==='Strong')).slice(0,3).map(t=>({label:t.label,sources:t.sources,explanation:t.label+' shows up independently through '+t.sources.map(s=>s.label).join(', ')+'. When a theme repeats across unrelated parts of a profile it stops being a footnote and becomes a defining pattern.'}));
+  const contradictions=CONTRA.filter(([a,b])=>present.has(a)&&present.has(b)).slice(0,3).map(([a,b,title,ex])=>({title,a:LABEL[a],b:LABEL[b],explanation:ex,aSources:(map[a]?.sources||[]).map(s=>s.label),bSources:(map[b]?.sources||[]).map(s=>s.label)}));
+  const shSc={};sources.filter(s=>s.w>=2).forEach(s=>npFor(s.root).s.forEach(sh=>{shSc[sh]=shSc[sh]||{theme:sh,count:0,sources:[]};shSc[sh].count++;if(!shSc[sh].sources.includes(s.label))shSc[sh].sources.push(s.label);}));
+  const shadows=Object.values(shSc).filter(s=>s.count>=2).sort((a,b)=>b.count-a.count).slice(0,3).map(s=>({theme:s.theme,sources:s.sources,explanation:'A tendency toward '+s.theme+' appears in more than one place ('+s.sources.join(', ')+'). Not a flaw — it is where your strengths can tip into strain when you are stretched.'}));
+  const permanent=new Set([p.lifePath.number,p.pyth.soulUrge.number,p.pyth.expression.number,p.birthday.root].flatMap(n=>npFor(n).t));
+  const activated=[...new Set([p.personalYear,cp.root].flatMap(n=>npFor(n).t))].filter(t=>permanent.has(t)).map(t=>LABEL[t]||t);
+  const dominant=themes.filter(t=>t.band==='Dominant');const topNeed=NEEDL[npFor(p.lifePath.number).need]||'Meaning';
+  const corePattern=(joinL(dominant.map(t=>t.label))||'A single clear theme')+' run'+(dominant.length===1?'s':'')+' through this profile'+(reinforcements.length?', reinforced across '+reinforcements[0].sources.length+' independent numbers':'')+'. '+(contradictions.length?'But it does not sit alone: there is a real '+contradictions[0].title.toLowerCase()+' underneath. '+contradictions[0].explanation:'The supporting numbers largely pull in the same direction, which gives this profile unusual consistency.')+(shadows.length?' Under pressure, the recurring risk is '+shadows[0].theme+'.':'');
+  return{age,currentPinnacleIndex:cpi,ranges,need:topNeed,keyNumbers:[{label:'Life Path',value:p.lifePath.display,m:npFor(p.lifePath.number).m},{label:'Birthday',value:p.birthday.display,m:npFor(p.birthday.root).m},{label:'Inner Drive',value:p.pyth.soulUrge.display,m:npFor(p.pyth.soulUrge.number).m},{label:'Expression',value:p.pyth.expression.display,m:npFor(p.pyth.expression.number).m},{label:'Current Year',value:String(p.personalYear),m:npFor(p.personalYear).m}],corePattern,themes,reinforcements,contradictions,shadows,currentChapter:{personalYear:p.personalYear,activated,meaning:npFor(p.personalYear).m},lifeMap:p.pinnacles.map((v,i)=>({value:v.display,range:ranges[i],current:i===cpi,meaning:npFor(v.root).m})),fiveQuestions:{who:'At core, '+(joinL(dominant.map(t=>t.label.toLowerCase()))||'a distinct single theme')+' — '+npFor(p.lifePath.number).m+'.',drives:'A deep need for '+topNeed.toLowerCase()+', expressed through your Inner Drive '+p.pyth.soulUrge.display+': '+npFor(p.pyth.soulUrge.number).m+'.',contradict:contradictions.length?contradictions[0].title+'. '+contradictions[0].explanation:'Your numbers largely agree with each other.',repeats:reinforcements.length?reinforcements[0].label+', through '+reinforcements[0].sources.map(s=>s.label).join(', ')+'.':'No single theme dominates by repetition.',now:'You are in a Personal Year '+p.personalYear+' — '+npFor(p.personalYear).m+'.'}};}
+/* family */
+const strong=m=>(m.intel.themes||[]).filter(t=>t.band==='Dominant'||t.band==='Strong');
+function familyBlueprint(members){if(members.length<2)return null;const map={};members.forEach(m=>strong(m).forEach(t=>{map[t.theme]=map[t.theme]||{theme:t.theme,label:t.label,members:[],score:0};if(!map[t.theme].members.includes(m.first))map[t.theme].members.push(m.first);map[t.theme].score+=t.score;}));const ranked=Object.values(map).sort((a,b)=>b.members.length-a.members.length||b.score-a.score);const shared=ranked.filter(t=>t.members.length>=2);let tension=null;for(const[a,b,title]of CONTRA){if(!map[a]||!map[b])continue;const ao=map[a].members.filter(x=>!map[b].members.includes(x)),bo=map[b].members.filter(x=>!map[a].members.includes(x));if(ao.length&&bo.length){tension={title,aLabel:map[a].label,aMembers:ao,bLabel:map[b].label,bMembers:bo};break;}}const nowT={};members.forEach(m=>(m.intel.currentChapter.activated||[]).forEach(t=>nowT[t]=(nowT[t]||0)+1));return{sharedPattern:shared[0]||ranked[0]||null,collectiveStrength:shared[1]||ranked.find(t=>t!==(shared[0]||ranked[0]))||null,tension,householdTheme:Object.entries(nowT).sort((a,b)=>b[1]-a[1])[0]?.[0]||null,needs:members.map(m=>({name:m.first,need:m.intel.need})),themeContributors:ranked};}
+/* year-cycle support guidance — what each person is moving through & how to help */
+const YS={
+ 1:{moving:'fresh starts and identity',watch:'impatience and trying to do it all alone',help:'New direction is live for them. Back the fresh start, help them commit to one path instead of scattering, and let them lead.',short:"back {name}'s fresh start and help them commit to a direction"},
+ 2:{moving:'patience, partnership and sensitivity',watch:'feeling overlooked or hesitant',help:'This is a slower, more sensitive year. Be gentle, offer companionship, and don\'t rush them — progress comes through cooperation, not pressure.',short:'be gentle and patient with {name} through a slower, sensitive year'},
+ 3:{moving:'expression and social life',watch:'scattering energy or overcommitting',help:'Their creative, social side is lit up. Get them out, be their audience, celebrate the ideas — and gently help them finish what they start.',short:'get {name} out, celebrate their ideas and be their audience'},
+ 4:{moving:'building and hard graft',watch:'rigidity and overworking',help:'Head-down foundation year. Lighten the load, respect their focus, keep the chaos down — they\'re building something that has to last.',short:"lighten {name}'s load and protect their focus while they build"},
+ 5:{moving:'change, freedom and new experiences',watch:'restlessness — they\'ll be itching to do stuff',help:'They need movement and life. Encourage them to get out and experience things, plan some adventure, give them room — don\'t fence them in with routine.',short:'give {name} room to roam and get out into life'},
+ 6:{moving:'home, family and responsibility',watch:'over-responsibility and over-giving',help:'The heart of their year is people and home. Share the caretaking, appreciate what they carry — and make sure they don\'t give until they\'re empty.',short:'share the caretaking and appreciate everything {name} is carrying'},
+ 7:{moving:'reflection and inner work',watch:'withdrawing or isolating',help:'A quieter, inward year. Give them space and quiet, don\'t take the retreat personally, and let them go deep without being pulled out too soon.',short:'give {name} quiet and space, and not take the retreat personally'},
+ 8:{moving:'ambition, results and big decisions',watch:'workaholism and control',help:'Effort is meeting consequence. Back their goals, respect the drive, and help them carry the pressure of the decisions this year brings.',short:"back {name}'s ambitions and help them carry the pressure"},
+ 9:{moving:'completion and release',watch:'tiredness and the emotional weight of endings',help:'They\'re closing a nine-year cycle — finishing, letting go, clearing space. Be a steady, patient presence, help them close things off, and don\'t pile new commitments on them. A new beginning starts next year.',short:'be a steady, patient presence while {name} closes things off'}
+};
+/* age-aware support — same year, translated for the life stage */
+function stageOf(age){if(age<2)return'baby';if(age<13)return'child';if(age<18)return'teen';if(age>=65)return'elder';return'adult';}
+function stageLabel(age){return stageOf(age);}
+function isChild(age){const s=stageOf(age);return s==='baby'||s==='child';}
+const CHILD_YS={
+ 1:{moving:'emerging identity and independence',help:'A year of discovering who they are. Encourage safe choices and let them try things for themselves — resist doing everything for them.',watch:'frustration when they can\'t yet do it alone',short:"let {name} try things themselves and cheer their independence"},
+ 2:{moving:'sensitivity and connection',help:'A tender, relational year. Lots of reassurance, gentle routines and one-to-one time help them feel safe and settled.',watch:'clinginess or feeling easily overwhelmed',short:"give {name} extra reassurance, closeness and gentle routine"},
+ 3:{moving:'play, expression and words',help:'Their expressive, social side is switched on. Give them creative play, talk and sing lots, and let them perform.',watch:'big emotions and over-excitement',short:"give {name} creative play and lots of talking and singing"},
+ 4:{moving:'routine, security and steady growth',help:'Structure is a gift this year. Predictable rhythms — sleep, meals, gentle boundaries — help them feel secure and grow well. This is where loving discipline and consistency really pay off.',watch:'unsettledness when routine breaks',short:"keep {name}'s routines steady and predictable so they feel secure"},
+ 5:{moving:'curiosity, movement and new experiences',help:'They need stimulation and freedom to explore. Sensory play, outings and safe adventure — they\'ll be busy, curious and into everything.',watch:'restlessness and getting easily bored',short:"give {name} lots of stimulation, movement and safe things to explore"},
+ 6:{moving:'belonging, home and warmth',help:'A family-and-home year. Togetherness, warmth and feeling part of things matter most — they thrive on belonging.',watch:'being sensitive to any family tension',short:"give {name} warmth, togetherness and a strong sense of belonging"},
+ 7:{moving:'quiet observation and inner processing',help:'A more inward year. Give them calm, quiet time and space to watch and think — don\'t over-schedule; they\'re absorbing a lot.',watch:'needing more alone-time than you\'d expect',short:"give {name} calm, quiet time and space to observe"},
+ 8:{moving:'capability, cause and effect',help:'They\'re learning what they can do and how actions have consequences. Praise effort, offer small responsibilities, and help them with big feelings around winning and losing.',watch:'strong reactions to limits or to losing',short:"praise {name}'s effort and offer small age-appropriate responsibilities"},
+ 9:{moving:'change, endings and transitions',help:'A year of transitions — a new nursery, a move, a changed routine. Extra reassurance, gentle goodbyes and steadiness carry them through.',watch:'sensitivity to change and goodbyes',short:"give {name} extra reassurance and steadiness through change"}
+};
+function supportForAge(y,name,age){const child=isChild(age);const base=child?CHILD_YS[y]:YS[y];const babyNote=stageOf(age)==='baby'?' As a baby, security, warmth and a predictable routine matter most of all.':'';return{moving:base.moving,help:base.help+babyNote,watch:base.watch,short:base.short.replace('{name}',name)};}
+/* chinese compatibility */
+const TRINE={Rat:0,Dragon:0,Monkey:0,Ox:1,Snake:1,Rooster:1,Tiger:2,Horse:2,Dog:2,Rabbit:3,Goat:3,Pig:3};
+const GEN={Wood:'Fire',Fire:'Earth',Earth:'Metal',Metal:'Water',Water:'Wood'};
+const CTRL={Wood:'Earth',Earth:'Water',Water:'Fire',Fire:'Metal',Metal:'Wood'};
+function animalRel(A,B,na,nb){const ai=ANIMALS.indexOf(A),bi=ANIMALS.indexOf(B),gap=((bi-ai)+12)%12;if(A===B)return na+' and '+nb+' share the '+A+' sign — you instinctively recognise each other, strengths and blind spots alike.';if(gap===6)return 'The '+A+' and '+B+' sit opposite on the zodiac — a natural push/pull that can spark friction, but keeps you both honest.';if(gap===4||gap===8)return 'The '+A+' and '+B+' belong to the same trine — natural allies who move at a similar rhythm and back each other easily.';if(gap===3||gap===9)return 'The '+A+' and '+B+' sit at a testing angle — real respect, but progress comes with resistance to work through.';return 'The '+A+' and '+B+' are an easygoing, neutral match — no strong clash; what you put in is roughly what you get out.';}
+function elementRel(ea,eb,na,nb){if(ea===eb)return 'Two '+ea+' elements amplify each other — double the strength, and double the excess to watch.';if(GEN[ea]===eb)return na+"'s "+ea+' feeds '+nb+"'s "+eb+' — '+na+' naturally gives energy outward here; wonderful, but '+na+' should mind their reserves.';if(GEN[eb]===ea)return nb+"'s "+eb+' feeds '+na+"'s "+ea+' — support tends to flow from '+nb+' to '+na+' more easily than the other way.';if(CTRL[ea]===eb)return na+"'s "+ea+' controls '+nb+"'s "+eb+' — '+na+' can steer this dynamic, so tread gently.';if(CTRL[eb]===ea)return nb+"'s "+eb+' controls '+na+"'s "+ea+' — '+nb+' tends to set the pace; '+na+', pick your moments.';return 'Your elements sit neutrally — neither drains nor drives the other.';}
+const ANIMAL_TRAITS={Rat:'quick, resourceful and charming',Ox:'steady, dependable and quietly determined',Tiger:'bold, competitive and brave',Rabbit:'gentle, diplomatic and sensitive',Dragon:'confident, ambitious and magnetic',Snake:'wise, private and deeply intuitive',Horse:'free-spirited, energetic and a little restless',Goat:'creative, gentle and empathetic',Monkey:'clever, playful and inventive',Rooster:'organised, honest and exacting',Dog:'loyal, fair and protective',Pig:'warm, generous and easygoing'};
+function animalYearRel(A,B){const ai=ANIMALS.indexOf(A),bi=ANIMALS.indexOf(B),gap=((bi-ai)+12)%12;if(gap===0)return 'your own sign year — self-focused and a little exposed, where identity, health and direction all come up for review';if(gap===6)return 'the year of your opposite sign — the classic clash year: expect friction and pressure to choose, and things move whether you push or not';if(gap===4||gap===8)return 'a year in your own trine — the smoothest kind of year for you: allies show up and effort travels further than usual';if(gap===3||gap===9)return 'a testing angle to your sign — progress is real, but it comes with resistance to work through rather than around';return 'a workable, neutral year for your sign — nothing forced and no obvious clash';}
+function elementSelfRel(ea,eb){if(ea===eb)return 'Your '+ea+' doubles with the year\'s '+eb+' — the trait is amplified, strengths and excesses alike.';if(GEN[ea]===eb)return 'Your '+ea+' feeds the year\'s '+eb+' — you give energy outward this year; productive, but mind your reserves.';if(GEN[eb]===ea)return 'The year\'s '+eb+' feeds your '+ea+' — support arrives more easily than usual, so use it.';if(CTRL[ea]===eb)return 'Your '+ea+' controls the year\'s '+eb+' — you can steer conditions, as long as you don\'t force what needs time.';return 'The year\'s '+eb+' controls your '+ea+' — conditions push back this year; pace yourself and pick fewer battles.';}
+const PARENTISH=['self','partner','spouse','parent','mother','father'],CHILDISH=['child','son','daughter'],SIBISH=['child','son','daughter','sibling','brother','sister'];
+function pairType(a,b){const ra=(a.relationship||'other'),rb=(b.relationship||'other'),set=new Set([ra,rb]);if(set.has('self')&&(set.has('partner')||set.has('spouse')))return['partner','As partners'];if((PARENTISH.includes(ra)&&CHILDISH.includes(rb))||(PARENTISH.includes(rb)&&CHILDISH.includes(ra)))return['parent_child','Parent & child'];if((['parent','mother','father'].includes(ra)&&rb==='self')||(['parent','mother','father'].includes(rb)&&ra==='self'))return['parent_child','Parent & child'];if(SIBISH.includes(ra)&&SIBISH.includes(rb))return['sibling','Sibling dynamics'];return['generic','How you two work'];}
+function familyCompare(a,b){
+ const na=a.first,nb=b.first,[pt,heading]=pairType(a,b);
+ const aT=a.intel.themes.filter(t=>t.band!=='Background'),bT=b.intel.themes.filter(t=>t.band!=='Background');
+ const ta=aT.map(t=>t.label),tb=bT.map(t=>t.label),shared=ta.filter(t=>tb.includes(t)),onlyA=ta.filter(t=>!tb.includes(t)),onlyB=tb.filter(t=>!ta.includes(t));
+ const ya=a.profile.personalYear,yb=b.profile.personalYear,ageA=a.intel.age,ageB=b.intel.age;
+ const sA=supportForAge(ya,na,ageA),sB=supportForAge(yb,nb,ageB);
+ const support=[{name:na,year:ya,title:YEAR[ya].t,age:ageA,stage:stageLabel(ageA),moving:sA.moving,help:sA.help,watch:sA.watch},{name:nb,year:yb,title:YEAR[yb].t,age:ageB,stage:stageLabel(ageB),moving:sB.moving,help:sB.help,watch:sB.watch}];
+ let tension=null;const setA=new Set(aT.map(t=>t.theme)),setB=new Set(bT.map(t=>t.theme));
+ for(const[x,y,title,ex]of CONTRA){if((setA.has(x)&&setB.has(y))||(setA.has(y)&&setB.has(x))){tension={title,ex};break;}}
+ const ca=a.profile.chinese.birth,cb=b.profile.chinese.birth;
+ const chinese={a:ca,b:cb,animal:animalRel(ca.animal,cb.animal,na,nb),element:elementRel(ca.element,cb.element,na,nb)};
+ const cap=s=>{s=String(s).trim();return s.charAt(0).toUpperCase()+s.slice(1)+(/[.!?]$/.test(s)?'':'.');};
+ let together;
+ if(isChild(ageA)&&!isChild(ageB))together=`${nb} can help ${na} most right now — ${na} is little (age ${ageA}) and moving through ${sA.moving}. ${cap(sA.short)} Meanwhile ${nb} is in ${sB.moving}.`;
+ else if(isChild(ageB)&&!isChild(ageA))together=`${na} can help ${nb} most right now — ${nb} is little (age ${ageB}) and moving through ${sB.moving}. ${cap(sB.short)} Meanwhile ${na} is in ${sA.moving}.`;
+ else if(isChild(ageA)&&isChild(ageB))together=`${na} (age ${ageA}) and ${nb} (age ${ageB}) are both young. ${cap(sA.short)} ${cap(sB.short)}`;
+ else together=`While ${na} moves through ${sA.moving} and ${nb} through ${sB.moving}, the home works best when ${na} can ${sB.short}, and ${nb} can ${sA.short}.`;
+ const core=shared.length?`${na} and ${nb} share ${shared.slice(0,2).join(' and ').toLowerCase()} — the fastest common ground.`:`${na} and ${nb} run on different core themes, so connection here is built deliberately rather than assumed.`;
+ const diff=(onlyA[0]||onlyB[0])?`${na} brings ${(onlyA[0]||'—').toLowerCase()} that ${nb} doesn't emphasise; ${nb} brings ${(onlyB[0]||'—').toLowerCase()} that ${na} doesn't — complementary when named, friction when not.`:`Your emphases are closely matched, so the risk is reinforcing each other's blind spots.`;
+ return{na,nb,pairType:pt,heading,core,diff,support,together,tension,chinese};
+}
+
+function familyYearSummary(members){
+ const rows=members.map(m=>{const s=supportForAge(m.profile.personalYear,m.first,m.intel.age);return{name:m.first,year:m.profile.personalYear,title:YEAR[m.profile.personalYear].t,moving:s.moving,short:s.short,age:m.intel.age};});
+ const g=(arr)=>rows.filter(r=>arr.includes(r.year)).map(r=>r.name);
+ const closing=g([9]),change=g([5]),building=g([4,8]),inward=g([6,7]),beginnings=g([1,2,3]);
+ const parts=[];
+ if(closing.length)parts.push(`${listNames(closing)} ${closing.length>1?'are':'is'} closing a cycle and ${closing.length>1?'need':'needs'} steadiness`);
+ if(change.length)parts.push(`${listNames(change)} ${change.length>1?'are':'is'} craving change and movement`);
+ if(building.length)parts.push(`${listNames(building)} ${building.length>1?'are':'is'} in build-and-achieve mode`);
+ if(inward.length)parts.push(`${listNames(inward)} ${inward.length>1?'are':'is'} turned toward home and reflection`);
+ if(beginnings.length)parts.push(`${listNames(beginnings)} ${beginnings.length>1?'are':'is'} starting fresh and finding their feet`);
+ const synth=parts.length? `Under one roof this year: ${parts.join('; ')}. `+(closing.length&&change.length?'The steadiness the closers need and the momentum the changers bring can balance beautifully once everyone names it.':'Give each person what their own year asks for rather than expecting the whole house to move at one pace.') : 'Everyone is moving through a similar phase this year — a rare window where the household is naturally in sync.';
+ return {rows,synth};
+}
+/* ============================ NAME MATCHER ============================ */
+const BOY=['Oliver','George','Arthur','Noah','Leo','Harry','Jack','Charlie','Henry','Theo','Freddie','Archie','Albert','Alfie','Oscar','William','James','Thomas','Jacob','Ethan','Max','Isaac','Louie','Finn','Reggie','Rory','Hugo','Jasper','Elijah','Sebastian','Felix','Toby','Dexter','Ronnie','Frankie','Joshua','Samuel','Benjamin','Daniel','Edward','Sonny','Teddy','Ellis','Louis','Nathan','Jude','Caleb','Ezra','Miles','Adam','Aaron','Joseph','Michael','Zachary','Harrison','Grayson','Leon','Ali','Musa','Kai','Ibrahim','Rowan','Otis','Arlo','Bobby'];
+const GIRL=['Olivia','Amelia','Isla','Ava','Ivy','Freya','Lily','Florence','Mia','Willow','Rosie','Grace','Sophia','Evie','Georgia','Poppy','Ella','Daisy','Sienna','Emily','Charlotte','Maya','Aria','Bonnie','Elsie','Harper','Phoebe','Nancy','Maisie','Penelope','Violet','Matilda','Luna','Ada','Beatrice','Robyn','Delilah','Esme','Hazel','Iris','Aurora','Ruby','Eliza','Maryam','Aisha','Zara','Layla','Mabel','Orla','Thea','Lottie','Margot','Cora','Wren','Sadie','Elodie','Anna','Nova','Bella','Freya'];
+function parentCtx(){const p=meProfile();const I=buildIntelligence(p);return{themes:new Set(I.themes.filter(t=>t.band!=='Background').map(t=>t.theme)),dom:new Set(I.themes.filter(t=>t.band==='Dominant').map(t=>t.theme)),domLabels:I.themes.filter(t=>t.band==='Dominant').map(t=>t.label),animal:p.chinese.birth.animal,lp:p.lifePath.root};}
+function matchName(name,dob,parent){
+ const nn=nameCalc(name,PY,MM);
+ const theme=npFor(nn.expression.number).t[0]||'',soulTheme=npFor(nn.soulUrge.number).t[0]||'';
+ let score=parent.dom.has(theme)?2:(parent.themes.has(theme)?1:0);if(parent.themes.has(soulTheme))score+=1;
+ const verdict=score>=3?'Strong match':score===2?'Good match':score===1?'Gentle match':'Its own energy';
+ const why=parent.dom.has(theme)?`Shares your dominant ${LABEL[theme]} — you'd instinctively understand how this child expresses.`:parent.themes.has(theme)?`Echoes your ${LABEL[theme]||'blend'} — a comfortable, familiar fit.`:`Brings ${LABEL[theme]||'its own theme'} — different from your core, which can be beautifully complementary.`;
+ let life=null,animal=null,animalR=null;
+ if(dob&&/^\d{4}-\d{2}-\d{2}$/.test(dob)){life=lifePathFromDob(dob).display;const cy=chineseYear(dob,YEARNOW);animal=cy.birth.yinYang+' '+cy.birth.element+' '+cy.birth.animal;animalR=animalRel(parent.animal,cy.birth.animal,'You',name.split(' ')[0]);}
+ return{name,expr:nn.expression,soul:nn.soulUrge,pers:nn.personality,theme,themeLabel:LABEL[theme]||theme,verdict,score,why,life,animal,animalR};
+}
+function suggestNames(list,parent,n,mode){n=n||8;mode=mode||'match';let arr=list.map(nm=>matchName(nm,'',parent));if(mode==='complement'){const comp=arr.filter(r=>!parent.themes.has(r.theme));arr=(comp.length?comp:arr).sort((a,b)=>a.score-b.score);}else arr.sort((a,b)=>b.score-a.score);return arr.slice(0,n);}
+function namesByNumber(list,target,n){n=n||14;const seen=new Set();const out=[];for(const nm of list){if(seen.has(nm))continue;seen.add(nm);const e=nameCalc(nm,PY,MM).expression;if(e.number===target)out.push({name:nm,expr:e,themeLabel:LABEL[npFor(e.number).t[0]]||''});if(out.length>=n)break;}return out;}
+/* ============================ YEAR META ============================ */
+const YEAR=[null,{t:'BEGIN',k:'initiation · identity · new direction',b:'This is the first year of a fresh nine-year sequence. Plant seeds, make decisions, start what is yours.'},{t:'DEVELOP',k:'patience · relationships · cooperation',b:'Slower by design. Nurture what began last year; progress comes through people, not force.'},{t:'EXPRESS',k:'communication · creativity · visibility',b:'Energy lifts. Say it, make it, show it — a social, expressive, enjoyable year.'},{t:'BUILD',k:'structure · discipline · foundations',b:'Head down. Systems, work and consolidation. The groundwork the later years stand on.'},{t:'CHANGE',k:'movement · freedom · the unexpected',b:'Things loosen and move. Adapt, experiment, allow disruption — freedom over routine.'},{t:'COMMIT',k:'family · home · responsibility',b:'The heart of the cycle turns to people and place. Care, commitment and what you are responsible for.'},{t:'UNDERSTAND',k:'introspection · reflection · reassessment',b:'A quieter, inward year. Research, reassess, understand — depth over output.'},{t:'MATERIALISE',k:'achievement · money · consequence',b:'Effort meets result. Authority, material lessons and the harvest of the last seven years.'},{t:'COMPLETE',k:'culmination · release · closure',b:'The end of the nine-year sequence. Finish, release, forgive, take perspective — and make space for what follows.'}];
+
+/* ============================ STATE ============================ */
+const KEY='numeraflow_app_v1';
+let S=load()||{screen:'landing',journey:null,me:{dob:'',first:'',middle:'',last:'',currentName:'',door:'',context:{}},family:[],readingTab:'overview'};
+function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function freshState(){return{screen:'landing',journey:null,me:{dob:'',first:'',middle:'',last:'',currentName:'',door:'',context:{}},family:[],readingTab:'overview'};}
+function clearAllData(){
+ // Wipe every trace of this person from the device — profile, family, pairings, account, analytics.
+ try{
+  localStorage.removeItem(KEY);
+  const kill=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k===KEY||k.indexOf('nf_')===0||k.indexOf('numeraflow')===0))kill.push(k);}
+  kill.forEach(k=>localStorage.removeItem(k));
+ }catch(e){}
+ S=freshState();
+ return true;
+}
+/* analytics — logs locally and forwards to GA4 / TikTok / Meta pixels if installed */
+function track(ev,props){props=props||{};
+ try{const log=JSON.parse(localStorage.getItem('nf_events')||'[]');log.push({ev,props,t:new Date().toISOString()});localStorage.setItem('nf_events',JSON.stringify(log.slice(-300)));}catch(e){}
+ try{if(window.gtag)window.gtag('event',ev,props);}catch(e){}
+ try{if(window.ttq)window.ttq.track(ev,props);}catch(e){}
+ try{if(window.fbq)window.fbq('trackCustom',ev,props);}catch(e){}
+ try{if(window.dataLayer)window.dataLayer.push({event:ev,...props});}catch(e){}
+}
+const NUM_WHAT={
+ 'Life Path':'the main path and lessons of your whole life — your default way of moving through the world',
+ 'Birthday':'a specific natural talent you were born with',
+ 'Inner Drive':'what you actually want underneath — your private motivation',
+ 'Soul urge':'what you actually want underneath — your private motivation',
+ 'Soul Urge':'what you actually want underneath — your private motivation',
+ 'Expression':'how you naturally express yourself and what you are here to build',
+ 'Personality':'the version of you that people meet first',
+ 'Attitude':'your instinctive first approach to people, change and the unexpected',
+ 'Current Year':'the theme of the 12-month cycle you are in right now',
+ 'Personal Year':'the theme of the 12-month cycle you are in right now',
+ 'Home':'the atmosphere your living space quietly reinforces'
+};
+// context-specific interpretation — same digit reads differently by WHERE it sits
+const CTX={
+ 'Personal Year':{
+  1:{look:'A fresh start. New identity, new direction — the seeds you plant now shape the next nine years. Expect momentum, decisions and doors opening.',act:'Start the thing. Make the decision you\'ve been putting off. Be bold and independent — don\'t wait for permission or fall back on old habits.'},
+  2:{look:'A slower, softer year. Growth comes through patience, relationships and cooperation — not force. Progress can feel quiet, and that\'s normal.',act:'Nurture what you began last year. Partner up, listen, be patient. Don\'t force outcomes or read the slow pace as failure.'},
+  3:{look:'A bright, expressive, social year. Creativity flows, your visibility rises, life feels lighter and more fun.',act:'Put yourself out there — create, communicate, connect. Say yes to social and creative opportunities. Just don\'t scatter across too much at once.'},
+  4:{look:'A build year. Head down: foundations, systems, hard graft. Less glamour — but everything you set up now lasts.',act:'Do the unglamorous work — routines, finances, health, structure. Be disciplined and consistent. Don\'t cut corners; this is the groundwork.'},
+  5:{look:'A year of change, freedom and the unexpected. Movement, new experiences, healthy disruption. Restless energy runs high.',act:'Say yes to new experiences and travel. Stay flexible. Don\'t cling to rigid routine — but don\'t blow up everything good, either.'},
+  6:{look:'A year centred on home, family, love and responsibility. Relationships and duty come to the fore — deeply meaningful, sometimes heavy.',act:'Show up for the people who matter. Tend home and relationships. Take on responsibility — but guard against over-giving and burning out.'},
+  7:{look:'A quieter, inward year. Reflection, learning, going deep. Not the year for big external pushes — it\'s for understanding.',act:'Rest, study, reassess. Protect your alone-time and trust your intuition. Don\'t force big launches now — this is a year to know yourself.'},
+  8:{look:'A power year — success, money, authority and results. The effort of the last seven years can finally pay off. High-stakes, high-reward, and it should be a strong year if you back yourself.',act:'Go after the goal, ask for the money, step into leadership. Be decisive and think big — with integrity, because power used carelessly rebounds.'},
+  9:{look:'The end of a nine-year cycle. A year of completion, release and letting go — clearing space for the new cycle that begins next year.',act:'Finish what\'s unfinished. Release what you\'re carrying out of habit. Forgive, declutter, tie off loose ends. Don\'t start huge new things — that\'s next year\'s job.'}
+ },
+ 'Life Path':{
+  1:{look:'You\'re here to lead and forge your own path. Independence, initiative and standing on your own two feet run through your whole life.',act:'Trust your own direction and start things — but let people in; you don\'t have to do it all alone.'},
+  2:{look:'You\'re here to connect, support and bring people together. Sensitivity and partnership are your quiet superpowers.',act:'Lean on your emotional intelligence and build strong partnerships — while protecting yourself from absorbing everyone else\'s feelings.'},
+  3:{look:'You\'re here to express, create and communicate. Life keeps pushing you toward visibility, creativity and joy.',act:'Put your voice and ideas out there and finish what you start — don\'t let self-doubt or scattered focus dim you.'},
+  4:{look:'You\'re here to build — dependable and disciplined, the one who creates lasting foundations.',act:'Back your steadiness and build the life you want brick by brick — while staying open enough to change that you don\'t go rigid.'},
+  5:{look:'You\'re here to experience, adapt and be free. Change and variety are your natural habitat.',act:'Chase experiences and stay flexible — but pick a few commitments that still feel like freedom so your energy isn\'t scattered.'},
+  6:{look:'You\'re here to care, nurture and hold things together — for family, home and community.',act:'Take pride in what you carry for others — but set boundaries so responsibility doesn\'t tip into over-giving.'},
+  7:{look:'You\'re here to understand — to seek the truth beneath the surface. Depth, analysis and intuition define you.',act:'Honour your need for depth and solitude and keep learning — but share what you find instead of withdrawing.'},
+  8:{look:'You\'re here to achieve and lead in the material world — money, authority and real impact.',act:'Own your ambition and go after big goals — with integrity, and without tying your whole worth to results.'},
+  9:{look:'You\'re here to give back and see the bigger picture. Compassion and completion are your lifelong themes.',act:'Lead with generosity and let things go gracefully — but give from overflow, not until you\'re empty.'},
+  11:{look:'A master number: heightened intuition and inspiration. You\'re here to sense and express what others miss.',act:'Trust your intuition and share your insight — while managing the anxious, nervy edge that comes with such sensitivity.'},
+  22:{look:'The master builder — here to turn a big vision into something real and lasting.',act:'Think big and build it in the real world — but pace yourself; the pressure of this number is real.'},
+  33:{look:'The master teacher — here to uplift and guide through compassion.',act:'Give and teach from love — without erasing yourself in the process.'}
+ }
+};
+const CTX_ALIAS={'Current Year':'Personal Year'};
+// Master higher-octave notes — a 20/2, 29/2 etc. isn't "just a 2"
+const ECHO_NOTE={
+ 11:{name:'11 · The Intuitive',line:'This lands on a 2, but it arrives through a compound — so it carries the <b>11</b>, the higher, more spiritually-charged octave of the 2. Think a 2’s sensitivity and diplomacy, dialled up into intuition, vision and the ability to sense what others miss. Read it as a 2 that’s wired for something bigger — not a flat 2.',want:'A 20 or 29 is not simply a 2. It’s a 2 with the 11’s antenna switched on.'},
+ 22:{name:'22 · The Master Builder',line:'This lands on a 4, but through a compound — so it carries the <b>22</b>, the higher octave of the 4. Take a 4’s discipline and foundations and scale it up into master-builder energy: turning a big vision into something real and lasting.',want:'Not a plain 4 — a 4 with the capacity to build on a much larger scale.'},
+ 33:{name:'33 · The Master Teacher',line:'This lands on a 6, but through a compound — so it carries the <b>33</b>, the higher octave of the 6. A 6’s care and responsibility, raised into the master-teacher: healing, uplifting and guiding others.',want:'Not just a 6 — a 6 with a teacher’s and healer’s reach.'}
+};
+// Deep Life Path content — the fuller read behind the one-liner
+const LIFEPATH_DEEP={
+ 1:{essence:'The pioneer. You came in to lead, initiate and stand on your own two feet. Life keeps handing you situations where you have to back yourself and go first — because that’s how you’re built to grow.',strengths:'Originality, drive, courage, the nerve to start from nothing and the will to see it through alone if you must.',challenge:'Ego, stubbornness, and isolating yourself. Learning that asking for help isn’t weakness is a lifelong lesson.',love:'You need a partner who has their own life and won’t smother yours. You lead — so you thrive with someone secure enough not to compete for it.',work:'Founder, self-employed, anything where you set the direction. You wilt under a boss who micromanages.',mission:'To become a leader people actually want to follow — through trust and example, not just force of will.'},
+ 2:{essence:'The peacemaker. You’re here to connect, mediate and bring people together. Your power is quiet: sensitivity, patience and the ability to read what a room is really feeling.',strengths:'Diplomacy, deep empathy, loyalty, and a gift for partnership most people never develop.',challenge:'Absorbing everyone else’s feelings, avoiding conflict until it festers, and losing yourself inside relationships.',love:'One of the most devoted partners in numerology — you love deeply. Guard against over-giving and needing the relationship to complete you.',work:'Anything relational — counselling, teaching, teamwork, care, design, diplomacy. You make groups work.',mission:'To bring harmony without erasing yourself — to stay whole while staying close.'},
+ 3:{essence:'The communicator. You’re here to express, create and lift the mood. Life keeps pushing you toward visibility, voice and joy — and toward finishing what your imagination starts.',strengths:'Creativity, charisma, humour, and a natural ability to make people feel good and get ideas across.',challenge:'Scattering across too much, self-doubt hiding under the sparkle, and starting far more than you finish.',love:'You need a partner who enjoys your social energy and can also anchor you. Words matter to you — you need to feel heard.',work:'Anything creative or expressive — writing, media, design, performance, marketing, teaching.',mission:'To use your voice with depth, not just charm — and to actually complete the things you begin.'},
+ 4:{essence:'The builder. You’re here to create order and lasting foundations. You’re the one who turns chaos into a system that works and still stands years later.',strengths:'Discipline, reliability, patience, honesty and an almost unmatched work ethic.',challenge:'Rigidity, over-work, resistance to change, and being so practical you forget to dream.',love:'You show love through showing up — steady, loyal, dependable. You need a partner who values security over drama.',work:'Anything that rewards structure and follow-through — building, engineering, finance, operations, trades, project delivery.',mission:'To build something that lasts — while staying flexible enough not to trap yourself in it.'},
+ 5:{essence:'The free spirit. You’re here to experience life fully — change, variety, adventure and freedom are oxygen to you. You learn by living, not by being told.',strengths:'Adaptability, magnetism, curiosity, courage in the face of change and a gift for reinvention.',challenge:'Restlessness, commitment-shyness, over-indulgence and scattering your considerable energy.',love:'You need a partner who gives you room and adventure — routine without freedom feels like a cage.',work:'Anything varied and people-facing — sales, travel, media, entrepreneurship, anything that isn’t the same day twice.',mission:'To use freedom for growth, not just escape — and to choose a few commitments that still feel like freedom.'},
+ 6:{essence:'The nurturer. You’re here to care, protect and hold things together — for family, home and community. Responsibility finds you, usually early.',strengths:'Warmth, loyalty, a strong sense of duty, and a real gift for creating a home and healing people.',challenge:'Over-responsibility, control dressed up as care, martyrdom, and taking on burdens that were never yours.',love:'Deeply devoted and protective — the classic family-builder. Watch the tendency to parent your partner or over-give.',work:'Anything caring or standard-setting — health, teaching, hospitality, counselling, design, running a family business.',mission:'To care from strength, not sacrifice — to serve others without abandoning yourself.'},
+ 7:{essence:'The seeker. You’re here to understand — to look beneath the surface for what’s really true. Depth, analysis and intuition define your whole life.',strengths:'Sharp mind, intuition, independence of thought, and a rare ability to see through the noise.',challenge:'Withdrawal, over-thinking, trust issues, and isolating yourself when you most need people.',love:'You need space and a partner who respects your inner world. You bond slowly but deeply once trust is real.',work:'Anything analytical or specialist — research, tech, science, investigation, healing, spirituality, the arts.',mission:'To find truth and then share it — to come back from the depths instead of disappearing into them.'},
+ 8:{essence:'The powerhouse. You’re here to master the material world — money, authority and real impact. Life keeps testing your relationship with power and how you use it.',strengths:'Ambition, resilience, executive vision, and the ability to actually make things happen at scale.',challenge:'Workaholism, control, tying your worth to results, and the karmic sting when power is used carelessly.',love:'You need a partner who respects your drive and stands as an equal. Don’t let work quietly crowd love out.',work:'Leadership, business, finance, property, law — anything with stakes, scale and responsibility.',mission:'To build wealth and influence with integrity — and to let success serve your life, not consume it.'},
+ 9:{essence:'The humanitarian. You’re here to give back and see the bigger picture. You feel the world’s pain and joy more than most, and completion is your lifelong theme.',strengths:'Compassion, wisdom, generosity, artistry and a genuinely global, big-hearted perspective.',challenge:'Emotional overwhelm, difficulty letting go, and giving until there’s nothing left for you.',love:'You love broadly and deeply, but can hold back the last piece of yourself. Learning to receive is your work.',work:'Anything with meaning — the arts, healing, charity, teaching, activism, anything that serves a bigger cause.',mission:'To serve the whole while learning to let go — to give from overflow, not from empty.'},
+ 11:{essence:'A master number and the higher octave of the 2. You’re here to sense and express what others can’t see — an antenna for the unseen, carrying more voltage than an ordinary path.',strengths:'Powerful intuition, inspiration, sensitivity and the ability to move and uplift people.',challenge:'Anxiety, nervous energy, self-doubt and the pressure of an ideal you can never quite reach.',love:'You feel everything intensely and need a grounded, patient partner who steadies your nervous system.',work:'Anything visionary or inspiring — teaching, healing, the arts, spirituality, leadership through insight.',mission:'To turn heightened sensitivity into inspiration for others — while keeping your own feet on the ground.'},
+ 22:{essence:'A master number and the higher octave of the 4. The master builder — here to take a big vision and make it real and lasting in the physical world.',strengths:'Vision plus discipline: you can dream big AND build it, which almost no other number can do at once.',challenge:'The weight of your own potential — pressure, self-doubt, and either playing too small or burning out.',love:'You need a partner who understands the size of your mission and won’t take your intensity personally.',work:'Large-scale building — enterprises, institutions, architecture, systems that outlast you.',mission:'To build something that serves many and endures — while pacing yourself for a marathon, not a sprint.'},
+ 33:{essence:'A master number and the higher octave of the 6. The master teacher — here to uplift and heal through compassion, holding an unusually high standard of care.',strengths:'Profound compassion, nurturing wisdom, and the ability to guide and heal on a large scale.',challenge:'Self-sacrifice taken to the extreme, and the crushing weight of feeling responsible for everyone.',love:'You give enormously and must learn to receive. A partner who protects your energy is essential.',work:'Teaching, healing, counselling, spiritual or humanitarian leadership — service raised to an art.',mission:'To teach and heal from love — without erasing yourself in the process.'}
+};
+function openNumModal(label,value){
+ const parts=String(value).split('/');const root=parseInt(parts[parts.length-1],10);const compound=parseInt(parts[0],10);
+ const np=npFor(root);const ti=THEME_INFO[np.t[0]];const what=NUM_WHAT[label]||'one of the numbers that make up your profile';
+ const ckey=CTX_ALIAS[label]||label;const ctx=CTX[ckey]&&CTX[ckey][root];
+ // Master echo: a compound (20/2, 29/2…) that lands on a 2/4/6 carries the 11/22/33 higher octave.
+ const echoNum=(parts.length>1&&compound>9&&![11,22,33].includes(root)&&MFAM[root])?MFAM[root]:null;
+ const echo=echoNum?ECHO_NOTE[echoNum]:null;
+ // Deep Life Path read
+ const deepKey=[11,22,33].includes(root)?root:root;const deep=(ckey==='Life Path')?LIFEPATH_DEEP[deepKey]:null;
+ let body=`<p style="margin-top:12px;color:var(--muted);font-size:.92rem">${esc(label)} is ${what}.</p>`;
+ if(deep){
+  const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
+  body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5">${deep.essence}</p><div style="margin-top:12px">`+
+   row('STRENGTHS',deep.strengths,'var(--mint)')+row('THE CHALLENGE',deep.challenge,'var(--lilac)')+
+   row('IN LOVE',deep.love,'var(--purple)')+row('AT WORK',deep.work,'var(--purple)')+
+   row('YOUR MISSION',deep.mission,'var(--mint)')+`</div>`;
+  if(ctx)body+=`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--lilac)">In one line:</b> <span class="muted">${ctx.act}</span></p>`;
+ } else if(ctx){body+=`<p style="margin-top:14px;font-size:.95rem"><b style="color:var(--mint)">How this can look for you:</b> <span class="muted">${ctx.look}</span></p><p style="margin-top:10px;font-size:.95rem"><b style="color:var(--lilac)">How to stay aligned:</b> <span class="muted">${ctx.act}</span></p>`;}
+ else{body+=`<p style="margin-top:12px;font-size:.98rem"><b>Yours is ${esc(value)}:</b> <span class="muted">${np.m}.</span></p>${ti?`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px;font-size:.9rem"><b style="color:var(--lilac)">Watch for:</b> <span class="muted">${ti.shadow}.</span></p>`:''}`;}
+ if(echo){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--mint);border-radius:12px;background:rgba(110,231,183,.06)"><b style="color:var(--mint);font-size:.88rem">✦ Carries the ${esc(echo.name)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${echo.line}</p><p style="font-size:.85rem;margin-top:6px;color:var(--lilac)">${echo.want}</p></div>`;}
+ const m=document.getElementById('nummodal');if(!m)return;
+ m.innerHTML=`<div class="mbox"><button class="mclose" data-act="num-close" aria-label="Close">✕</button><p class="eyebrow">${esc(label)}</p><div style="font-family:var(--heading);font-weight:800;font-size:2.6rem;color:var(--purple);line-height:1;margin-top:2px">${esc(value)}${echoNum?` <span style="font-size:1.1rem;color:var(--mint)">↑${echoNum}</span>`:''}</div>${body}</div>`;
+ m.classList.add('on');try{track('number_info',{label,value,echo:echoNum||undefined});}catch(e){}
+}
+function closeNumModal(){const m=document.getElementById('nummodal');if(m){m.classList.remove('on');m.innerHTML='';}}
+// At-a-glance marker: a compound like 20/2 that carries an 11/22/33 higher octave
+function echoBadge(disp){const parts=String(disp).split('/');if(parts.length<2)return '';const c=parseInt(parts[0],10);const r=parseInt(parts[parts.length-1],10);if(c>9&&![11,22,33].includes(r)&&MFAM[r])return ` <span class="echo" title="Carries the master ${MFAM[r]}">↑${MFAM[r]}</span>`;return '';}
+const YEARNOW=new Date().getFullYear();
+const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const capS=s=>{s=String(s||'').trim();return s?s.charAt(0).toUpperCase()+s.slice(1)+(/[.!?]$/.test(s)?'':'.'):'';};
+const listNames=a=>a.length<=1?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+const fullName=()=>[S.me.first,S.me.middle,S.me.last].filter(Boolean).join(' ').trim();
+const meProfile=()=>buildProfile(S.me.dob,fullName(),S.me.currentName,S.me.door,YEARNOW);
+const hasMe=()=>S.me.dob&&S.me.first&&S.me.last;
+
+function go(screen){S.screen=screen;save();track('screen_view',{screen});render();window.scrollTo(0,0);}
+
+/* ============================ RENDER ============================ */
+const app=()=>document.getElementById('app');
+function render(){
+  const s=S.screen;let html='';
+  if(s==='landing')html=vLanding();
+  else if(s==='dashboard')html=vDashboard();
+  else if(s==='auth')html=vAuth();
+  else if(s==='me_upsell')html=vUpsell();
+  else if(s==='me_unlock')html=vUnlock('me');
+  else if(s==='me_dob')html=vDob();
+  else if(s==='me_name')html=vName();
+  else if(s==='me_reveal')html=vReveal();
+  else if(s==='me_deeper')html=vDeeper();
+  else if(s==='me_interview')html=vInterview();
+  else if(s==='me_ready')html=vReady();
+  else if(s==='me_reading')html=vReading();
+  else if(s==='fam_unlock')html=vUnlock('fam');
+  else if(s==='fam_anchor')html=vFamAnchor();
+  else if(s==='fam_add')html=vFamAdd();
+  else if(s==='fam_space')html=vFamSpace();
+  else if(s==='name_match')html=vNameMatch();
+  else if(s==='glossary')html=vGlossary();
+  else if(s==='compat')html=vCompat();
+  else html=vLanding();
+  app().innerHTML=html;
+  if(s==='me_reading')wireRail();
+}
+function topbar(){const returning=hasMe();const acct=S.account;const label=acct?esc(acct.name.split(' ')[0]||'Account'):(returning?'My profile':'Log in');const act=returning?'dashboard':'auth';return `<div class="top"><div class="logo" data-act="home"><span class="mk">✦</span> NumeraFlow</div><div class="r"><span class="btn btn-ghost" data-act="${act}" style="padding:8px 16px">${label}</span></div></div>`;}
+
+/* ---------- landing ---------- */
+function vLanding(){return topbar()+`<div class="screen">
+  <div class="hero"><div class="halo"></div><div class="wrap" style="position:relative">
+    <span class="badge">✦ One number never explains a whole person</span>
+    <h1>Your numbers.<br><span class="aurora">Read properly.</span></h1>
+    <p class="sub">NumeraFlow builds a living profile that actually gets to know you — your patterns, your contradictions, and where you are in your cycle right now.</p>
+    <div class="teaser card">
+      <label class="fl">Start with your date of birth</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><input id="t_dob" type="date" max="${YEARNOW}-12-31" style="flex:1;min-width:160px"><button class="btn btn-glow" data-act="teaser">Reveal my Life Path</button></div>
+      <div class="reveal" id="t_reveal"><div class="bignum" id="t_num">0</div><div style="color:var(--lilac);font-weight:700;margin-top:4px" id="t_kw"></div><div class="muted" style="font-size:.9rem;margin-top:8px" id="t_mean"></div><div style="margin-top:16px"><button class="btn btn-primary" data-act="choose">This is one number. Unlock the whole picture →</button></div></div>
+    </div>
+    <div style="margin-top:26px;display:flex;gap:16px 24px;flex-wrap:wrap;justify-content:center;font-size:.76rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)"><span>⚡ Instant</span><span>◆ One-off payment</span><span>∞ Yours to keep</span><span>✎ We show our working</span></div>
+  </div></div>
+  <div class="wrap" id="pricing" style="padding-bottom:20px">
+    <div style="text-align:center;max-width:560px;margin:20px auto 0"><p class="eyebrow">Two ways in</p><h2 style="font-size:2rem;margin-top:8px">Just you, or your whole family</h2></div>
+    <div class="journeys">
+      <div class="jcard fam" style="box-shadow:0 0 0 1px var(--mint)"><span style="position:absolute;top:16px;right:16px;background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:999px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--mint)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family NumeraFlow</h3><div class="price">£28</div>
+        <ul><li><b>✦</b> The full profile for everyone you love</li><li><b>✦</b> How to support each person through their year</li><li><b>✦</b> Partners, parents, kids &amp; siblings compared</li><li><b>✦</b> Your whole family's timing in one place</li></ul>
+        <p class="muted" style="font-size:.8rem;margin:-4px 0 14px">Cheaper than 4 single readings — and it's unlimited.</p>
+        <button class="btn btn-glow btn-block" data-act="start-fam">Map my family — £28</button></div>
+      <div class="jcard me"><p class="eyebrow">Just me</p><h3 style="font-size:1.4rem;margin-top:4px">Personal NumeraFlow</h3><div class="price">£8.88</div>
+        <ul><li>✦ Your full blueprint &amp; what drives you</li><li>✦ Strengths, shadows &amp; contradictions</li><li>✦ Life cycles &amp; where you are now</li></ul>
+        <button class="btn btn-primary btn-block" data-act="start-me">Just do mine — £8.88</button></div>
+    </div>
+  </div>
+  <div style="text-align:center;padding:6px 20px 0"><button class="btn btn-ghost" data-act="glossary">Browse what every number means →</button></div>
+  <p class="foot">NumeraFlow is an interpretive tool for reflection — not scientifically validated prediction. Prototype: checkout &amp; login are represented, not live.</p>
+</div>`;}
+
+/* ---------- unlock (pay up front) ---------- */
+function vUnlock(kind){const me=kind==='me';const price=me?'£8.88':'£28.00';const acct=S.account||{email:''};return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:460px">
+  <p class="eyebrow">Checkout</p><h1 style="font-size:2rem;margin-top:8px">${me?'Personal NumeraFlow':'Family NumeraFlow'}</h1>
+  <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="muted">${me?'One complete personal profile, yours to keep':'Your whole family, unlimited profiles &amp; comparisons'}</span><b style="font-family:var(--heading);font-size:1.3rem">${price}</b></div><div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between"><b>Total</b><b style="font-family:var(--heading)">${price}</b></div></div>
+  <div class="card" style="margin-top:14px"><label class="fl">Email for your receipt</label><input id="co_email" value="${esc(acct.email)}" placeholder="you@email.com">
+   <label class="fl" style="margin-top:12px">Card details</label><input value="4242 4242 4242 4242" disabled style="opacity:.55"><div style="display:flex;gap:10px;margin-top:10px"><input value="MM / YY" disabled style="opacity:.55"><input value="CVC" disabled style="opacity:.55"></div>
+   <p class="muted" style="font-size:.72rem;margin-top:10px">🔒 Prototype checkout — no real charge is taken. A live build drops Stripe in right here.</p>
+  </div>
+  <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="${me?'unlocked-me':'unlocked-fam'}">Pay ${price} &amp; begin →</button>
+  <p style="margin-top:16px;text-align:center"><span class="muted" style="cursor:pointer;font-size:.85rem;text-decoration:underline" data-act="home">Cancel</span></p>
+</div></div>`;}
+function vAuth(){const a=S.account||{name:'',email:''};return topbar()+`<div class="screen"><div class="wrap" style="padding:44px 20px 60px;max-width:420px">
+  <p class="eyebrow">Your account</p><h1 style="font-size:2rem;margin-top:8px">${a.name?'Welcome back':'Create your NumeraFlow'}</h1>
+  <p class="muted" style="margin-top:8px">Your profile saves to this device so you can return anytime. (Prototype: a live build adds secure email login here.)</p>
+  <div style="display:grid;gap:12px;margin-top:20px"><div><label class="fl">Name</label><input id="ac_name" value="${esc(a.name)}" placeholder="Your name"></div><div><label class="fl">Email</label><input id="ac_email" value="${esc(a.email)}" placeholder="you@email.com"></div></div>
+  <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="do-auth">${a.name?'Save':'Continue'}</button>
+  <p style="margin-top:18px"><span class="muted" style="cursor:pointer;font-size:.85rem;text-decoration:underline" data-act="home">Back</span></p>
+  <div style="border-top:1px solid var(--border);margin-top:26px;padding-top:16px"><p class="muted" style="font-size:.8rem">Made a mistake, or want to hand the phone to someone else?</p><p style="margin-top:8px"><span style="cursor:pointer;font-size:.85rem;color:#f9a8a8;text-decoration:underline" data-act="reset">Clear all data &amp; start fresh</span></p></div>
+</div></div>`;}
+
+function vUpsell(){return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:520px;text-align:center">
+  <p class="eyebrow">One more thing, ${esc(S.me.first)}</p>
+  <h1 style="font-size:2rem;margin-top:8px">You've seen <span class="aurora">your</span> numbers. Now see <span class="aurora">us</span>.</h1>
+  <p class="muted" style="margin-top:12px">Your reading is powerful on its own — but numerology comes alive <i>between</i> people. Add your partner, kids, parents and see exactly how to support each other, who naturally clashes, and where your years collide this year.</p>
+  <div class="card" style="margin-top:18px;text-align:left"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-family:var(--heading)">Family NumeraFlow</b><b style="font-family:var(--heading);font-size:1.3rem">£28</b></div><ul style="margin:12px 0 0;padding-left:18px;color:var(--muted);font-size:.9rem"><li>Everyone's full profile</li><li>How to support each person through their year</li><li>Compatibility, the family blueprint &amp; everyone's timing</li></ul></div>
+  <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="upsell-yes">Add my family — £28</button>
+  <p style="margin-top:14px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="upsell-no">Maybe later</span></p>
+</div></div>`;}
+/* ---------- me: dob ---------- */
+function stages(now){const order=[['Foundation','me_dob'],['Identity','me_name'],['Life Context','me_interview'],['Timing','me_ready'],['Deep Synthesis','me_reading']];const idx=order.findIndex(o=>o[1]===now);return `<div class="stages">${order.map((o,i)=>`<span class="stg ${i<idx?'done':''} ${i===idx?'now':''}">${o[0]}</span>`).join('')}</div>`;}
+function vDob(){return topbar()+stages('me_dob')+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:520px">
+  <p class="eyebrow">Let's begin</p><h1 style="font-size:2rem;margin-top:8px">What's your date of birth?</h1>
+  <p class="muted" style="margin-top:8px">This gives NumeraFlow your mathematical foundation.</p>
+  <div style="margin-top:20px"><input id="m_dob" type="date" max="${YEARNOW}-12-31" value="${S.me.dob}"></div>
+  <div class="reveal ${S.me.dob?'on':''}" id="m_reveal" style="border:0;text-align:left;margin-top:18px">${S.me.dob?dobPreview(S.me.dob):''}</div>
+  <button class="btn btn-glow btn-block" style="margin-top:20px" data-act="dob-next">Continue →</button>
+</div></div>`;}
+function dobPreview(dob){const lp=lifePathFromDob(dob);const meta=npFor(lp.number);return `<div class="card"><p class="muted" style="margin:0 0 6px">Interesting — your Life Path resolves through</p><div style="display:flex;align-items:center;gap:14px"><span class="bignum" style="font-size:3rem;color:var(--purple)">${lp.display}</span><span style="color:var(--lilac);font-weight:700">${meta.m.split(',')[0]}</span></div><p class="muted" style="font-size:.86rem;margin-top:8px">But your Life Path is only one part of the picture.</p></div>`;}
+
+/* ---------- me: name ---------- */
+function vName(){return topbar()+stages('me_name')+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:520px">
+  <p class="eyebrow">Your identity</p><h1 style="font-size:2rem;margin-top:8px">What name were you given at birth?</h1>
+  <p class="muted" style="margin-top:8px">Your birth name builds the name-based layers of your profile.</p>
+  <div style="display:grid;gap:14px;margin-top:20px">
+    <div><label class="fl">First name</label><input id="n_first" value="${esc(S.me.first)}" placeholder="First"></div>
+    <div><label class="fl">Middle name(s) — optional</label><input id="n_middle" value="${esc(S.me.middle)}" placeholder="Middle"></div>
+    <div><label class="fl">Surname</label><input id="n_last" value="${esc(S.me.last)}" placeholder="Surname"></div>
+    <div><label class="fl">Do you use a different name now? — optional</label><input id="n_current" value="${esc(S.me.currentName)}" placeholder="Name you use today"></div>
+  </div>
+  <button class="btn btn-glow btn-block" style="margin-top:20px" data-act="name-next">See what's taking shape →</button>
+</div></div>`;}
+
+/* ---------- me: first reveal ---------- */
+function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px">
+  <div style="text-align:center"><p class="eyebrow">Your NumeraFlow is taking shape</p><h1 style="font-size:2rem;margin-top:8px">${esc(S.me.first)}, here's the structure</h1></div>
+  <div class="keys">${intel.keyNumbers.map((k,i)=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v" data-count="${/^\d+$/.test(k.value)?k.value:''}" data-final="${k.value}">${/^\d+$/.test(k.value)?'0':k.value}</div>${echoBadge(k.value)?`<div style="text-align:center;margin-top:-4px">${echoBadge(k.value)}</div>`:''}</div>`).join('')}</div>
+  <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
+  <div class="card beam" style="margin-top:20px"><p class="eyebrow" style="color:var(--mint)">One pattern already stands out</p><p style="margin-top:8px">${esc(intel.reinforcements[0]?intel.reinforcements[0].explanation:intel.corePattern)}</p></div>
+  <div style="text-align:center;margin-top:28px"><p class="muted" style="max-width:480px;margin:0 auto 18px">Your numbers give the structure. But they don't yet know what's actually happening in your life. Tell NumeraFlow a little and the reading gets far more relevant.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button class="btn btn-glow" data-act="go-deeper">Yes — go deeper</button><button class="btn btn-ghost" data-act="show-reading">Show my reading now</button></div></div>
+</div></div>`;}
+
+/* ---------- me: deeper choice handled by reveal buttons ---------- */
+function vDeeper(){return vInterview();}
+
+/* ---------- interview ---------- */
+const IQ=[
+ {id:'world',q:"Who currently makes up your world?",hint:'Choose all that apply.',multi:true,opts:['Partner','Children','Parents','Siblings','Friends','Pets','Mostly me']},
+ {id:'work',q:'What does work look like for you right now?',multi:false,opts:['Employed','Self-employed','Business owner','Building a business','Between jobs','Studying','Full-time parent/carer','Retired','Something else']},
+ {id:'chapter',q:'Which feels closest to where you are in life?',multi:false,opts:['Starting something','Building','Changing direction','Ending something','Recovering','Rebuilding','Waiting','Searching','Pretty settled',"I don't know"]},
+ {id:'matters',q:"What's taking most of your attention right now?",hint:'Up to three.',multi:true,max:3,opts:['Relationship','Family','Children','Career','Business','Money','Home','Health','Direction','A big decision']},
+ {id:'door',q:'What number is on your front door?',hint:'Optional — adds your home layer. Skip if you prefer.',input:true,placeholder:'e.g. 28A'},
+ {id:'one',q:'If NumeraFlow could help you understand one thing right now, what would it be?',hint:'In your own words.',textarea:true,placeholder:'Tell us in your own words…'}
+];
+function currentIQ(){const step=S.me.iStep||0;return IQ[step];}
+function vInterview(){const step=S.me.iStep||0;const q=IQ[step];if(!q){go('me_ready');return '';}
+  const ctx=S.me.context;const ack=step>0?ackFor(IQ[step-1].id):'';
+  const val=ctx[q.id];
+  let body='';
+  if(q.input){body=`<input id="iq_input" value="${esc(val||'')}" placeholder="${q.placeholder}">`;}
+  else if(q.textarea){body=`<textarea id="iq_input" rows="3" placeholder="${q.placeholder}">${esc(val||'')}</textarea>`;}
+  else{const sel=q.multi?(val||[]):val;body=`<div class="opts">${q.opts.map(o=>`<span class="opt ${(q.multi?(sel||[]).includes(o):sel===o)?'sel':''}" data-opt="${esc(o)}">${o}</span>`).join('')}</div>`;}
+  return topbar()+stages('me_interview')+`<div class="screen"><div class="wrap" style="padding:26px 20px 60px;max-width:560px">
+    ${ack?`<p class="say">${ack}</p>`:''}
+    <p class="eyebrow">Getting to know you · ${step+1} of ${IQ.length}</p>
+    <h1 style="font-size:1.7rem;margin-top:8px">${q.q}</h1>${q.hint?`<p class="muted" style="margin-top:6px">${q.hint}</p>`:''}
+    <div style="margin-top:18px">${body}</div>
+    <div style="display:flex;gap:10px;margin-top:22px"><button class="btn btn-glow" style="flex:1" data-act="iq-next">${step===IQ.length-1?'Finish':'Continue'} →</button>${(q.input||q.textarea)?`<button class="btn btn-ghost" data-act="iq-skip">Skip</button>`:''}</div>
+  </div></div>`;}
+function ackFor(id){const c=S.me.context;if(id==='work'&&c.work)return {'Business owner':'Got it. Work and direction will matter more in your deeper reading.','Building a business':'Noted — we\'ll write the work section around building something.','Full-time parent/carer':'We\'ll make the family and home sections central.'}[c.work]||'Got it — noted for your reading.';if(id==='world'&&(c.world||[]).includes('Children'))return "We'll write the family sections around your actual family, not generic copy.";if(id==='chapter'&&c.chapter)return "We'll keep that in mind when we look at your current cycle.";return '';}
+
+/* ---------- ready ---------- */
+function vReady(){const c=S.me.context;const items=[['Your numerical blueprint',true],['Your name profile',true],['Your current cycle',true],['Relationships',(c.world||[]).length],['Your work situation',!!c.work],['Your home',!!S.me.door],['What matters most right now',!!c.one||(c.matters||[]).length]];
+  return topbar()+stages('me_ready')+`<div class="screen"><div class="wrap" style="padding:40px 20px 60px;max-width:520px;text-align:center">
+   <p class="eyebrow">Your profile is ready</p><h1 style="font-size:2.2rem;margin-top:10px">NumeraFlow now understands ${esc(S.me.first)}</h1>
+   <div class="card" style="text-align:left;margin-top:22px">${items.map(([t,on])=>`<div style="display:flex;gap:10px;padding:6px 0;color:${on?'var(--text)':'var(--muted)'}">${on?'✓':'○'} ${t}</div>`).join('')}</div>
+   <button class="btn btn-glow btn-block" style="margin-top:22px" data-act="build-reading">Build my deep reading →</button>
+  </div></div>`;}
+
+/* ---------- reading ---------- */
+const RSEC=[['overview','Overview'],['you','Who You Are'],['drives','Drives'],['contradictions','Contradictions'],['shadow','Shadow'],['lifemap','Life Map'],['year','Personal Year'],['now','Right Now'],['name','Name'],['home','Home'],['eastern','Eastern'],['matters','What Matters'],['big','Big Picture']];
+function calcPre(c){return `formula reduces ${c.route.join(' → ')} · result ${c.display}${c.master?' · master preserved':''}`;}
+function vReading(){const p=meProfile();const I=buildIntelligence(p);const c=S.me.context;const first=esc(S.me.first);
+  const secs=RSEC.filter(([id])=>id!=='home'||p.home);
+  const rail=`<div class="rail">${secs.map(([id,l])=>`<button data-rail="${id}">${l}</button>`).join('')}</div>`;
+  const themeRow=t=>{const ti=THEME_INFO[t.theme]||{};return `<div class="theme card"><div class="tp"><span style="font-family:var(--heading);font-weight:700">${t.label}</span><span class="t-${t.band}" style="font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase">${t.band}</span></div><div class="track"><div class="fill b-${t.band}" style="width:${t.pct}%"></div></div><p class="muted" style="font-size:.78rem;margin-top:8px">Carried by ${t.sources.map(s=>s.label).join(', ')}</p>${ti.best?`<details class="disc"><summary>What ${t.label} means</summary><div style="margin-top:8px;font-size:.86rem"><p><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px"><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${ti.shadow}.</span></p><p style="margin-top:6px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${ti.grow}.</span></p></div></details>`:''}</div>`;};
+  const yearWheel=`<div class="wheel">${[1,2,3,4,5,6,7,8,9].map(n=>`<div class="yr ${n===p.personalYear?'on':''}"><span>${n}</span><small>${YEAR[n].t}</small></div>`).join('')}</div>`;
+  const yTrio=`<div class="trio"><div class="t"><p class="eyebrow">Previous · ${YEARNOW-1}</p><p style="margin-top:4px"><b>${p.personalYearPrev} — ${YEAR[p.personalYearPrev].t[0]+YEAR[p.personalYearPrev].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYearPrev].k}</span></p></div><div class="t mid"><p class="eyebrow" style="color:var(--purple)">Now · ${YEARNOW}</p><p style="margin-top:4px"><b>${p.personalYear} — ${YEAR[p.personalYear].t[0]+YEAR[p.personalYear].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYear].k}</span></p></div><div class="t"><p class="eyebrow">Next · ${YEARNOW+1}</p><p style="margin-top:4px"><b>${p.personalYearNext} — ${YEAR[p.personalYearNext].t[0]+YEAR[p.personalYearNext].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYearNext].k}</span></p></div></div>`;
+  // context-aware year para
+  let yearCtx=YEAR[p.personalYear].b;
+  if(p.personalYear===9&&c.chapter&&/Ending|Changing|Rebuilding|Recovering/.test(c.chapter))yearCtx+=` Because you told NumeraFlow you're ${c.chapter.toLowerCase()}, the completion themes of this 9 year speak directly to that — not as an instruction, but as timing worth noticing.`;
+  const oneThing=c.one?`<section class="blk" id="matters"><p class="eyebrow">What you came to understand</p><h2 style="font-size:1.7rem;margin-top:8px">In your own words</h2><div class="card" style="margin-top:14px"><p style="font-style:italic;color:var(--lilac)">"${esc(c.one)}"</p><p class="muted" style="margin-top:12px">Held against your profile: your dominant ${I.themes.filter(t=>t.band==='Dominant').map(t=>t.label.toLowerCase()).join(' and ')||'pattern'} and your current Personal Year ${p.personalYear} are the lenses that speak most directly to this. ${I.contradictions[0]?'Your '+I.contradictions[0].title.toLowerCase()+' is likely part of why it feels unresolved.':''}</p></div></section>`:((c.matters||[]).length?`<section class="blk" id="matters"><p class="eyebrow">What deserves your attention</p><h2 style="font-size:1.7rem;margin-top:8px">Right now, for you</h2><div class="card" style="margin-top:14px"><p class="muted">You said your attention is on ${(c.matters||[]).join(', ').toLowerCase()}. In a Personal Year ${p.personalYear} (${YEAR[p.personalYear].t.toLowerCase()}), that combination points to ${I.need.toLowerCase()} as the underlying need to protect.</p></div></section>`:'');
+  const workLine=c.work?`<p class="muted" style="margin-top:10px">You're ${c.work.toLowerCase()} — so read your Expression ${p.pyth.expression.display} and this year's ${YEAR[p.personalYear].t.toLowerCase()} theme together: that's where work and direction meet for you this cycle.</p>`:'';
+  return topbar()+rail+`<div class="screen"><div class="wrap">
+   <section class="blk" id="overview" style="border:0;text-align:center;padding-top:26px">
+     <p class="eyebrow">Your NumeraFlow</p><h1 style="font-size:2.4rem;margin-top:10px">${first}</h1>
+     <p class="muted" style="max-width:600px;margin:12px auto 0">${esc(I.corePattern)}</p>
+     <div class="keys">${I.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v">${k.value}${echoBadge(k.value)}</div></div>`).join('')}</div>
+     <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
+   </section>
+   <section class="blk" id="you"><p class="eyebrow">What the numbers agree on</p><h2 style="font-size:1.7rem;margin-top:8px">Who you are</h2>${I.themes.filter(t=>t.band!=='Background').map(themeRow).join('')}${I.reinforcements[0]?`<div class="card beam" style="margin-top:12px"><p class="eyebrow" style="color:var(--mint)">Strong recurring pattern · ${I.reinforcements[0].label}</p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(I.reinforcements[0].explanation)}</p></div>`:''}</section>
+   <section class="blk" id="drives"><p class="eyebrow">Underneath</p><h2 style="font-size:1.7rem;margin-top:8px">What drives you</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Inner Drive" data-value="${p.pyth.soulUrge.display}" style="font-size:3rem;color:var(--purple)">${p.pyth.soulUrge.display}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">Inner drive ⓘ</div><b style="font-family:var(--heading)">A need for ${I.need}</b></div></div><p class="muted" style="margin-top:12px;font-size:.92rem">${esc(I.fiveQuestions.drives)}</p>${workLine}<details class="disc"><summary>Show calculation</summary><pre>Inner Drive · ${calcPre(p.pyth.soulUrge)}</pre></details></div></section>
+   <section class="blk" id="contradictions"><p class="eyebrow">The most personal part</p><h2 style="font-size:1.7rem;margin-top:8px">Where you contradict yourself</h2>${I.contradictions.length?I.contradictions.map(ct=>`<div class="card beam" style="margin-top:14px"><div style="font-family:var(--heading);font-weight:800;font-size:1.2rem"><span style="color:var(--purple)">${ct.a}</span> <span class="muted" style="font-size:.9rem">vs</span> <span style="color:var(--mint)">${ct.b}</span></div><p class="muted" style="margin-top:10px;font-size:.92rem">${esc(ct.explanation)}</p></div>`).join(''):`<p class="muted" style="margin-top:12px">Your numbers largely pull the same way — unusually consistent, harder to knock off course.</p>`}</section>
+   <section class="blk" id="shadow"><p class="eyebrow">Where strengths tip into strain</p><h2 style="font-size:1.7rem;margin-top:8px">Your shadow</h2>${I.shadows.length?I.shadows.map(sh=>`<div class="card" style="margin-top:12px"><b style="font-family:var(--heading);text-transform:capitalize">${sh.theme}</b><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(sh.explanation)}</p></div>`).join(''):'<p class="muted" style="margin-top:12px">No single shadow theme repeats strongly.</p>'}</section>
+   <section class="blk" id="lifemap"><p class="eyebrow">You are ${I.age} · your map</p><h2 style="font-size:1.7rem;margin-top:8px">Life map</h2>${I.lifeMap.map((pin,i)=>`<div class="pin ${pin.current?'now':''}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">Pinnacle ${i+1} · ${pin.range}</div><div style="font-family:var(--heading);font-weight:800;font-size:1.4rem">${pin.value}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${pin.meaning}</div></div>${pin.current?'<span class="here">You are here</span>':''}</div>`).join('')}</section>
+   <section class="blk" id="year"><p class="eyebrow">The nine-year story</p><h2 style="font-size:1.7rem;margin-top:8px">Your Personal Year</h2>${yearWheel}${yTrio}<div class="card" style="margin-top:14px"><b style="font-family:var(--heading)">${YEARNOW} — Personal Year ${p.personalYear} · ${YEAR[p.personalYear].t}</b><p class="muted" style="margin-top:8px;font-size:.92rem">${esc(yearCtx)}</p>${p.personalYear===9?`<p class="muted" style="margin-top:10px;font-size:.9rem">This is the <b style="color:var(--text)">end of a nine-year sequence</b> — it does not mean everything must end. Ask instead: what has reached completion? What are you carrying out of habit? What deserves to come into the next cycle? <b style="color:var(--text)">Next year begins a new 1</b> — new identity, new seeds.</p>`:''}</div></section>
+   <section class="blk" id="now"><p class="eyebrow">Your current chapter</p><h2 style="font-size:1.7rem;margin-top:8px">Right now</h2><div class="card" style="margin-top:14px"><p class="muted">${esc(I.fiveQuestions.now)} ${I.currentChapter.activated.length?'This pulls forward the '+joinL(I.currentChapter.activated)+' already built into you.':''}</p></div></section>
+   <section class="blk" id="name"><p class="eyebrow">Two separate systems</p><h2 style="font-size:1.7rem;margin-top:8px">Your name</h2><div class="card" style="margin-top:14px"><p class="eyebrow" style="color:var(--purple)">Pythagorean</p>${[['Expression','how you naturally express yourself and what you\'re here to build',p.pyth.expression],['Soul Urge','what you want underneath — your inner drive',p.pyth.soulUrge],['Personality','the version of you others meet first',p.pyth.personality]].map(([l,desc,cc])=>`<div style="border-bottom:1px solid var(--border);padding:10px 0"><div style="display:flex;justify-content:space-between"><span style="font-family:var(--heading);font-weight:700">${l}</span><b class="num-tap" data-info data-label="${l}" data-value="${cc.display}" style="font-family:var(--heading);color:var(--purple)">${cc.display} ⓘ</b></div><p class="muted" style="font-size:.84rem;margin-top:4px">${desc} — here, ${npFor(cc.number).m}.</p></div>`).join('')}<p class="eyebrow" style="color:var(--mint);margin-top:14px">Chaldean</p><div style="display:flex;justify-content:space-between;padding:6px 0"><span class="muted">Full name vibration</span><b style="font-family:var(--heading)">${p.chal.expression.display}</b></div><details class="disc"><summary>Show calculation</summary><pre>Expression (Pythagorean) · ${calcPre(p.pyth.expression)}
+Chaldean keeps the raw compound; Pythagorean preserves master numbers.</pre></details></div></section>
+   ${p.home?`<section class="blk" id="home"><p class="eyebrow">Your environment</p><h2 style="font-size:1.7rem;margin-top:8px">Your home</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Home" data-value="${p.home.display}" style="font-size:3rem;color:var(--lilac)">${p.home.display}</span><p class="muted" style="font-size:.9rem">Door ${esc(p.homeNorm)} routes through ${p.home.display} <span style="opacity:.6">(tap the number to learn more)</span>. This describes the atmosphere a space reinforces — not whether a home is lucky.</p></div></div></section>`:''}
+   <section class="blk" id="eastern"><p class="eyebrow">A separate system — Chinese astrology</p><h2 style="font-size:1.7rem;margin-top:8px">Eastern profile</h2><div class="card" style="margin-top:14px"><b style="font-family:var(--heading);font-size:1.4rem">${p.chinese.birth.yinYang} ${p.chinese.birth.element} ${p.chinese.birth.animal}</b><p style="margin-top:8px;font-size:.92rem">As a ${p.chinese.birth.animal}, you're ${ANIMAL_TRAITS[p.chinese.birth.animal]||'your own distinct blend'}.</p><p class="muted" style="margin-top:10px;font-size:.9rem"><b style="color:var(--text)">${YEARNOW} is the ${p.chinese.forecast.animal} year</b> — for you that's ${animalYearRel(p.chinese.birth.animal,p.chinese.forecast.animal)}. ${elementSelfRel(p.chinese.birth.element,p.chinese.forecast.element)}</p><p class="muted" style="margin-top:10px;font-size:.82rem">Calculated using the actual Chinese New Year boundary. Year-sign astrology, kept separate from your numerology — not BaZi.</p></div></section>
+   ${oneThing}
+   <section class="blk" id="big"><p class="eyebrow">Pulling it together</p><h2 style="font-size:1.7rem;margin-top:8px">The big picture</h2><div class="card beam" style="margin-top:14px"><h3 style="font-size:1.2rem"><span class="aurora">One number never explains a person.</span></h3><p class="muted" style="margin-top:10px;font-size:.92rem">${esc(I.corePattern)}</p></div>
+     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-glow" data-act="save-done">Save my profile</button><button class="btn btn-ghost" data-act="start-fam">Add my family — £28</button></div></section>
+   <p class="foot">Interpretation, not prediction. NumeraFlow · your living profile.</p>
+  </div></div>`;}
+
+/* ---------- dashboard ---------- */
+function vDashboard(){const p=meProfile();return topbar()+`<div class="screen"><div class="wrap" style="padding:44px 20px 60px">
+  <p class="eyebrow">Welcome back</p><h1 style="font-size:2.4rem;margin-top:10px">${esc(S.me.first)}</h1>
+  <div class="keys" style="grid-template-columns:repeat(2,1fr)">
+   <div class="key num-tap" data-info data-label="Personal Year" data-value="${p.personalYear}"><div class="l">Your cycle <span style="opacity:.5">&#9432;</span></div><div class="v">${p.personalYear}</div></div>
+   <div class="key num-tap" data-info data-label="Life Path" data-value="${p.lifePath.display}"><div class="l">Life Path <span style="opacity:.5">&#9432;</span></div><div class="v">${p.lifePath.display}${echoBadge(p.lifePath.display)}</div></div>
+   <div class="key"><div class="l">Chinese</div><div class="v" style="font-size:1rem;padding-top:10px">${p.chinese.birth.animal}</div></div>
+   <div class="key"><div class="l">Family</div><div class="v">${S.family.length||0}</div></div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px"><button class="btn btn-glow" data-act="open-reading">Open my reading</button><button class="btn btn-ghost" data-act="start-fam">My family</button></div>
+  <div style="margin-top:22px"><p class="eyebrow">Explore</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-ghost" data-act="compat">Who suits you</button><button class="btn btn-ghost" data-act="name-match">Name a child</button><button class="btn btn-ghost" data-act="glossary">Number meanings</button></div></div>
+  <div class="card" style="margin-top:22px"><p style="font-family:var(--heading);font-weight:700">Has anything important changed?</p><div class="opts" style="margin-top:10px">${['Relationship','Work','Family','Home','Money','Nothing major'].map(o=>`<span class="opt" data-changed="${o}">${o}</span>`).join('')}</div><p class="muted" style="font-size:.8rem;margin-top:10px">Your numbers never change — only the context around them.</p></div>
+  <p style="margin-top:26px"><span style="cursor:pointer;font-size:.85rem;color:#f9a8a8;text-decoration:underline" data-act="reset">Clear all my data &amp; start over</span></p>
+</div></div>`;}
+
+/* ---------- family ---------- */
+function vFamAnchor(){const pre=hasMe();return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:520px">
+  <p class="eyebrow">Let's map your family</p><h1 style="font-size:2rem;margin-top:8px">Start with you</h1>
+  <p class="muted" style="margin-top:8px">Every person brings their own patterns and timing. We'll understand everyone individually, then what happens when they interact.</p>
+  ${pre?`<div class="card" style="margin-top:20px">Using your profile — <b>${esc(S.me.first)}</b> (Life Path ${meProfile().lifePath.display}) as your anchor.</div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-me">Continue → add family</button>`:`
+  <div style="display:grid;gap:14px;margin-top:20px"><div><label class="fl">Your birth name</label><input id="fa_name" placeholder="Full name at birth"></div><div><label class="fl">Your date of birth</label><input id="fa_dob" type="date" max="${YEARNOW}-12-31"></div></div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-new">Continue → add family</button>`}
+</div></div>`;}
+function vFamAdd(){return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:560px">
+  <p class="eyebrow">Your family so far · ${S.family.length}</p><h1 style="font-size:1.8rem;margin-top:8px">Who should we add next?</h1>
+  <div style="display:grid;gap:10px;margin-top:16px">${S.family.map((m,i)=>`<div class="fnode" style="cursor:default"><b style="font-family:var(--heading)">${esc(m.name.split(' ')[0])}</b> <span class="muted" style="font-size:.85rem">· ${m.relationship} · Life Path ${buildProfile(m.dob,m.name,'',m.door||'',YEARNOW).lifePath.display}</span></div>`).join('')||'<p class="muted">No one added yet.</p>'}</div>
+  <div class="card" style="margin-top:18px"><p style="font-family:var(--heading);font-weight:700">Add a person</p>
+   <div style="display:grid;gap:12px;margin-top:12px"><input id="fm_name" placeholder="Full birth name"><input id="fm_dob" type="date" max="${YEARNOW}-12-31">
+   <div class="opts" id="fm_rel">${['Partner','Child','Parent','Sibling','Other'].map((o,i)=>`<span class="opt ${i===0?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
+   <button class="btn btn-ghost btn-block" style="margin-top:14px" data-act="fm-add">Add to family</button></div>
+  <button class="btn btn-glow btn-block" style="margin-top:18px" data-act="fam-explore" ${S.family.length<1?'disabled style="opacity:.5"':''}>Explore our family →</button>
+</div></div>`;}
+function famMembers(){return S.family.map(m=>{const pr=buildProfile(m.dob,m.name,'',m.door||'',YEARNOW);return{first:m.name.split(' ')[0],relationship:m.relationship,profile:pr,intel:buildIntelligence(pr),raw:m};});}
+function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M.length?familyYearSummary(M):null;const tab=S.readingTab||'overview';
+  const nodes=`<div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${M.map((m,i)=>`<div class="fnode ${(S.famSel||[]).includes(i)?'sel':''}" data-fsel="${i}"><b style="font-family:var(--heading)">${esc(m.first)}</b><div class="muted" style="font-size:.8rem">${m.relationship} · age ${m.intel.age} · LP ${m.profile.lifePath.display}</div><div class="muted" style="font-size:.75rem;margin-top:2px">${m.profile.chinese.birth.animal} · Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</div></div>`).join('')}</div>`;
+  let panel='';
+  const sel=(S.famSel||[]);
+  if(sel.length===2){const cmp=familyCompare(M[sel[0]],M[sel[1]]);
+    panel=`<div class="card" style="margin-top:16px;border-color:var(--purple)">
+      <p class="eyebrow" style="color:var(--purple)">${esc(cmp.heading)}</p>
+      <h3 style="font-size:1.4rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
+      <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
+      <p class="eyebrow" style="margin-top:18px;color:var(--mint)">How to support each other right now</p>
+      <div style="display:grid;gap:12px;margin-top:10px">
+      ${cmp.support.map(s=>`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.03)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div>
+        <p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--text)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p>
+        <p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p>
+      </div>`).join('')}
+      </div>
+      <div class="card beam" style="margin-top:14px;background:rgba(124,58,237,.14)"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
+      <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px">
+        <p class="eyebrow" style="color:var(--lilac)">Chinese astrology</p>
+        <p style="margin-top:8px"><b style="font-family:var(--heading)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--heading)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p>
+        <p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p>
+        <p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p>
+      </div>
+      ${cmp.tension?`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--heading)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
+      <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>
+    </div>`;}
+  else if(sel.length===1){const m=M[sel[0]];panel=`<div class="card" style="margin-top:16px"><h3 style="font-size:1.3rem">${esc(m.first)}'s NumeraFlow</h3><div class="keys" style="margin-top:12px">${m.intel.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} ⓘ</div><div class="v">${k.value}</div></div>`).join('')}</div><p class="muted" style="margin-top:12px;font-size:.9rem">${esc(m.intel.corePattern)}</p><p class="muted" style="font-size:.82rem;margin-top:8px">Tap a number to learn it · tap a second person to compare.</p></div>`;}
+  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px">
+   <section style="text-align:center"><p class="eyebrow">Your Family Blueprint</p><h1 style="font-size:2rem;margin-top:8px">Me · Us · <span class="aurora">All of us</span></h1></section>
+   ${bp?`<div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:20px"><div class="key"><div class="l">Shared pattern</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.sharedPattern?bp.sharedPattern.label:'—'}</div></div><div class="key"><div class="l">Collective strength</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.collectiveStrength?bp.collectiveStrength.label:'—'}</div></div><div class="key"><div class="l">Main tension</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.tension?bp.tension.title:'Balanced'}</div></div><div class="key"><div class="l">Household now</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.householdTheme||'Steady'}</div></div></div>`:'<p class="muted" style="text-align:center;margin-top:16px">Add at least two people to see the blueprint.</p>'}
+   ${ys&&M.length>=2?`<div class="card beam" style="margin-top:16px"><p class="eyebrow" style="color:var(--mint)">All of us · ${YEARNOW}</p><p style="margin-top:8px;font-size:.95rem">${esc(ys.synth)}</p><div style="margin-top:12px;display:grid;gap:8px">${ys.rows.map(r=>`<div style="border-top:1px solid var(--border);padding-top:8px"><b style="font-family:var(--heading)">${esc(r.name)}</b> <span class="muted" style="font-size:.8rem">· Year ${r.year} ${esc(r.title.toLowerCase())}</span><div class="muted" style="font-size:.85rem;margin-top:2px">${esc(capS(r.short))}</div></div>`).join('')}</div></div>
+   <div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Family timeline · everyone's year</p><div style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:12px">${[1,2,3,4,5,6,7,8,9].map(n=>{const who=M.filter(m=>m.profile.personalYear===n).map(m=>m.first);return `<div style="text-align:center"><div class="yr ${who.length?'on':''}" style="width:100%;height:38px;font-size:.95rem"><span>${n}</span><small>${YEAR[n].t}</small></div><div class="muted" style="font-size:.6rem;margin-top:4px;line-height:1.2">${esc(who.join(', '))}</div></div>`;}).join('')}</div></div>`:''}
+   <h3 style="font-size:1.2rem;margin-top:26px">Tap a person — or two to compare</h3>
+   <div style="margin-top:12px">${nodes}</div>
+   ${panel}
+   ${bp?`<div class="card" style="margin-top:16px"><p style="font-family:var(--heading);font-weight:700">Your family in ${YEARNOW}</p>${M.map(m=>`<div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding:8px 0"><b style="font-family:var(--heading)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem">Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</span></div>`).join('')}</div>
+   ${bp.needs?`<div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">What each person needs</p><div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));margin-top:10px">${bp.needs.map(n=>`<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:8px"><b>${esc(n.name)}</b><div class="muted" style="font-size:.85rem">${n.need}</div></div>`).join('')}</div></div>`:''}`:''}
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="fam-add-more">+ Add someone</button><button class="btn btn-ghost" data-act="name-match">Name a child</button><button class="btn btn-ghost" data-act="compat">Who suits you</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
+  </div></div>`;}
+
+/* ---------- name matcher ---------- */
+function vNameMatch(){
+ if(!hasMe())return topbar()+`<div class="screen"><div class="wrap" style="padding:44px 20px;text-align:center"><h1 style="font-size:1.8rem">Build your profile first</h1><p class="muted" style="margin-top:8px">The name matcher works from your numbers.</p><button class="btn btn-glow" style="margin-top:16px" data-act="start-me">Build my profile</button></div></div>`;
+ const parent=parentCtx();const nm=S.nm||{name:'',dob:''};const mode=nm.mode||'match';const target=nm.targetNum||3;const res=nm.name?matchName(nm.name,nm.dob,parent):null;
+ const girl=mode==='number'?namesByNumber(GIRL,target):suggestNames(GIRL,parent,8,mode);
+ const boy=mode==='number'?namesByNumber(BOY,target):suggestNames(BOY,parent,8,mode);
+ const gHead=mode==='number'?`Girls' names · Expression ${target}`:"Girls' names that match you";
+ const bHead=mode==='number'?`Boys' names · Expression ${target}`:"Boys' names that match you";
+ return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:640px">
+   <p class="eyebrow">Naming a child</p><h1 style="font-size:2rem;margin-top:8px">A name that <span class="aurora">matches you</span></h1>
+   <p class="muted" style="margin-top:10px">Your dominant themes are <b style="color:var(--text)">${parent.domLabels.join(' & ')||'your own blend'}</b>, and your sign is the <b style="color:var(--text)">${parent.animal}</b>. A child whose name carries those will feel instantly familiar — or choose a complementary energy on purpose. A birth date fixes a child's Life Path &amp; animal; the name adds the expression layer on top.</p>
+   <div class="opts" style="margin-top:14px"><span class="opt ${mode==='match'?'sel':''}" data-act="nm-mode-match">Match my energy</span><span class="opt ${mode==='complement'?'sel':''}" data-act="nm-mode-complement">Complement me</span><span class="opt ${mode==='number'?'sel':''}" data-act="nm-mode-number">By number</span></div>
+   ${mode==='number'?`<div class="opts" style="margin-top:10px">${[1,2,3,4,5,6,7,8,9,11,22,33].map(n=>`<span class="opt ${target===n?'sel':''}" data-act="nm-num-${n}" style="min-width:44px;text-align:center">${n}</span>`).join('')}</div><p class="muted" style="font-size:.82rem;margin-top:8px">Names whose Expression totals ${target} — ${npFor(target).m}.</p>`:''}
+   <div class="card" style="margin-top:16px"><label class="fl">Try any name</label><input id="nm_name" value="${esc(nm.name)}" placeholder="e.g. Georgia"><label class="fl" style="margin-top:12px">Their date of birth — optional (adds Life Path &amp; animal)</label><input id="nm_dob" type="date" value="${esc(nm.dob)}" max="${YEARNOW+1}-12-31"><button class="btn btn-glow btn-block" style="margin-top:14px" data-act="test-name">See the match</button></div>
+   ${res?nameResultCard(res):''}
+   <h3 style="font-size:1.2rem;margin-top:26px">${gHead}</h3><div class="opts" style="margin-top:10px">${girl.map(r=>`<span class="opt" data-name="${esc(r.name)}">${r.name} <span class="muted" style="font-size:.72rem">· ${r.expr.display} ${r.themeLabel}</span></span>`).join('')||'<span class="muted" style="font-size:.85rem">No names in this list total '+target+' — try another number.</span>'}</div>
+   <h3 style="font-size:1.2rem;margin-top:20px">${bHead}</h3><div class="opts" style="margin-top:10px">${boy.map(r=>`<span class="opt" data-name="${esc(r.name)}">${r.name} <span class="muted" style="font-size:.72rem">· ${r.expr.display} ${r.themeLabel}</span></span>`).join('')}</div>
+   <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="dashboard">Back</span></p>
+ </div></div>`;}
+function nameResultCard(r){return `<div class="card beam" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3 style="font-size:1.4rem">${esc(r.name)}</h3><span style="background:var(--mint);color:var(--ink);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:999px">${r.verdict}</span></div>
+ <p class="muted" style="margin-top:8px">${esc(r.why)}</p>
+ <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+  ${[['Expression',r.expr],['Soul urge',r.soul],['Personality',r.pers]].map(([l,c])=>`<div style="text-align:center"><div class="muted" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em">${l}</div><div style="font-family:var(--heading);font-weight:800;font-size:1.5rem;color:var(--purple)">${c.display}</div></div>`).join('')}
+ </div>
+ <p class="muted" style="font-size:.84rem;margin-top:12px">Expression ${r.expr.display} — ${npFor(r.expr.number).m}.</p>
+ ${r.life?`<div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px"><p style="font-size:.9rem"><b style="font-family:var(--heading)">With that birth date:</b> Life Path <b style="color:var(--purple)">${r.life}</b> · ${r.animal}</p><p class="muted" style="font-size:.84rem;margin-top:6px">${esc(r.animalR)}</p></div>`:''}
+</div>`;}
+
+/* ---------- number meanings glossary ---------- */
+function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33];
+ return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:680px">
+  <p class="eyebrow">Learn</p><h1 style="font-size:2rem;margin-top:8px">Every number &amp; theme, explained</h1>
+  <p class="muted" style="margin-top:8px">Your place to learn it yourself. 1–9 are the core numbers; 11, 22 and 33 are the master numbers. Below them, the recurring themes your numbers point to.</p>
+  <div style="display:grid;gap:12px;margin-top:20px">${nums.map(n=>{const np=npFor(n);return `<div class="card"><div style="display:flex;align-items:center;gap:14px"><span style="font-family:var(--heading);font-weight:800;font-size:2.2rem;color:${[11,22,33].includes(n)?'var(--mint)':'var(--purple)'};min-width:52px">${n}</span><div><b style="font-family:var(--heading)">${(np.t.map(t=>LABEL[t]||t).join(' · '))||'—'}</b>${[11,22,33].includes(n)?' <span class="muted" style="font-size:.7rem">· master</span>':''}<div class="muted" style="font-size:.82rem">Needs: ${NEEDL[np.need]||np.need}</div></div></div><p style="margin-top:10px;font-size:.9rem">${np.m}.</p><p class="muted" style="font-size:.84rem;margin-top:6px">Shadow: ${np.s.join(', ')}.</p></div>`;}).join('')}</div>
+  <h2 style="font-size:1.5rem;margin-top:32px">The themes explained</h2>
+  <p class="muted" style="margin-top:6px">The recurring patterns your numbers point to — what each looks like at its best, its shadow, and how to grow with it.</p>
+  <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--heading);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${ti.shadow}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${ti.grow}.</span></p></div>`).join('')}</div>
+  <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="home">Back</span></p>
+ </div></div>`;}
+
+function renderCompare(cmp){return `
+ <p class="eyebrow" style="color:var(--purple)">${esc(cmp.heading)}</p>
+ <h3 style="font-size:1.3rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
+ <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
+ <p class="eyebrow" style="margin-top:16px;color:var(--mint)">How to support each other</p>
+ <div style="display:grid;gap:12px;margin-top:10px">${cmp.support.map(s=>`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.03)"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div><p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--text)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p><p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p></div>`).join('')}</div>
+ <div class="card beam" style="margin-top:14px;background:rgba(124,58,237,.14)"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
+ <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow" style="color:var(--lilac)">Chinese astrology</p><p style="margin-top:8px"><b style="font-family:var(--heading)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--heading)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p></div>
+ ${cmp.tension?`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--heading)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
+ <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>`;}
+/* ---------- who suits you (numbers + chinese) ---------- */
+const LP_COMPAT={1:[3,5,9],2:[6,8,9],3:[1,5,9],4:[2,6,7],5:[1,3,7],6:[2,3,9],7:[4,5],8:[2,4,6],9:[1,3,6]};
+const TRINE_G=[['Rat','Dragon','Monkey'],['Ox','Snake','Rooster'],['Tiger','Horse','Dog'],['Rabbit','Goat','Pig']];
+const SECRET={Rat:'Ox',Ox:'Rat',Tiger:'Pig',Pig:'Tiger',Rabbit:'Dog',Dog:'Rabbit',Dragon:'Rooster',Rooster:'Dragon',Snake:'Monkey',Monkey:'Snake',Horse:'Goat',Goat:'Horse'};
+function vCompat(){
+ if(!hasMe())return topbar()+`<div class="screen"><div class="wrap" style="padding:44px 20px;text-align:center"><h1 style="font-size:1.8rem">Build your profile first</h1><button class="btn btn-glow" style="margin-top:16px" data-act="start-me">Build my profile</button></div></div>`;
+ const p=meProfile();const lp=p.lifePath.root;const comp=LP_COMPAT[lp]||[];
+ const animal=p.chinese.birth.animal,ai=ANIMALS.indexOf(animal);
+ const trine=(TRINE_G.find(g=>g.includes(animal))||[]).filter(x=>x!==animal);
+ const opposite=ANIMALS[(ai+6)%12];const secret=SECRET[animal];
+ const cw=S.compat||{name:'',dob:''};const saved=S.savedPairings||[];let pairing='';
+ if(cw.name&&cw.dob&&/^\d{4}-\d{2}-\d{2}$/.test(cw.dob)){const meM={first:S.me.first||'You',relationship:'self',profile:p,intel:buildIntelligence(p)};const tp=buildProfile(cw.dob,cw.name,'','',YEARNOW);const tm={first:cw.name.split(' ')[0],relationship:'other',profile:tp,intel:buildIntelligence(tp)};pairing='<div class="card beam" style="margin-top:16px">'+renderCompare(familyCompare(meM,tm))+'<button class="btn btn-ghost btn-block" style="margin-top:14px" data-act="save-pairing">Save this pairing</button></div>';}
+ const savedHtml=saved.length?`<div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Saved pairings</p><div class="opts" style="margin-top:10px">${saved.map((s,i)=>`<span class="opt" data-savedpair="${i}">${esc(s.name)}</span>`).join('')}</div></div>`:'';
+ return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:640px">
+  <p class="eyebrow">Who suits you</p><h1 style="font-size:2rem;margin-top:8px">Your best matches</h1>
+  <p class="muted" style="margin-top:8px">Based on your Life Path ${p.lifePath.display} and your ${animal} sign — across both systems.</p>
+  <div class="card" style="margin-top:18px"><p class="eyebrow" style="color:var(--purple)">By numbers · Life Path ${lp}</p>
+   <p style="margin-top:8px">Naturally harmonious Life Paths: <b style="font-family:var(--heading);color:var(--text)">${comp.join(', ')||'you blend widely'}</b></p>
+   <div style="margin-top:10px">${comp.map(n=>`<div style="border-top:1px solid var(--border);padding:8px 0"><b>Life Path ${n}</b> <span class="muted" style="font-size:.85rem">— shares ${LABEL[npFor(n).t[0]]||'common ground'}; ${npFor(n).m}.</span></div>`).join('')}</div>
+   <p class="muted" style="font-size:.82rem;margin-top:8px">Harmony isn't everything — difference can be the making of a pairing. This is where things flow easiest.</p>
+  </div>
+  <div class="card" style="margin-top:14px"><p class="eyebrow" style="color:var(--lilac)">By Chinese astrology · ${animal}</p>
+   <p style="margin-top:8px">Your trine allies: <b style="font-family:var(--heading);color:var(--text)">${trine.join(' & ')}</b> — natural allies who move at your rhythm.</p>
+   <p style="margin-top:8px">Your secret friend: <b style="font-family:var(--heading);color:var(--text)">${secret}</b> — a quietly steadying, protective match.</p>
+   <p style="margin-top:8px">Trickiest: <b style="font-family:var(--heading);color:var(--text)">${opposite}</b> — your opposite sign; real friction, but it keeps you honest.</p>
+  </div>
+  ${savedHtml}
+  <div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Check anyone</p><p class="muted" style="font-size:.85rem;margin-top:4px">Enter a name and birth date for a full pairing reading — numbers, timing and Chinese astrology together.</p><div style="display:grid;gap:10px;margin-top:12px"><input id="cw_name" value="${esc(cw.name)}" placeholder="Their name"><input id="cw_dob" type="date" value="${esc(cw.dob)}" max="${YEARNOW}-12-31"></div><button class="btn btn-glow btn-block" style="margin-top:12px" data-act="test-compat">See our compatibility</button></div>
+  ${pairing}
+  <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="dashboard">Back</span></p>
+ </div></div>`;}
+
+/* ============================ EVENTS ============================ */
+function readMe(){}
+document.addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');
+  const opt=e.target.closest('[data-opt]');
+  const rel=e.target.closest('[data-rel]');
+  const rail=e.target.closest('[data-rail]');
+  const fsel=e.target.closest('[data-fsel]');
+  const changed=e.target.closest('[data-changed]');
+  const info=e.target.closest('[data-info]');
+  if(info){openNumModal(info.dataset.label,info.dataset.value);return;}
+  if(e.target.id==='nummodal'){closeNumModal();return;}
+  const nameChip=e.target.closest('[data-name]');
+  const savedPair=e.target.closest('[data-savedpair]');
+  if(nameChip){S.nm={name:nameChip.dataset.name,dob:(S.nm&&S.nm.dob)||''};save();render();window.scrollTo(0,0);return;}
+  if(savedPair){const sp=(S.savedPairings||[])[+savedPair.dataset.savedpair];if(sp){S.compat={...sp};save();render();window.scrollTo(0,0);}return;}
+  if(opt){toggleOpt(opt.dataset.opt);return;}
+  if(rel){document.querySelectorAll('#fm_rel .opt').forEach(o=>o.classList.remove('sel'));rel.classList.add('sel');return;}
+  if(rail){document.getElementById(rail.dataset.rail)?.scrollIntoView({behavior:'smooth',block:'start'});return;}
+  if(fsel){const i=+fsel.dataset.fsel;let s=S.famSel||[];s=s.includes(i)?s.filter(x=>x!==i):[...s.slice(-1),i];S.famSel=s;save();render();return;}
+  if(changed){alert('Noted: '+changed.dataset.changed+'. In the full build we\'d update your context here — never your core numbers.');return;}
+  if(!a)return;const act=a.dataset.act;
+  if(act==='num-close')closeNumModal();
+  else if(act==='home')go('landing');
+  else if(act==='login'||act==='auth')go('auth');
+  else if(act==='do-auth'){S.account={name:val('ac_name'),email:val('ac_email')};save();go(hasMe()?'dashboard':'landing');}
+  else if(act==='dashboard')go('dashboard');
+  else if(act==='teaser')teaser();
+  else if(act==='choose'){document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});}
+  else if(act==='start-me'){S.journey='me';track('begin_checkout',{plan:'single',value:8.88});go('me_unlock');}
+  else if(act==='start-fam'){S.journey='fam';track('begin_checkout',{plan:'family',value:28});go('fam_unlock');}
+  else if(act==='unlocked-me'){track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
+  else if(act==='unlocked-fam'){track('purchase',{plan:'family',value:28,currency:'GBP'});go('fam_anchor');}
+  else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
+  else if(act==='name-next'){S.me.first=val('n_first');S.me.middle=val('n_middle');S.me.last=val('n_last');S.me.currentName=val('n_current');if(!S.me.first||!S.me.last){alert('First name and surname help build your name profile.');return;}save();go('me_reveal');}
+  else if(act==='go-deeper'){S.me.iStep=0;save();go('me_interview');}
+  else if(act==='show-reading')go('me_reading');
+  else if(act==='iq-next')iqNext(false);
+  else if(act==='iq-skip')iqNext(true);
+  else if(act==='build-reading')go('me_reading');
+  else if(act==='save-done'){if(S.journey!=='fam'&&!S.upsellShown&&!(S.family&&S.family.length)){S.upsellShown=true;save();go('me_upsell');}else{save();go('dashboard');}}
+  else if(act==='upsell-yes'){track('upsell_click',{plan:'family'});S.journey='fam';go('fam_unlock');}
+  else if(act==='upsell-no')go('dashboard');
+  else if(act==='open-reading')go('me_reading');
+  else if(act==='name-match')go('name_match');
+  else if(act==='glossary')go('glossary');
+  else if(act==='compat')go('compat');
+  else if(act==='test-name'){S.nm={...(S.nm||{}),name:val('nm_name'),dob:val('nm_dob')};save();render();window.scrollTo(0,0);}
+  else if(act==='nm-mode-match'){S.nm={...(S.nm||{}),mode:'match'};save();render();}
+  else if(act==='nm-mode-complement'){S.nm={...(S.nm||{}),mode:'complement'};save();render();}
+  else if(act==='nm-mode-number'){S.nm={...(S.nm||{}),mode:'number'};save();render();}
+  else if(act.indexOf('nm-num-')===0){S.nm={...(S.nm||{}),mode:'number',targetNum:+act.slice(7)};save();render();}
+  else if(act==='test-compat'){S.compat={name:val('cw_name'),dob:val('cw_dob')};save();render();window.scrollTo(0,0);}
+  else if(act==='save-pairing'){const c=S.compat;if(c&&c.name&&c.dob){S.savedPairings=S.savedPairings||[];if(!S.savedPairings.some(x=>x.name===c.name&&x.dob===c.dob)){S.savedPairings.push({name:c.name,dob:c.dob});save();}render();}}
+  else if(act==='reset'){if(confirm('This permanently erases everything saved on this device — your profile, your whole family, saved pairings and your account. It cannot be undone.\n\nClear all data and start fresh?')){clearAllData();alert('All data cleared. Starting fresh.');go('landing');}}
+  else if(act==='anchor-me')go('fam_add');
+  else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){alert('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;save();go('fam_add');}
+  else if(act==='fm-add')fmAdd();
+  else if(act==='fam-explore'||act==='fam-add-more'){if(act==='fam-explore'&&hasMe()&&!S.family.some(m=>m.relationship==='self')){S.family.unshift({name:fullName()||S.me.first,dob:S.me.dob,relationship:'self',door:S.me.door});save();}go('fam_space');}
+});
+function val(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function toggleOpt(o){const q=currentIQ();if(!q)return;const c=S.me.context;if(q.multi){let arr=c[q.id]||[];if(arr.includes(o))arr=arr.filter(x=>x!==o);else{if(q.max&&arr.length>=q.max)arr=arr.slice(1);arr=[...arr,o];}c[q.id]=arr;}else{c[q.id]=o;}save();render();}
+function iqNext(skip){const q=currentIQ();if(q&&(q.input||q.textarea)&&!skip){S.me.context[q.id]=val('iq_input');if(q.id==='door')S.me.door=val('iq_input');}S.me.iStep=(S.me.iStep||0)+1;save();if(S.me.iStep>=IQ.length)go('me_ready');else render();}
+function fmAdd(){const n=val('fm_name'),d=val('fm_dob');const rel=document.querySelector('#fm_rel .opt.sel')?.dataset.rel||'other';if(!n||!d){alert('Add a name and date of birth.');return;}S.family.push({name:n,dob:d,relationship:rel});save();render();}
+function teaser(){const v=document.getElementById('t_dob').value;if(!v){document.getElementById('t_dob').focus();return;}const lp=lifePathFromDob(v);const meta=npFor(lp.number);document.getElementById('t_reveal').classList.add('on');document.getElementById('t_kw').textContent=meta.m.split(',').slice(0,2).join(' ·');document.getElementById('t_mean').textContent='Your Life Path speaks to '+meta.m+'. But this is only one part of the picture.';S.me.dob=v;save();countTo(document.getElementById('t_num'),lp.number,lp.display);}
+function countTo(el,target,disp){const dur=900;let s=null;const ease=t=>1-Math.pow(1-t,3);function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);el.textContent=Math.round(ease(p)*target);if(p<1)requestAnimationFrame(step);else el.textContent=disp||target;}requestAnimationFrame(step);}
+function wireRail(){const ids=RSEC.map(r=>r[0]);const btns=[...document.querySelectorAll('.rail button')];const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){btns.forEach(b=>b.classList.toggle('on',b.dataset.rail===en.target.id));}}),{rootMargin:'-45% 0px -50% 0px'});ids.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
+  // animate key numbers with data-count
+  document.querySelectorAll('[data-count]').forEach(el=>{if(el.dataset.count)countTo(el,+el.dataset.count,el.dataset.final);});}
+
+/* first-reveal count animation (non-reading screens) */
+const _origRender=render;
+render=function(){_origRender();if(S.screen==='me_reveal'){document.querySelectorAll('[data-count]').forEach(el=>{if(el.dataset.count)countTo(el,+el.dataset.count,el.dataset.final);});}};
+
+/* particles */
+(function(){const c=document.getElementById('stars'),x=c.getContext('2d');let ps=[];const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const dpr=devicePixelRatio||1;
+ function rs(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.setTransform(dpr,0,0,dpr,0,0);ps=Array.from({length:80},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.09,vy:(Math.random()-.5)*.09,r:Math.random()*1.5+.4,a:Math.random()*.5+.2,tw:(Math.random()*.006+.002)*(Math.random()>.5?1:-1)}));}
+ function draw(an){x.clearRect(0,0,innerWidth,innerHeight);ps.forEach(p=>{if(an){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=innerWidth;if(p.x>innerWidth)p.x=0;if(p.y<0)p.y=innerHeight;if(p.y>innerHeight)p.y=0;p.a+=p.tw;if(p.a>.75||p.a<.12)p.tw*=-1;}x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba(167,139,250,'+p.a+')';x.fill();});}
+ function loop(){draw(true);requestAnimationFrame(loop);}rs();addEventListener('resize',rs);reduce?draw(false):loop();})();
+
+/* boot — resume if returning */
+if(hasMe()&&(S.screen==='landing'||!S.screen))S.screen='dashboard';
+render();
+</script>
+
+</html>
