@@ -517,7 +517,7 @@ function render(){
   app().innerHTML=html;
   if(s==='me_reading')wireRail();
 }
-function topbar(){const returning=hasMe();const acct=S.account;const label=acct?esc(acct.name.split(' ')[0]||'Account'):(returning?'My profile':'Log in');const act=returning?'dashboard':'auth';return `<div class="top"><div class="logo" data-act="home"><span class="mk">✦</span> NumeraFlow</div><div class="r"><span class="btn btn-ghost" data-act="${act}" style="padding:8px 16px">${label}</span></div></div>`;}
+function topbar(){const returning=hasMe();const acct=S.account;const label=acct?esc(acct.name.split(' ')[0]||'Account'):(returning?'My profile':'Log in');const act=returning?'dashboard':'auth';return `<div class="top"><div class="logo" data-act="home"><span class="mk">✦</span> NumeraFlow</div><div class="r"><span class="btn btn-ghost" data-act="glossary" style="padding:8px 12px;font-size:.86rem" title="What every number means">Numbers</span><span class="btn btn-ghost" data-act="${act}" style="padding:8px 16px">${label}</span></div></div>`;}
 
 /* ---------- landing ---------- */
 function vLanding(){return topbar()+`<div class="screen">
@@ -606,6 +606,12 @@ function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return t
   <div style="text-align:center"><p class="eyebrow">Your NumeraFlow is taking shape</p><h1 style="font-size:2rem;margin-top:8px">${esc(S.me.first)}, here's the structure</h1></div>
   <div class="keys">${intel.keyNumbers.map((k,i)=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v" data-count="${/^\d+$/.test(k.value)?k.value:''}" data-final="${k.value}">${/^\d+$/.test(k.value)?'0':k.value}</div>${echoBadge(k.value)?`<div style="text-align:center;margin-top:-4px">${echoBadge(k.value)}</div>`:''}</div>`).join('')}</div>
   <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
+  <p class="eyebrow" style="text-align:center;margin-top:22px">The layers beneath your Life Path</p>
+  <div class="keys" style="grid-template-columns:repeat(3,1fr);margin-top:10px">
+   <div class="key num-tap" data-info data-label="Birth Month" data-value="${esc(p.birthMonth.display)}"><div class="l">Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.birthMonth.display}${echoBadge(p.birthMonth.display)}</div></div>
+   <div class="key num-tap" data-info data-label="Day + Month" data-value="${esc(p.dayMonth.display)}" data-bday="${esc(p.birthday.display)}" data-bmonth="${esc(p.birthMonth.display)}"><div class="l">Day+Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.dayMonth.display}${echoBadge(p.dayMonth.display)}</div></div>
+   <div class="key num-tap" data-info data-label="Birth Year" data-value="${esc(p.birthYear.display)}"><div class="l">Birth Year <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.birthYear.display}${echoBadge(p.birthYear.display)}</div></div>
+  </div>
   <div class="card beam" style="margin-top:20px"><p class="eyebrow" style="color:var(--mint)">One pattern already stands out</p><p style="margin-top:8px">${esc(intel.reinforcements[0]?intel.reinforcements[0].explanation:intel.corePattern)}</p></div>
   <div style="text-align:center;margin-top:28px"><p class="muted" style="max-width:480px;margin:0 auto 18px">Your numbers give the structure. But they don't yet know what's actually happening in your life. Tell NumeraFlow a little and the reading gets far more relevant.</p></div>
 </div></div>
@@ -821,7 +827,7 @@ function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33];
   <h2 style="font-size:1.5rem;margin-top:32px">The themes explained</h2>
   <p class="muted" style="margin-top:6px">The recurring patterns your numbers point to — what each looks like at its best, its shadow, and how to grow with it.</p>
   <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--heading);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${ti.shadow}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${ti.grow}.</span></p></div>`).join('')}</div>
-  <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="home">Back</span></p>
+  <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="glossary-back">&larr; Back to where you were</span></p>
  </div></div>`;}
 
 function renderCompare(cmp){return `
@@ -924,7 +930,8 @@ document.addEventListener('click',e=>{
   else if(act==='open-reading'){S.famReadingIdx=null;go('me_reading');}
   else if(act==='fam-view-full'){S.famReadingIdx=+a.dataset.favidx;save();go('me_reading');}
   else if(act==='name-match')go('name_match');
-  else if(act==='glossary')go('glossary');
+  else if(act==='glossary'){S.priorScreen=S.screen;save();go('glossary');}
+  else if(act==='glossary-back')go(S.priorScreen||'landing');
   else if(act==='compat')go('compat');
   else if(act==='test-name'){S.nm={...(S.nm||{}),name:val('nm_name'),dob:val('nm_dob')};save();render();window.scrollTo(0,0);}
   else if(act==='nm-mode-match'){S.nm={...(S.nm||{}),mode:'match'};save();render();}
