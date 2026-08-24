@@ -274,6 +274,7 @@ const KARMIC_DEBT={
 };
 function karmicDebtOf(r){return r&&KARMIC_DEBT[r.rawTotal]||null;}
 const CHALLENGE_LABELS=['First Challenge','Second Challenge','Third Challenge','Fourth Challenge'];
+const PINNACLE_LABELS=['First Pinnacle','Second Pinnacle','Third Pinnacle','Fourth Pinnacle'];
 function kdBadge(r){const kd=karmicDebtOf(r);return kd?` <span class="kd" title="${esc(kd.title)}">⚡${r.rawTotal}</span>`:'';}
 // Wealth Number 28: never just "1". 2 (people skills) + 8 (money) combine into 1 (leadership) — flagged explicitly,
 // never hidden behind the reduction, wherever it appears as the RAW total behind a number.
@@ -556,7 +557,14 @@ const NUM_WHAT={
  'Attitude':'your instinctive first approach to people, change and the unexpected',
  'Current Year':'the theme of the 12-month cycle you are in right now',
  'Personal Year':'the theme of the 12-month cycle you are in right now',
- 'Home':'the atmosphere your living space quietly reinforces'
+ 'Home':'the atmosphere your living space quietly reinforces',
+ 'First Pinnacle':'the gift running through your first major life period',
+ 'Second Pinnacle':'the gift running through your second major life period',
+ 'Third Pinnacle':'the gift running through your third major life period, often the longest',
+ 'Fourth Pinnacle':'the gift running through your fourth and final life period',
+ 'Personal Day':'today\'s theme, personal to you',
+ 'Personal Month':'this month\'s theme, personal to you',
+ 'Calendar Day':'the raw number this date itself carries'
 };
 // context-specific interpretation — same digit reads differently by WHERE it sits
 const CTX={
@@ -611,7 +619,16 @@ const LAYER_FRAME={
  'Expression':{lead:'is built from every letter of your full birth name — what you naturally express and what you\'re here to build in the world.'},
  'Soul Urge':{lead:'is built from just the vowels in your name — the quiet, private want underneath everything you show on the outside.'},
  'Inner Drive':{lead:'(your Soul Urge) is built from just the vowels in your name — the quiet, private want underneath everything you show on the outside.'},
- 'Personality':{lead:'is built from just the consonants in your name — the version of you a stranger meets before they get to know the rest.'}
+ 'Personality':{lead:'is built from just the consonants in your name — the version of you a stranger meets before they get to know the rest.'},
+ 'Attitude':{lead:'is your instinctive first approach — how you react before you\'ve had time to think, built from your birth month and day alone.'},
+ 'Home':{lead:'is the atmosphere your front door number quietly reinforces — the emotional undertone of the space itself, not a verdict on whether it\'s lucky.'},
+ 'First Pinnacle':{lead:'is the gift running through your first life period — from birth until your first Pinnacle shift — the energy you leaned on before you\'d consciously chosen anything.'},
+ 'Second Pinnacle':{lead:'is the gift running through your second life period — often the years you build a career and an adult identity.'},
+ 'Third Pinnacle':{lead:'is the gift running through your third life period — often the peak years for responsibility, family and career.'},
+ 'Fourth Pinnacle':{lead:'is the gift running through your fourth and final life period — the energy that carries you through your later years.'},
+ 'Personal Day':{lead:'is today\'s theme for you specifically — built from your Personal Month and the date, on top of everything permanent underneath.'},
+ 'Personal Month':{lead:'is the theme running through this whole month for you — built from your Personal Year and the month, a layer above today\'s Personal Day.'},
+ 'Calendar Day':{lead:'is the raw number the date itself carries, before your own timing is layered on top of it — a foundation everyone shares on this date, not personal to you.'}
 };
 const CTX_ALIAS={'Current Year':'Personal Year'};
 // Master higher-octave notes — a 20/2, 29/2 etc. isn't "just a 2"
@@ -657,32 +674,38 @@ function openNumModal(label,value,extra){
  const wealth=compound===28?WEALTH_NUMBER:null;
  // Deep Life Path read
  const deep=(ckey==='Life Path')?LIFEPATH_DEEP[root]:null;
- // Birth Architecture layers (Birthday, Birth Month, Day + Month, Birth Year) — shared archetype + layer framing
- const frame=LAYER_FRAME[label];const arch=frame?ARCHETYPE[root]:null;
+ // Birth Architecture layers (Birthday, Birth Month, Day + Month, Birth Year, Home, Pinnacles, daily numbers…) —
+ // shared archetype content with label-specific framing where we have it. ARCHETYPE covers every root (1-9,
+ // 11,22,33,44) so this is also the universal depth fallback for any number that isn't otherwise specially handled —
+ // no number should ever land on a bare one-liner.
+ const frame=LAYER_FRAME[label];const arch=ARCHETYPE[root];
  const chal=CHALLENGE_LABELS.includes(label)?CHALLENGE_MEANING[root]:null;
+ const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
  let body=`<p style="margin-top:12px;color:var(--muted);font-size:.92rem">${esc(label)} is ${what}.</p>`;
  if(chal){
-  const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
   body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5"><b style="font-family:var(--heading)">${chal.name}</b></p><div style="margin-top:10px">`+row('THE OBSTACLE',chal.obstacle,'var(--lilac)')+row('THE LESSON',chal.lesson,'var(--mint)')+`</div><p class="muted" style="font-size:.82rem;margin-top:10px">Challenges work differently to Pinnacles — they\'re built from subtraction, not addition, and point to what you\'re overcoming rather than what comes naturally.</p>`;
  } else if(deep){
-  const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
   body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5">${deep.essence}</p><div style="margin-top:12px">`+
    row('STRENGTHS',deep.strengths,'var(--mint)')+row('THE CHALLENGE',deep.challenge,'var(--lilac)')+
    row('IN LOVE',deep.love,'var(--purple)')+row('AT WORK',deep.work,'var(--purple)')+
    row('YOUR MISSION',deep.mission,'var(--mint)')+`</div>`;
   if(deep.pattern)body+=`<p style="margin-top:12px;font-size:.82rem;font-style:italic" class="muted">${deep.pattern}</p>`;
   if(ctx)body+=`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--lilac)">In one line:</b> <span class="muted">${ctx.act}</span></p>`;
+ } else if(ctx){
+  body+=`<p style="margin-top:14px;font-size:.95rem"><b style="color:var(--mint)">How this can look for you:</b> <span class="muted">${ctx.look}</span></p><p style="margin-top:10px;font-size:.95rem"><b style="color:var(--lilac)">How to stay aligned:</b> <span class="muted">${ctx.act}</span></p>`;
+  if(arch)body+=`<div style="margin-top:14px">`+row('THE UNDERLYING PATTERN',arch.core,'var(--purple)')+`</div>`;
  } else if(arch){
-  const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
-  body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5">Your ${esc(label)} ${frame.lead}</p><p style="margin-top:10px;font-size:.98rem;line-height:1.5">${arch.core}</p><div style="margin-top:12px">`+
+  body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5">Your ${esc(label)} ${frame?frame.lead:'carries this pattern:'}</p><p style="margin-top:10px;font-size:.98rem;line-height:1.5">${arch.core}</p><div style="margin-top:12px">`+
    row('STRENGTHS',arch.strengths,'var(--mint)')+row('SHADOW',arch.shadow,'var(--lilac)')+row('THE LESSON',arch.lesson,'var(--mint)')+`</div>`;
   if(label==='Day + Month'&&extra.bday&&extra.bmonth){
    const bdRoot=parseInt(String(extra.bday).split('/').pop(),10),bmRoot=parseInt(String(extra.bmonth).split('/').pop(),10);
    const bdT=npFor(bdRoot).t[0],bmT=npFor(bmRoot).t[0];
    if(bdT&&bmT)body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--purple);border-radius:12px;background:rgba(167,139,250,.06)"><b style="color:var(--purple);font-size:.88rem">Where this comes from</b><p class="muted" style="font-size:.9rem;margin-top:6px;line-height:1.5">Your Birthday (${esc(extra.bday)}) wants ${bdT}. Your Birth Month (${esc(extra.bmonth)}) wants ${bmT}. Meeting in this birth architecture, those two energies combine into ${esc(value)} — bringing ${LABEL[np.t[0]]?LABEL[np.t[0]].toLowerCase():np.m}. Neither original number disappears; this is what they create together.</p></div>`;
   }
- } else if(ctx){body+=`<p style="margin-top:14px;font-size:.95rem"><b style="color:var(--mint)">How this can look for you:</b> <span class="muted">${ctx.look}</span></p><p style="margin-top:10px;font-size:.95rem"><b style="color:var(--lilac)">How to stay aligned:</b> <span class="muted">${ctx.act}</span></p>`;}
- else{body+=`<p style="margin-top:12px;font-size:.98rem"><b>Yours is ${esc(value)}:</b> <span class="muted">${np.m}.</span></p>${ti?`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px;font-size:.9rem"><b style="color:var(--lilac)">Watch for:</b> <span class="muted">${ti.shadow}.</span></p>`:''}`;}
+ } else {
+  // Unreachable in practice — ARCHETYPE covers every possible root — but kept as a hard safety net.
+  body+=`<p style="margin-top:12px;font-size:.98rem"><b>Yours is ${esc(value)}:</b> <span class="muted">${np.m}.</span></p>${ti?`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px;font-size:.9rem"><b style="color:var(--lilac)">Watch for:</b> <span class="muted">${ti.shadow}.</span></p>`:''}`;
+ }
  if(echo){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--mint);border-radius:12px;background:rgba(110,231,183,.06)"><b style="color:var(--mint);font-size:.88rem">✦ Carries the ${esc(echo.name)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${echo.line}</p><p style="font-size:.85rem;margin-top:6px;color:var(--lilac)">${echo.want}</p></div>`;}
  if(kd){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid #fbbf24;border-radius:12px;background:rgba(251,191,36,.07)"><b style="color:#fbbf24;font-size:.88rem">⚡ ${esc(kd.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${kd.lesson}</p></div>`;}
  if(wealth){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--mint);border-radius:12px;background:rgba(110,231,183,.07)"><b style="color:var(--mint);font-size:.88rem">💰 ${esc(wealth.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${wealth.lesson}</p></div>`;}
@@ -952,7 +975,7 @@ Life Path       ${p.dayMonth.number} + ${p.birthYear.number} = ${p.dayMonth.numb
      row('WHAT IT CAN LOOK LIKE',ti.shadow?ti.shadow.charAt(0).toUpperCase()+ti.shadow.slice(1)+'.':'','var(--lilac)')+
      row('HOW TO GROW THROUGH IT',ti.grow?ti.grow.charAt(0).toUpperCase()+ti.grow.slice(1)+'.':'','var(--mint)')+
      `</div></div>`;}).join(''):'<p class="muted" style="margin-top:12px">No single shadow theme stands out strongly in this profile.</p>'}</section>
-   <section class="blk" id="lifemap"><p class="eyebrow">You are ${I.age} · your map</p><h2 style="font-size:1.7rem;margin-top:8px">Life map</h2>${I.lifeMap.map((pin,i)=>`<div class="pin ${pin.current?'now':''}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">Pinnacle ${i+1} · ${pin.range}</div><div style="font-family:var(--heading);font-weight:800;font-size:1.4rem">${pin.value}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${pin.meaning}</div></div>${pin.current?'<span class="here">You are here</span>':''}</div>`).join('')}</section>
+   <section class="blk" id="lifemap"><p class="eyebrow">You are ${I.age} · your map</p><h2 style="font-size:1.7rem;margin-top:8px">Life map</h2>${I.lifeMap.map((pin,i)=>{const pinLabel=PINNACLE_LABELS[i];return `<div class="pin ${pin.current?'now':''} num-tap" data-info data-label="${pinLabel}" data-value="${esc(pin.value)}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">${pinLabel} · ${pin.range} <span style="opacity:.5">&#9432;</span></div><div style="font-family:var(--heading);font-weight:800;font-size:1.4rem">${pin.value}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${pin.meaning}</div></div>${pin.current?'<span class="here">You are here</span>':''}</div>`;}).join('')}</section>
    <section class="blk" id="challenges"><p class="eyebrow">The other side of the map</p><h2 style="font-size:1.7rem;margin-top:8px">Your Challenges</h2><p class="muted" style="margin-top:8px;font-size:.92rem">Pinnacles show the gifts each life period hands you. Challenges show the obstacle running alongside — built from subtraction between your day, month and year, not addition.</p>
     ${[['First','First Challenge',p.challenges.first,I.ranges[0],I.currentPinnacleIndex===0],['Second','Second Challenge',p.challenges.second,I.ranges[1],I.currentPinnacleIndex===1],['Main','Third Challenge',p.challenges.third,'your whole life',null],['Fourth','Fourth Challenge',p.challenges.fourth,I.ranges[3],I.currentPinnacleIndex===3]].map(([nth,dataLabel,val,range,isNow])=>`<div class="pin ${isNow?'now':''} num-tap" data-info data-label="${dataLabel}" data-value="${val}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">${nth} Challenge · ${range} ⓘ</div><div style="font-family:var(--heading);font-weight:800;font-size:1.4rem">${val}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${CHALLENGE_MEANING[val].name}</div></div>${isNow?'<span class="here">You are here</span>':''}</div>`).join('')}
    </section>
@@ -1003,8 +1026,8 @@ function vToday(){const p=meProfile();const ds=todayStr();const arch=dailyArchit
   ${res?`<div class="card beam" style="margin-top:16px;border-color:var(--purple)"><p class="eyebrow" style="color:var(--purple)">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
   <div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:18px">
    <div class="key num-tap" data-info data-label="Current Year" data-value="${arch.universalDay.display}"><div class="l">Overall day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.universalDay.display}</div></div>
-   <div class="key"><div class="l">Calendar foundation</div><div class="v">${arch.calendarDay.display}</div></div>
-   <div class="key"><div class="l">Your Personal Day</div><div class="v">${arch.personalDay}</div></div>
+   <div class="key num-tap" data-info data-label="Calendar Day" data-value="${esc(arch.calendarDay.display)}"><div class="l">Calendar foundation <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.calendarDay.display}</div></div>
+   <div class="key num-tap" data-info data-label="Personal Day" data-value="${arch.personalDay}"><div class="l">Your Personal Day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.personalDay}</div></div>
    <div class="key num-tap" data-info data-label="Personal Year" data-value="${arch.personalYear}"><div class="l">Your Personal Year <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.personalYear}</div></div>
   </div>
   <div class="card" style="margin-top:16px"><p class="eyebrow">Your day in plain English</p><p style="margin-top:8px;font-size:.95rem;line-height:1.6">${dailySynthesisText(arch,first)}</p></div>
@@ -1045,10 +1068,10 @@ function vDateDetail(){const p=meProfile();const ds=S.calDate||todayStr();const 
  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px;max-width:600px">
   <p class="eyebrow">Date detail</p><h1 style="font-size:1.8rem;margin-top:8px">${fmtDate(ds)}</h1>
   <div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:16px">
-   <div class="key num-tap" data-info data-label="Birthday" data-value="${arch.calendarDay.display}"><div class="l">Calendar day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.calendarDay.display}</div></div>
+   <div class="key num-tap" data-info data-label="Calendar Day" data-value="${esc(arch.calendarDay.display)}"><div class="l">Calendar day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.calendarDay.display}</div></div>
    <div class="key num-tap" data-info data-label="Current Year" data-value="${arch.universalDay.display}"><div class="l">Full date <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.universalDay.display}</div></div>
-   <div class="key"><div class="l">Your Personal Day</div><div class="v">${arch.personalDay}</div></div>
-   <div class="key"><div class="l">Your Personal Month</div><div class="v">${arch.personalMonth}</div></div>
+   <div class="key num-tap" data-info data-label="Personal Day" data-value="${arch.personalDay}"><div class="l">Your Personal Day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.personalDay}</div></div>
+   <div class="key num-tap" data-info data-label="Personal Month" data-value="${arch.personalMonth}"><div class="l">Your Personal Month <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.personalMonth}</div></div>
   </div>
   <div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between"><span class="muted">Weekday</span><b style="font-family:var(--heading)">${arch.weekday.name} · ${arch.weekday.planet}</b></div><p class="muted" style="font-size:.85rem;margin-top:6px">A supporting symbolic layer — ${joinL(arch.weekday.t)}. Kept separate from the numerology above.</p></div>
   ${res?`<div class="card" style="margin-top:12px;border-color:var(--purple)"><p class="eyebrow" style="color:var(--purple)">Your resonance</p><p style="margin-top:8px;font-size:1.05rem;font-family:var(--heading);font-weight:700">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.9rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
