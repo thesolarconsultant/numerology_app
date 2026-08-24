@@ -9,6 +9,12 @@
 <meta property="og:description" content="Your family's numbers, decoded.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NumeraFlow">
+<meta name="mobile-web-app-capable" content="yes">
 <title>NumeraFlow App</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -147,6 +153,8 @@
   .keys .key:nth-child(n+6),.opts .opt:nth-child(n+6),.fnode:nth-child(n+6){animation-delay:.3s}
   @media(prefers-reduced-motion:reduce){.aurora,.beam::before{animation:none;}.screen,.jcard,.keys .key,.opts .opt,.journeys .jcard,.fnode{animation:none;}}
 </style>
+</head>
+<body>
 
 <canvas id="stars"></canvas>
 <div id="app"></div>
@@ -1234,11 +1242,27 @@ function nameResultCard(r){return `<div class="card beam" style="margin-top:16px
 </div>`;}
 
 /* ---------- number meanings glossary ---------- */
-function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33];
+// Full-depth glossary: pulls from the SAME rich tables as the tap-to-learn modal (LIFEPATH_DEEP for the
+// full essence/strengths/challenge/love/work/mission read, ARCHETYPE as a fallback for anything LIFEPATH_DEEP
+// doesn't cover) rather than the short NP one-liner this page used to show -- no reason the standalone
+// glossary should be shallower than tapping the same number inside a reading.
+function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33,44];
+ const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--border);padding:8px 0"><b style="color:${col};font-size:.78rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${txt}</div></div>`:'';
  return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:680px">
   <p class="eyebrow">Learn</p><h1 style="font-size:2rem;margin-top:8px">Every number &amp; theme, explained</h1>
-  <p class="muted" style="margin-top:8px">Your place to learn it yourself. 1–9 are the core numbers; 11, 22 and 33 are the master numbers. Below them, the recurring themes your numbers point to.</p>
-  <div style="display:grid;gap:12px;margin-top:20px">${nums.map(n=>{const np=npFor(n);return `<div class="card"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-family:var(--heading);font-weight:800;font-size:2.2rem;color:${[11,22,33].includes(n)?'var(--mint)':'var(--purple)'};min-width:52px">${n}</span><div><b style="font-family:var(--heading)">${(np.t.map(t=>LABEL[t]||t).join(' · '))||'—'}</b>${[11,22,33].includes(n)?' <span class="muted" style="font-size:.7rem">· master</span>':''}<div class="muted" style="font-size:.82rem">Needs: ${NEEDL[np.need]||np.need}</div></div></div><p style="margin-top:10px;font-size:.9rem">${np.m}.</p><p class="muted" style="font-size:.84rem;margin-top:6px">Shadow: ${np.s.join(', ')}.</p></div>`;}).join('')}</div>
+  <p class="muted" style="margin-top:8px">Your place to learn it yourself. 1–9 are the core numbers; 11, 22, 33 and 44 are the master numbers. Full depth on every one — the same read you'd get tapping that number inside your own reading.</p>
+  <div style="display:grid;gap:14px;margin-top:20px">${nums.map(n=>{const np=npFor(n);const deep=LIFEPATH_DEEP[n]||{};const arch=ARCHETYPE[n]||{};const isMaster=MM.includes(n);
+    return `<div class="card"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-family:var(--heading);font-weight:800;font-size:2.2rem;color:${isMaster?'var(--mint)':'var(--purple)'};min-width:52px">${n}</span><div><b style="font-family:var(--heading)">${(np.t.map(t=>LABEL[t]||t).join(' · '))||'—'}</b>${isMaster?' <span class="muted" style="font-size:.7rem">· master</span>':''}<div class="muted" style="font-size:.82rem">Needs: ${NEEDL[np.need]||np.need}</div></div></div>
+     <p style="margin-top:12px;font-size:.95rem;line-height:1.55">${deep.essence||arch.core||np.m+'.'}</p>
+     <div style="margin-top:8px">${row('STRENGTHS',deep.strengths||arch.strengths,'var(--mint)')}${row('THE CHALLENGE',deep.challenge||arch.shadow,'var(--lilac)')}${row('IN LOVE',deep.love,'var(--purple)')}${row('AT WORK',deep.work,'var(--purple)')}${row('THE MISSION',deep.mission||arch.lesson,'var(--mint)')}</div>
+     ${deep.pattern?`<p class="muted" style="font-size:.8rem;font-style:italic;margin-top:10px">${deep.pattern}</p>`:''}
+    </div>`;}).join('')}</div>
+  <h2 style="font-size:1.5rem;margin-top:32px">Karmic Debt &amp; the Wealth Number</h2>
+  <p class="muted" style="margin-top:6px">A handful of compound numbers carry a specific lesson of their own — never just flattened to their root.</p>
+  <div style="display:grid;gap:10px;margin-top:16px">
+   <div class="card" style="border-color:var(--mint)"><b style="font-family:var(--heading);color:var(--mint)">💰 ${esc(WEALTH_NUMBER.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${WEALTH_NUMBER.lesson}</p></div>
+   ${Object.values(KARMIC_DEBT).map(kd=>`<div class="card" style="border-color:#fbbf24"><b style="font-family:var(--heading);color:#fbbf24">⚡ ${esc(kd.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${kd.lesson}</p></div>`).join('')}
+  </div>
   <h2 style="font-size:1.5rem;margin-top:32px">The themes explained</h2>
   <p class="muted" style="margin-top:6px">The recurring patterns your numbers point to — what each looks like at its best, its shadow, and how to grow with it.</p>
   <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--heading);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${ti.shadow}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${ti.grow}.</span></p></div>`).join('')}</div>
@@ -1416,5 +1440,11 @@ if(hasMe()&&(S.screen==='landing'||!S.screen))S.screen='dashboard';
 try{history.replaceState({navScreen:S.screen},'','#'+S.screen);}catch(e){}
 addEventListener('popstate',e=>{const ns=e.state&&e.state.navScreen;if(ns){S.screen=ns;save();render();window.scrollTo(0,0);}});
 render();
+
+/* PWA install support — offline app-shell caching via a same-origin service worker. Registration
+   is best-effort: file:// pages and sandboxed preview origins don't support service workers at all,
+   so a failed register() here is expected in those contexts and never blocks the app itself. */
+if('serviceWorker' in navigator){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
 </script>
+</body>
 </html>
