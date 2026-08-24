@@ -645,11 +645,11 @@ function vDashboard(){const p=meProfile();return topbar()+`<div class="screen"><
 </div></div>`;}
 
 /* ---------- family ---------- */
-function vFamAnchor(){const pre=hasMe();return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:520px">
+function vFamAnchor(){const pre=hasMe()&&!S.anchorEditMode;return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:520px">
   <p class="eyebrow">Let's map your family</p><h1 style="font-size:2rem;margin-top:8px">Start with you</h1>
   <p class="muted" style="margin-top:8px">Every person brings their own patterns and timing. We'll understand everyone individually, then what happens when they interact.</p>
-  ${pre?`<div class="card" style="margin-top:20px">Using your profile — <b>${esc(S.me.first)}</b> (Life Path ${meProfile().lifePath.display}) as your anchor.</div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-me">Continue → add family</button>`:`
-  <div style="display:grid;gap:14px;margin-top:20px"><div><label class="fl">Your birth name</label><input id="fa_name" placeholder="Full name at birth"></div><div><label class="fl">Your date of birth</label><input id="fa_dob" type="date" max="${YEARNOW}-12-31"></div></div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-new">Continue → add family</button>`}
+  ${pre?`<div class="card" style="margin-top:20px">Using your profile — <b>${esc(S.me.first)}</b> (Life Path ${meProfile().lifePath.display}) as your anchor.</div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-me">Continue → add family</button><p style="margin-top:14px;text-align:center"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="anchor-edit">Not ${esc(S.me.first)}? Use different details</span></p>`:`
+  <div style="display:grid;gap:14px;margin-top:20px"><div><label class="fl">Your birth name</label><input id="fa_name" placeholder="Full name at birth" value="${esc(fullName())}"></div><div><label class="fl">Your date of birth</label><input id="fa_dob" type="date" max="${YEARNOW}-12-31" value="${esc(S.me.dob||'')}"></div></div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-new">Continue → add family</button>${hasMe()?`<p style="margin-top:14px;text-align:center"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="anchor-cancel-edit">Cancel</span></p>`:''}`}
 </div></div>`;}
 function vFamAdd(){return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:560px">
   <p class="eyebrow">Your family so far · ${S.family.length}</p><h1 style="font-size:1.8rem;margin-top:8px">Who should we add next?</h1>
@@ -840,8 +840,10 @@ document.addEventListener('click',e=>{
   else if(act==='test-compat'){S.compat={name:val('cw_name'),dob:val('cw_dob')};save();render();window.scrollTo(0,0);}
   else if(act==='save-pairing'){const c=S.compat;if(c&&c.name&&c.dob){S.savedPairings=S.savedPairings||[];if(!S.savedPairings.some(x=>x.name===c.name&&x.dob===c.dob)){S.savedPairings.push({name:c.name,dob:c.dob});save();}render();}}
   else if(act==='reset'){if(confirm('This permanently erases everything saved on this device — your profile, your whole family, saved pairings and your account. It cannot be undone.\n\nClear all data and start fresh?')){clearAllData();alert('All data cleared. Starting fresh.');go('landing');}}
-  else if(act==='anchor-me')go('fam_add');
-  else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){alert('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;save();go('fam_add');}
+  else if(act==='anchor-me'){S.anchorEditMode=false;go('fam_add');}
+  else if(act==='anchor-edit'){S.anchorEditMode=true;save();render();}
+  else if(act==='anchor-cancel-edit'){S.anchorEditMode=false;save();render();}
+  else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){alert('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;S.anchorEditMode=false;save();go('fam_add');}
   else if(act==='fm-add')fmAdd();
   else if(act==='fam-space')go('fam_space');
   else if(act==='fam-explore'||act==='fam-add-more'){if(act==='fam-explore'&&hasMe()&&!S.family.some(m=>m.relationship==='self')){S.family.unshift({name:fullName()||S.me.first,dob:S.me.dob,relationship:'self',door:S.me.door});save();}go('fam_space');}
