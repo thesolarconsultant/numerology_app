@@ -612,6 +612,7 @@ function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return t
    <div class="key num-tap" data-info data-label="Day + Month" data-value="${esc(p.dayMonth.display)}" data-bday="${esc(p.birthday.display)}" data-bmonth="${esc(p.birthMonth.display)}"><div class="l">Day+Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.dayMonth.display}${echoBadge(p.dayMonth.display)}</div></div>
    <div class="key num-tap" data-info data-label="Birth Year" data-value="${esc(p.birthYear.display)}"><div class="l">Birth Year <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.birthYear.display}${echoBadge(p.birthYear.display)}</div></div>
   </div>
+  <div class="card beam" style="margin-top:16px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">Putting it all together</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${birthArchNarrative(p,esc(S.me.first))}</p></div>
   <div class="card beam" style="margin-top:20px"><p class="eyebrow" style="color:var(--mint)">One pattern already stands out</p><p style="margin-top:8px">${esc(intel.reinforcements[0]?intel.reinforcements[0].explanation:intel.corePattern)}</p></div>
   <div style="text-align:center;margin-top:28px"><p class="muted" style="max-width:480px;margin:0 auto 18px">Your numbers give the structure. But they don't yet know what's actually happening in your life. Tell NumeraFlow a little and the reading gets far more relevant.</p></div>
 </div></div>
@@ -657,6 +658,15 @@ function vReady(){const c=S.me.context;const items=[['Your numerical blueprint',
 /* ---------- reading ---------- */
 const RSEC=[['overview','Overview'],['architecture','Birth Architecture'],['you','Who You Are'],['drives','Drives'],['contradictions','Contradictions'],['shadow','Shadow'],['lifemap','Life Map'],['year','Personal Year'],['now','Right Now'],['name','Name'],['home','Home'],['eastern','Eastern'],['matters','What Matters'],['big','Big Picture']];
 function calcPre(c){return `formula reduces ${c.route.join(' → ')} · result ${c.display}${c.master?' · master preserved':''}`;}
+// One bespoke paragraph weaving Birthday + Month + Day&Month + Year + Life Path together for this specific person —
+// generated from their actual numbers each time, not a canned template.
+function birthArchNarrative(p,first){
+ const bd=npFor(p.birthday.number),bm=npFor(p.birthMonth.number),dm=npFor(p.dayMonth.number),by=npFor(p.birthYear.number),lp=npFor(p.lifePath.number);
+ const used=new Set();
+ const t=np=>{const w=np.t.find(x=>x&&!used.has(x))||np.t[0]||'a distinct energy';used.add(w);return w;};
+ const bdT=t(bd),bmT=t(bm),dmT=t(dm),byT=t(by);
+ return `${first}'s Birthday (${p.birthday.display}) brings ${bdT} into everything — instinctive, present before anything else shapes them. Underneath that, the Birth Month (${p.birthMonth.display}) runs a steadier undertone of ${bmT}. Where the two meet, the Day + Month (${p.dayMonth.display}) becomes ${dmT} — not either number alone, but what they create together. Deeper still sits the Birth Year (${p.birthYear.display}): ${byT}, more structural than personal, felt rather than chosen. Every one of those layers builds toward the Life Path of ${p.lifePath.display} — ${lp.m}. That final number isn't ${first} reduced to a single digit. It's ${first} as the sum of everything above, each layer still fully present underneath it.`;
+}
 function readingTarget(){const idx=S.famReadingIdx;const m=idx!=null?S.family[idx]:null;
  if(m){const p=buildProfile(m.dob,m.name,'',m.door||'',YEARNOW);return{p,name:m.name.split(' ')[0],c:{},isMe:false,relationship:m.relationship};}
  return{p:meProfile(),name:S.me.first,c:S.me.context||{},isMe:true};}
@@ -689,6 +699,7 @@ function vReading(){const rt=readingTarget();const p=rt.p;const I=buildIntellige
      <div class="card" style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Birth Year" data-value="${p.birthYear.display}" style="font-size:2.6rem;color:var(--purple);min-width:82px">${p.birthYear.display}${echoBadge(p.birthYear.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">4 · Birth Year ⓘ</div><b style="font-family:var(--heading)">The deeper structural foundation</b></div></div>
      <div class="card beam" style="display:flex;align-items:center;gap:14px;border-color:var(--purple)"><span class="bignum num-tap" data-info data-label="Life Path" data-value="${p.lifePath.display}" style="font-size:2.6rem;color:var(--lilac);min-width:82px">${p.lifePath.display}${echoBadge(p.lifePath.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">5 · Life Path ⓘ</div><b style="font-family:var(--heading)">Everything above, combined</b></div></div>
     </div>
+    <div class="card beam" style="margin-top:14px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">Putting it all together</p><p style="margin-top:8px;font-size:.95rem;line-height:1.6">${birthArchNarrative(p,first)}</p></div>
     <details class="disc" style="margin-top:14px"><summary>Show my calculation</summary><pre>Birthday        ${calcPre(p.birthday)}
 Birth Month     ${calcPre(p.birthMonth)}
 Day + Month     ${p.birthMonth.number} + ${p.birthday.number} = ${p.birthMonth.number+p.birthday.number} → ${calcPre(p.dayMonth)}
