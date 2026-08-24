@@ -144,6 +144,7 @@
 <canvas id="stars"></canvas>
 <div id="app"></div>
 <div id="nummodal" class="modal"></div>
+<div id="sysmodal" class="modal"></div>
 
 <script>
 /* ============================ ENGINE ============================ */
@@ -461,6 +462,16 @@ function openNumModal(label,value,extra){
  m.classList.add('on');try{track('number_info',{label,value,echo:echoNum||undefined});}catch(e){}
 }
 function closeNumModal(){const m=document.getElementById('nummodal');if(m){m.classList.remove('on');m.innerHTML='';}}
+// Native window.alert/confirm are blocked or silently no-op in several real-world contexts
+// (sandboxed previews, some in-app browsers) — never rely on them. These are the app's own dialogs.
+function closeSysModal(){const m=document.getElementById('sysmodal');if(m){m.classList.remove('on');m.innerHTML='';}}
+function notify(msg){const m=document.getElementById('sysmodal');if(!m)return;
+ m.innerHTML=`<div class="mbox" style="text-align:center"><p style="margin-top:6px;font-size:1rem">${esc(msg)}</p><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="sys-ok">OK</button></div>`;
+ m.classList.add('on');}
+function confirmDialog(msg,onYes){const m=document.getElementById('sysmodal');if(!m)return;
+ window.__sysConfirmYes=onYes;
+ m.innerHTML=`<div class="mbox" style="text-align:center"><p style="margin-top:6px;font-size:1rem;white-space:pre-line">${esc(msg)}</p><div style="display:flex;gap:10px;margin-top:18px"><button class="btn btn-ghost" style="flex:1" data-act="sys-cancel">Cancel</button><button class="btn btn-glow" style="flex:1" data-act="sys-confirm">Confirm</button></div></div>`;
+ m.classList.add('on');}
 // At-a-glance marker: a compound like 20/2 that carries an 11/22/33 higher octave
 function echoBadge(disp){const parts=String(disp).split('/').map(p=>parseInt(p,10));if(parts.length<2)return '';const c=parts[0];const r=parts[parts.length-1];if(c>9&&![11,22,33].includes(r)&&MFAM[r]&&!parts.includes(MFAM[r]))return ` <span class="echo" title="Carries the master ${MFAM[r]}">↑${MFAM[r]}</span>`;return '';}
 const YEARNOW=new Date().getFullYear();
@@ -856,6 +867,7 @@ document.addEventListener('click',e=>{
   const info=e.target.closest('[data-info]');
   if(info){openNumModal(info.dataset.label,info.dataset.value,{bday:info.dataset.bday,bmonth:info.dataset.bmonth});return;}
   if(e.target.id==='nummodal'){closeNumModal();return;}
+  if(e.target.id==='sysmodal'){closeSysModal();return;}
   const nameChip=e.target.closest('[data-name]');
   const savedPair=e.target.closest('[data-savedpair]');
   if(nameChip){S.nm={name:nameChip.dataset.name,dob:(S.nm&&S.nm.dob)||''};save();render();window.scrollTo(0,0);return;}
@@ -864,9 +876,12 @@ document.addEventListener('click',e=>{
   if(rel){document.querySelectorAll('#fm_rel .opt').forEach(o=>o.classList.remove('sel'));rel.classList.add('sel');return;}
   if(rail){document.getElementById(rail.dataset.rail)?.scrollIntoView({behavior:'smooth',block:'start'});return;}
   if(fsel){const i=+fsel.dataset.fsel;let s=S.famSel||[];s=s.includes(i)?s.filter(x=>x!==i):[...s.slice(-1),i];S.famSel=s;save();render();return;}
-  if(changed){alert('Noted: '+changed.dataset.changed+'. In the full build we\'d update your context here — never your core numbers.');return;}
+  if(changed){notify('Noted: '+changed.dataset.changed+'. In the full build we\'d update your context here — never your core numbers.');return;}
   if(!a)return;const act=a.dataset.act;
   if(act==='num-close')closeNumModal();
+  else if(act==='sys-ok')closeSysModal();
+  else if(act==='sys-cancel'){window.__sysConfirmYes=null;closeSysModal();}
+  else if(act==='sys-confirm'){const fn=window.__sysConfirmYes;window.__sysConfirmYes=null;closeSysModal();if(fn)fn();}
   else if(act==='home')go('landing');
   else if(act==='login'||act==='auth')go('auth');
   else if(act==='do-auth'){S.account={name:val('ac_name'),email:val('ac_email')};save();go(hasMe()?'dashboard':'landing');}
@@ -877,8 +892,8 @@ document.addEventListener('click',e=>{
   else if(act==='start-fam'){S.journey='fam';track('begin_checkout',{plan:'family',value:28});go('fam_unlock');}
   else if(act==='unlocked-me'){track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
   else if(act==='unlocked-fam'){track('purchase',{plan:'family',value:28,currency:'GBP'});go('fam_anchor');}
-  else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){alert('Please choose your date of birth to continue — tap the date field above.');document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
-  else if(act==='name-next'){S.me.first=val('n_first');S.me.middle=val('n_middle');S.me.last=val('n_last');S.me.currentName=val('n_current');if(!S.me.first||!S.me.last){alert('First name and surname help build your name profile.');return;}save();go('me_reveal');}
+  else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){notify('Please choose your date of birth to continue — tap the date field above.');document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
+  else if(act==='name-next'){S.me.first=val('n_first');S.me.middle=val('n_middle');S.me.last=val('n_last');S.me.currentName=val('n_current');if(!S.me.first||!S.me.last){notify('First name and surname help build your name profile.');return;}save();go('me_reveal');}
   else if(act==='go-deeper'){S.me.iStep=0;save();go('me_interview');}
   else if(act==='show-reading'){S.famReadingIdx=null;go('me_reading');}
   else if(act==='iq-next')iqNext(false);
@@ -899,11 +914,11 @@ document.addEventListener('click',e=>{
   else if(act.indexOf('nm-num-')===0){S.nm={...(S.nm||{}),mode:'number',targetNum:+act.slice(7)};save();render();}
   else if(act==='test-compat'){S.compat={name:val('cw_name'),dob:val('cw_dob')};save();render();window.scrollTo(0,0);}
   else if(act==='save-pairing'){const c=S.compat;if(c&&c.name&&c.dob){S.savedPairings=S.savedPairings||[];if(!S.savedPairings.some(x=>x.name===c.name&&x.dob===c.dob)){S.savedPairings.push({name:c.name,dob:c.dob});save();}render();}}
-  else if(act==='reset'){if(confirm('This permanently erases everything saved on this device — your profile, your whole family, saved pairings and your account. It cannot be undone.\n\nClear all data and start fresh?')){clearAllData();alert('All data cleared. Starting fresh.');go('landing');}}
+  else if(act==='reset'){confirmDialog('This permanently erases everything saved on this device — your profile, your whole family, saved pairings and your account. It cannot be undone.\n\nClear all data and start fresh?',()=>{clearAllData();go('landing');notify('All data cleared. Starting fresh.');});}
   else if(act==='anchor-me'){S.anchorEditMode=false;go('fam_add');}
   else if(act==='anchor-edit'){S.anchorEditMode=true;save();render();}
   else if(act==='anchor-cancel-edit'){S.anchorEditMode=false;save();render();}
-  else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){alert('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;S.anchorEditMode=false;save();go('fam_add');}
+  else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){notify('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;S.anchorEditMode=false;save();go('fam_add');}
   else if(act==='fm-add')fmAdd();
   else if(act==='fam-space')go('fam_space');
   else if(act==='fam-explore'||act==='fam-add-more'){if(act==='fam-explore'&&hasMe()&&!S.family.some(m=>m.relationship==='self')){S.family.unshift({name:fullName()||S.me.first,dob:S.me.dob,relationship:'self',door:S.me.door});save();}go('fam_space');}
@@ -911,8 +926,8 @@ document.addEventListener('click',e=>{
 function val(id){const el=document.getElementById(id);return el?el.value.trim():'';}
 function toggleOpt(o){const q=currentIQ();if(!q)return;const c=S.me.context;if(q.multi){let arr=c[q.id]||[];if(arr.includes(o))arr=arr.filter(x=>x!==o);else{if(q.max&&arr.length>=q.max)arr=arr.slice(1);arr=[...arr,o];}c[q.id]=arr;}else{c[q.id]=o;}save();render();}
 function iqNext(skip){const q=currentIQ();if(q&&(q.input||q.textarea)&&!skip){S.me.context[q.id]=val('iq_input');if(q.id==='door')S.me.door=val('iq_input');}S.me.iStep=(S.me.iStep||0)+1;save();if(S.me.iStep>=IQ.length)go('me_ready');else render();}
-function fmAdd(){const n=val('fm_name'),d=val('fm_dob');const rel=document.querySelector('#fm_rel .opt.sel')?.dataset.rel||'other';if(!n||!d){alert('Add a name and date of birth.');return;}S.family.push({name:n,dob:d,relationship:rel});save();render();}
-function teaser(){const v=document.getElementById('t_dob').value;if(!v){alert('Please choose your date of birth to continue — tap the date field above.');document.getElementById('t_dob').focus();return;}const lp=lifePathFromDob(v);const meta=npFor(lp.number);document.getElementById('t_reveal').classList.add('on');document.getElementById('t_kw').textContent=meta.m.split(',').slice(0,2).join(' ·');document.getElementById('t_mean').textContent='Your Life Path speaks to '+meta.m+'. But this is only one part of the picture.';S.me.dob=v;save();countTo(document.getElementById('t_num'),lp.number,lp.display);}
+function fmAdd(){const n=val('fm_name'),d=val('fm_dob');const rel=document.querySelector('#fm_rel .opt.sel')?.dataset.rel||'other';if(!n||!d){notify('Add a name and date of birth.');return;}S.family.push({name:n,dob:d,relationship:rel});save();render();}
+function teaser(){const v=document.getElementById('t_dob').value;if(!v){notify('Please choose your date of birth to continue — tap the date field above.');document.getElementById('t_dob').focus();return;}const lp=lifePathFromDob(v);const meta=npFor(lp.number);document.getElementById('t_reveal').classList.add('on');document.getElementById('t_kw').textContent=meta.m.split(',').slice(0,2).join(' ·');document.getElementById('t_mean').textContent='Your Life Path speaks to '+meta.m+'. But this is only one part of the picture.';S.me.dob=v;save();countTo(document.getElementById('t_num'),lp.number,lp.display);}
 function countTo(el,target,disp){const dur=900;let s=null;const ease=t=>1-Math.pow(1-t,3);function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);el.textContent=Math.round(ease(p)*target);if(p<1)requestAnimationFrame(step);else el.textContent=disp||target;}requestAnimationFrame(step);}
 function wireRail(){const ids=RSEC.map(r=>r[0]);const btns=[...document.querySelectorAll('.rail button')];const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){btns.forEach(b=>b.classList.toggle('on',b.dataset.rail===en.target.id));}}),{rootMargin:'-45% 0px -50% 0px'});ids.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
   // animate key numbers with data-count
