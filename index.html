@@ -735,7 +735,7 @@ function vFamAnchor(){const pre=hasMe()&&!S.anchorEditMode;return topbar()+`<div
 </div></div>`;}
 function vFamAdd(){const justFinished=S.journey==='fam'&&hasMe()&&!S.family.length;return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:560px">
   <p class="eyebrow">Your family so far · ${S.family.length}</p><h1 style="font-size:1.8rem;margin-top:8px">${justFinished?`That's your profile done, ${esc(S.me.first)}. Now let's add your family.`:'Who should we add next?'}</h1>
-  <div style="display:grid;gap:10px;margin-top:16px">${S.family.map((m,i)=>`<div class="fnode" style="cursor:default"><b style="font-family:var(--heading)">${esc(m.name.split(' ')[0])}</b> <span class="muted" style="font-size:.85rem">· ${m.relationship} · Life Path ${buildProfile(m.dob,m.name,'',m.door||'',YEARNOW).lifePath.display}</span></div>`).join('')||'<p class="muted">No one added yet.</p>'}</div>
+  <div style="display:grid;gap:10px;margin-top:16px">${S.family.map((m,i)=>`<div class="fnode" style="cursor:default;display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b style="font-family:var(--heading)">${esc(m.name.split(' ')[0])}</b> <span class="muted" style="font-size:.85rem">· ${m.relationship} · Life Path ${buildProfile(m.dob,m.name,'',m.door||'',YEARNOW).lifePath.display}</span></div><div style="display:flex;align-items:center;gap:2px;flex-shrink:0"><span class="muted" data-famup="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===0?'opacity:.25;pointer-events:none':''}">↑</span><span class="muted" data-famdown="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===S.family.length-1?'opacity:.25;pointer-events:none':''}">↓</span><span style="cursor:pointer;padding:6px 8px;font-size:.78rem;text-decoration:underline;color:var(--purple)" data-famedit="${i}">Edit</span></div></div>`).join('')||'<p class="muted">No one added yet.</p>'}</div>
   <div class="card" style="margin-top:18px"><p style="font-family:var(--heading);font-weight:700">Add a person</p>
    <div style="display:grid;gap:12px;margin-top:12px"><input id="fm_name" placeholder="Full birth name"><input id="fm_dob" type="date" max="${YEARNOW}-12-31">
    <div class="opts" id="fm_rel">${['Partner','Child','Parent','Sibling','Other'].map((o,i)=>`<span class="opt ${i===0?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
@@ -874,6 +874,12 @@ document.addEventListener('click',e=>{
   const rel=e.target.closest('[data-rel]');
   const rail=e.target.closest('[data-rail]');
   const fsel=e.target.closest('[data-fsel]');
+  const famedit=e.target.closest('[data-famedit]');
+  const famup=e.target.closest('[data-famup]');
+  const famdown=e.target.closest('[data-famdown]');
+  if(famedit){openFamEditModal(+famedit.dataset.famedit);return;}
+  if(famup){famMove(+famup.dataset.famup,-1);return;}
+  if(famdown){famMove(+famdown.dataset.famdown,1);return;}
   const changed=e.target.closest('[data-changed]');
   const info=e.target.closest('[data-info]');
   if(info){openNumModal(info.dataset.label,info.dataset.value,{bday:info.dataset.bday,bmonth:info.dataset.bmonth});return;}
@@ -884,7 +890,7 @@ document.addEventListener('click',e=>{
   if(nameChip){S.nm={name:nameChip.dataset.name,dob:(S.nm&&S.nm.dob)||''};save();render();window.scrollTo(0,0);return;}
   if(savedPair){const sp=(S.savedPairings||[])[+savedPair.dataset.savedpair];if(sp){S.compat={...sp};save();render();window.scrollTo(0,0);}return;}
   if(opt){toggleOpt(opt.dataset.opt);return;}
-  if(rel){document.querySelectorAll('#fm_rel .opt').forEach(o=>o.classList.remove('sel'));rel.classList.add('sel');return;}
+  if(rel){rel.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));rel.classList.add('sel');return;}
   if(rail){document.getElementById(rail.dataset.rail)?.scrollIntoView({behavior:'smooth',block:'start'});return;}
   if(fsel){const i=+fsel.dataset.fsel;let s=S.famSel||[];s=s.includes(i)?s.filter(x=>x!==i):[...s.slice(-1),i];S.famSel=s;save();render();return;}
   if(changed){notify('Noted: '+changed.dataset.changed+'. In the full build we\'d update your context here — never your core numbers.');return;}
@@ -893,6 +899,8 @@ document.addEventListener('click',e=>{
   else if(act==='sys-ok')closeSysModal();
   else if(act==='sys-cancel'){window.__sysConfirmYes=null;closeSysModal();}
   else if(act==='sys-confirm'){const fn=window.__sysConfirmYes;window.__sysConfirmYes=null;closeSysModal();if(fn)fn();}
+  else if(act==='fam-edit-save')famEditSave(+a.dataset.famidx);
+  else if(act==='fam-edit-remove'){const idx=+a.dataset.famidx;const nm=S.family[idx]?.name.split(' ')[0]||'this person';confirmDialog('Remove '+nm+' from your family? This cannot be undone.',()=>{S.family.splice(idx,1);S.famSel=(S.famSel||[]).filter(x=>x!==idx).map(x=>x>idx?x-1:x);save();closeSysModal();render();});}
   else if(act==='home')go('landing');
   else if(act==='login'||act==='auth')go('auth');
   else if(act==='do-auth'){S.account={name:val('ac_name'),email:val('ac_email')};save();go(hasMe()?'dashboard':'landing');}
@@ -938,6 +946,21 @@ function val(id){const el=document.getElementById(id);return el?el.value.trim():
 function toggleOpt(o){const q=currentIQ();if(!q)return;const c=S.me.context;if(q.multi){let arr=c[q.id]||[];if(arr.includes(o))arr=arr.filter(x=>x!==o);else{if(q.max&&arr.length>=q.max)arr=arr.slice(1);arr=[...arr,o];}c[q.id]=arr;}else{c[q.id]=o;}save();render();}
 function iqNext(skip){const q=currentIQ();if(q&&(q.input||q.textarea)&&!skip){S.me.context[q.id]=val('iq_input');if(q.id==='door')S.me.door=val('iq_input');}S.me.iStep=(S.me.iStep||0)+1;save();if(S.me.iStep>=IQ.length)go('me_ready');else render();}
 function fmAdd(){const n=val('fm_name'),d=val('fm_dob');const rel=document.querySelector('#fm_rel .opt.sel')?.dataset.rel||'other';if(!n||!d){notify('Add a name and date of birth.');return;}S.family.push({name:n,dob:d,relationship:rel});save();render();}
+function openFamEditModal(idx){const m=S.family[idx];if(!m)return;const sm=document.getElementById('sysmodal');if(!sm)return;
+ sm.innerHTML=`<div class="mbox"><button class="mclose" data-act="sys-cancel" aria-label="Close">✕</button><p class="eyebrow">Edit family member</p>
+  <div style="display:grid;gap:12px;margin-top:16px">
+   <div><label class="fl">Full birth name</label><input id="fe_name" value="${esc(m.name)}"></div>
+   <div><label class="fl">Date of birth</label><input id="fe_dob" type="date" max="${YEARNOW}-12-31" value="${esc(m.dob)}"></div>
+   <div><label class="fl">Relationship</label><div class="opts" id="fe_rel">${['Partner','Child','Parent','Sibling','Other'].map(o=>`<span class="opt ${o.toLowerCase()===m.relationship?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
+  </div>
+  <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="fam-edit-save" data-famidx="${idx}">Save changes</button>
+  <button class="btn btn-ghost btn-block" style="margin-top:10px;color:#f9a8a8" data-act="fam-edit-remove" data-famidx="${idx}">Remove from family</button>
+ </div>`;
+ sm.classList.add('on');}
+function famEditSave(idx){const n=val('fe_name'),d=val('fe_dob');const rel=document.querySelector('#fe_rel .opt.sel')?.dataset.rel||S.family[idx].relationship;
+ if(!n||!d){notify('Add a name and date of birth.');return;}
+ S.family[idx]={...S.family[idx],name:n,dob:d,relationship:rel};save();closeSysModal();render();}
+function famMove(idx,dir){const j=idx+dir;if(j<0||j>=S.family.length)return;const arr=S.family;[arr[idx],arr[j]]=[arr[j],arr[idx]];save();render();}
 function teaser(){const v=document.getElementById('t_dob').value;if(!v){notify('Please choose your date of birth to continue — tap the date field above.');document.getElementById('t_dob').focus();return;}const lp=lifePathFromDob(v);const meta=npFor(lp.number);document.getElementById('t_reveal').classList.add('on');document.getElementById('t_kw').textContent=meta.m.split(',').slice(0,2).join(' ·');document.getElementById('t_mean').textContent='Your Life Path speaks to '+meta.m+'. But this is only one part of the picture.';S.me.dob=v;save();countTo(document.getElementById('t_num'),lp.number,lp.display);}
 function countTo(el,target,disp){const dur=900;let s=null;const ease=t=>1-Math.pow(1-t,3);function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);el.textContent=Math.round(ease(p)*target);if(p<1)requestAnimationFrame(step);else el.textContent=disp||target;}requestAnimationFrame(step);}
 function wireRail(){const ids=RSEC.map(r=>r[0]);const btns=[...document.querySelectorAll('.rail button')];const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){btns.forEach(b=>b.classList.toggle('on',b.dataset.rail===en.target.id));}}),{rootMargin:'-45% 0px -50% 0px'});ids.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
