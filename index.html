@@ -155,7 +155,11 @@ function reduce(raw,preserve=[]){const route=[+raw];let cur=+raw;while(cur>9&&!p
  const masterEcho=(!isMaster&&+raw>9&&MFAM[root])?MFAM[root]:null;
  // Strong echo = the reduction literally passed through the master (e.g. 29→11→2) or is a round master-anchor (20/40..).
  const strongEcho=masterEcho&&(route.includes(masterEcho)||+raw===masterEcho*10||(+raw)%10===0)?masterEcho:null;
- return{rawTotal:+raw,route,compound:+raw>9?+raw:null,number:cur,root,master:isMaster,masterEcho,strongEcho,display:route.join('/')};}
+ // A value that lands on a master with zero reduction steps (e.g. born on the 22nd -> raw 22 is already the master)
+ // never shows its root anywhere in the route. Rule: display it as "22/4" so the root is never silently dropped.
+ const instantMaster=isMaster&&route.length===1;
+ const display=instantMaster?cur+'/'+root:route.join('/');
+ return{rawTotal:+raw,route,compound:+raw>9?+raw:null,number:cur,root,master:isMaster,masterEcho,strongEcho,display};}
 const MM=[11,22,33];
 const PY={};'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((L,i)=>PY[L]=(i%9)+1);
 const CHG={1:'AIJQY',2:'BKR',3:'CGLS',4:'DMT',5:'EHNX',6:'UVW',7:'OZ',8:'FP'};const CH={};Object.entries(CHG).forEach(([v,ls])=>ls.split('').forEach(l=>CH[l]=+v));
@@ -165,8 +169,10 @@ const ANIMALS=['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monk
 const ELEMENTS=['Metal','Metal','Water','Water','Wood','Wood','Fire','Fire','Earth','Earth'];
 function chineseYear(dob,year){let by;try{const p=new Intl.DateTimeFormat('en-u-ca-chinese',{year:'numeric',timeZone:'UTC'}).formatToParts(new Date(dob+'T12:00:00Z'));by=+p.find(x=>x.type==='relatedYear').value;}catch(e){by=+dob.slice(0,4);}const ey=y=>({animal:ANIMALS[((y-4)%12+12)%12],element:ELEMENTS[((y%10)+10)%10],yinYang:y%2===0?'Yang':'Yin',year:y});return{birth:ey(by),forecast:ey(year)};}
 const personalYearFor=(m,d,year)=>reduce(reduce(m).root+reduce(d).root+digitSum(year)).root;
-function lifePathFromDob(dob){const[y,m,d]=dob.split('-').map(Number);const lp=reduce(reduce(m,MM).number+reduce(d,MM).number+reduce(digitSum(y),MM).number,MM);return lp;}
-function buildProfile(dob,fullName,currentName,door,year){const[y,m,d]=dob.split('-').map(Number);const mo=reduce(m,MM),da=reduce(d,MM),yr=reduce(digitSum(y),MM);const lifePath=reduce(mo.number+da.number+yr.number,MM);const pyth=nameCalc(fullName,PY,MM),chal=nameCalc(fullName,CH,[]);const p1=reduce(mo.number+da.number,MM),p2=reduce(da.number+yr.number,MM);const pinnacles=[p1,p2,reduce(p1.number+p2.number,MM),reduce(mo.number+yr.number,MM)];const hn=String(door||'').toUpperCase().replace(/^(FLAT|APARTMENT|APT|UNIT)\s*/i,'').replace(/[^A-Z0-9]/g,'');const home=hn?reduce(hn.split('').reduce((s,ch)=>s+(/\d/.test(ch)?+ch:(PY[ch]||0)),0),MM):null;return{dob,name:fullName,currentName,door,homeNorm:hn,year,lifePath,birthday:reduce(d,MM),attitude:reduce(m+d).root,pyth,chal,pinnacles,home,personalYear:personalYearFor(m,d,year),personalYearPrev:personalYearFor(m,d,year-1),personalYearNext:personalYearFor(m,d,year+1),chinese:chineseYear(dob,year),month:m,day:d};}
+// Birth Architecture: Birthday -> Month -> Day+Month -> Birth Year -> Life Path. Every layer is kept, none discarded.
+function birthArchitecture(dob){const[y,m,d]=dob.split('-').map(Number);const birthMonth=reduce(m,MM),birthday=reduce(d,MM),dayMonth=reduce(birthMonth.number+birthday.number,MM),birthYear=reduce(digitSum(y),MM),lifePath=reduce(dayMonth.number+birthYear.number,MM);return{birthMonth,birthday,dayMonth,birthYear,lifePath};}
+function lifePathFromDob(dob){return birthArchitecture(dob).lifePath;}
+function buildProfile(dob,fullName,currentName,door,year){const[y,m,d]=dob.split('-').map(Number);const arch=birthArchitecture(dob);const{birthMonth,birthday,dayMonth,birthYear,lifePath}=arch;const pyth=nameCalc(fullName,PY,MM),chal=nameCalc(fullName,CH,[]);const p1=dayMonth,p2=reduce(birthday.number+birthYear.number,MM);const pinnacles=[p1,p2,reduce(p1.number+p2.number,MM),reduce(birthMonth.number+birthYear.number,MM)];const hn=String(door||'').toUpperCase().replace(/^(FLAT|APARTMENT|APT|UNIT)\s*/i,'').replace(/[^A-Z0-9]/g,'');const home=hn?reduce(hn.split('').reduce((s,ch)=>s+(/\d/.test(ch)?+ch:(PY[ch]||0)),0),MM):null;return{dob,name:fullName,currentName,door,homeNorm:hn,year,lifePath,birthday,birthMonth,dayMonth,birthYear,attitude:reduce(m+d).root,pyth,chal,pinnacles,home,personalYear:personalYearFor(m,d,year),personalYearPrev:personalYearFor(m,d,year-1),personalYearNext:personalYearFor(m,d,year+1),chinese:chineseYear(dob,year),month:m,day:d};}
 /* intelligence */
 const NP={1:{t:['independence','leadership'],s:['control','impatience'],need:'autonomy',m:'independence, initiative and the nerve to lead'},2:{t:['sensitivity','partnership'],s:['avoidance','over-dependence'],need:'harmony',m:'sensitivity, partnership and emotional intelligence'},3:{t:['expression','creativity'],s:['scattered attention','restlessness'],need:'recognition',m:'expression, creativity and visible communication'},4:{t:['stability','discipline'],s:['rigidity','over-work'],need:'security',m:'structure, discipline and dependable foundations'},5:{t:['freedom','adaptability'],s:['restlessness','scattered attention'],need:'freedom',m:'freedom, change and learning through experience'},6:{t:['responsibility','stability'],s:['over-responsibility','control'],need:'being needed',m:'responsibility, care and the standards held at home'},7:{t:['introspection','sensitivity'],s:['withdrawal','perfectionism'],need:'understanding',m:'analysis, intuition and the need to understand what sits underneath'},8:{t:['ambition','leadership'],s:['control','over-work'],need:'achievement',m:'authority, material lessons and the responsible use of power'},9:{t:['service','sensitivity'],s:['emotional overwhelm','avoidance'],need:'meaning',m:'completion, compassion and the wider human pattern'},11:{t:['sensitivity','expression'],s:['anxiety','over-responsibility'],need:'expression',m:'heightened intuition and the pressure to express insight clearly'},22:{t:['ambition','stability'],s:['over-work','control'],need:'achievement',m:'master-builder energy that must make a large vision practical'},33:{t:['service','responsibility'],s:['self-erasure','over-responsibility'],need:'meaning',m:'compassionate teacher energy that must not erase itself'}};
 const LABEL={independence:'Independence',leadership:'Leadership',sensitivity:'Sensitivity',partnership:'Partnership',expression:'Expression',creativity:'Creativity',stability:'Stability',discipline:'Discipline',freedom:'Freedom',adaptability:'Adaptability',responsibility:'Responsibility',introspection:'Introspection',ambition:'Ambition',service:'Service'};
@@ -192,7 +198,7 @@ const npFor=n=>NP[n]||NP[digitSum(n)]||{t:[],s:[],need:'meaning',m:'a distinct p
 const joinL=a=>a.length<=1?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
 function ageFrom(dob,now){const[y,m,d]=dob.split('-').map(Number);let a=now.getUTCFullYear()-y;if(now.getUTCMonth()+1<m||(now.getUTCMonth()+1===m&&now.getUTCDate()<d))a--;return Math.max(a,0);}
 function buildIntelligence(p,now){now=now||new Date();const firstEnd=36-p.lifePath.root;const bands=[[0,firstEnd],[firstEnd+1,firstEnd+9],[firstEnd+10,firstEnd+18],[firstEnd+19,120]];const age=ageFrom(p.dob,now);const cpi=Math.max(0,bands.findIndex(([lo,hi])=>age>=lo&&age<=hi));const ranges=['birth–around '+firstEnd,'around '+(firstEnd+1)+'–'+(firstEnd+9),'around '+(firstEnd+10)+'–'+(firstEnd+18),'around '+(firstEnd+19)+' onward'];const cp=p.pinnacles[cpi]||p.pinnacles[0];
-  const sources=[{label:'Life Path',value:p.lifePath.display,root:p.lifePath.number,w:3},{label:'Inner Drive',value:p.pyth.soulUrge.display,root:p.pyth.soulUrge.number,w:3},{label:'Expression',value:p.pyth.expression.display,root:p.pyth.expression.number,w:3},{label:'Birthday',value:p.birthday.display,root:p.birthday.root,w:2.5},{label:'Current Pinnacle',value:cp.display,root:cp.root,w:2},{label:'Attitude',value:String(p.attitude),root:p.attitude,w:2},{label:'Personality',value:p.pyth.personality.display,root:p.pyth.personality.number,w:2},{label:'Chaldean name',value:p.chal.expression.display,root:p.chal.expression.root,w:2},{label:'Personal Year',value:String(p.personalYear),root:p.personalYear,w:1.5}];
+  const sources=[{label:'Life Path',value:p.lifePath.display,root:p.lifePath.number,w:3},{label:'Inner Drive',value:p.pyth.soulUrge.display,root:p.pyth.soulUrge.number,w:3},{label:'Expression',value:p.pyth.expression.display,root:p.pyth.expression.number,w:3},{label:'Birthday',value:p.birthday.display,root:p.birthday.number,w:2.5},{label:'Birth Month',value:p.birthMonth.display,root:p.birthMonth.number,w:1.5},{label:'Day + Month',value:p.dayMonth.display,root:p.dayMonth.number,w:2},{label:'Birth Year',value:p.birthYear.display,root:p.birthYear.number,w:2},{label:'Current Pinnacle',value:cp.display,root:cp.root,w:2},{label:'Attitude',value:String(p.attitude),root:p.attitude,w:2},{label:'Personality',value:p.pyth.personality.display,root:p.pyth.personality.number,w:2},{label:'Chaldean name',value:p.chal.expression.display,root:p.chal.expression.root,w:2},{label:'Personal Year',value:String(p.personalYear),root:p.personalYear,w:1.5}];
   if(p.home)sources.push({label:'Home',value:p.home.display,root:p.home.root,w:1});
   const map={};const add=(th,w,src)=>{if(!th)return;map[th]=map[th]||{theme:th,label:LABEL[th]||th,score:0,sources:[]};map[th].score+=w;if(!map[th].sources.some(s=>s.label===src.label))map[th].sources.push({label:src.label,value:src.value});};
   sources.forEach(s=>{const np=npFor(s.root);add(np.t[0],s.w,s);add(np.t[1],s.w*.5,s);});
@@ -332,6 +338,9 @@ function track(ev,props){props=props||{};
 const NUM_WHAT={
  'Life Path':'the main path and lessons of your whole life — your default way of moving through the world',
  'Birthday':'a specific natural talent you were born with',
+ 'Birth Month':'a foundation running underneath your birthday, from the calendar month you were born into',
+ 'Day + Month':'the energy created when your birthday and birth month meet — not either number alone',
+ 'Birth Year':'the deeper, more structural layer beneath your day and month — the foundation your Life Path is finally built on',
  'Inner Drive':'what you actually want underneath — your private motivation',
  'Soul urge':'what you actually want underneath — your private motivation',
  'Soul Urge':'what you actually want underneath — your private motivation',
@@ -370,6 +379,28 @@ const CTX={
   33:{look:'The master teacher — here to uplift and guide through compassion.',act:'Give and teach from love — without erasing yourself in the process.'}
  }
 };
+// Shared archetype content, reused across every birth-architecture layer (Birthday, Month, Day+Month, Birth Year)
+// with layer-specific framing — see layerFraming() below. Life Path keeps its own fuller LIFEPATH_DEEP table.
+const ARCHETYPE={
+ 1:{core:'Independence and initiative — the drive to start things and stand on your own.',strengths:'Original, decisive, courageous, self-reliant.',shadow:'Can tip into stubbornness, impatience or isolating yourself rather than asking for help.',lesson:'Lead from confidence, not from having to prove something.'},
+ 2:{core:'Sensitivity and partnership — reading a room, and bringing people together.',strengths:'Diplomatic, empathetic, patient, a natural collaborator.',shadow:'Can over-absorb other people\'s feelings, avoid conflict, or lose yourself in a relationship.',lesson:'Stay connected to others without disappearing into them.'},
+ 3:{core:'Expression and creativity — communication, joy and visibility.',strengths:'Creative, sociable, articulate, good at lifting a mood.',shadow:'Can scatter across too much, or hide real feeling behind charm.',lesson:'Say the real thing, and finish what you start.'},
+ 4:{core:'Structure and discipline — building something that actually holds.',strengths:'Reliable, methodical, hard-working, honest.',shadow:'Can become rigid, overly cautious, or all work and no room to breathe.',lesson:'Build solid ground without turning it into a cage.'},
+ 5:{core:'Freedom and change — movement, variety, learning by doing.',strengths:'Adaptable, curious, magnetic, resilient under change.',shadow:'Can scatter focus, resist commitment, or chase novelty for its own sake.',lesson:'Choose freedom on purpose, not just as an escape route.'},
+ 6:{core:'Responsibility and care — home, family and the standards you hold.',strengths:'Warm, loyal, protective, a natural at creating stability for others.',shadow:'Can slide into over-responsibility, control, or quiet martyrdom.',lesson:'Care for others without losing yourself in the process.'},
+ 7:{core:'Introspection and understanding — going beneath the surface for what\'s true.',strengths:'Analytical, intuitive, independent-minded, thorough.',shadow:'Can withdraw, over-think, or isolate exactly when connection is needed.',lesson:'Come back and share what you find, rather than staying underground.'},
+ 8:{core:'Ambition and authority — results, power and material achievement.',strengths:'Driven, capable, strategic, genuinely able to build at scale.',shadow:'Can tie self-worth to results, over-work, or misuse authority.',lesson:'Let achievement serve your life, not run it.'},
+ 9:{core:'Completion and compassion — the wider view, and knowing when to let go.',strengths:'Generous, wise, big-picture, quietly influential.',shadow:'Can carry too much of other people\'s pain, or struggle to release what\'s finished.',lesson:'Give from what\'s full, and let endings actually end.'},
+ 11:{core:'The master intuitive — heightened sensitivity and insight, the 2 turned up to a much higher voltage.',strengths:'Perceptive, inspiring, emotionally attuned, able to sense what others miss.',shadow:'Can run anxious, nervy or self-critical under the weight of that sensitivity.',lesson:'Trust the insight, and let your feet stay on the ground while you share it.'},
+ 22:{core:'The master builder — the 4\'s discipline scaled up to build something genuinely large and lasting.',strengths:'Visionary and practical at once — able to dream big and actually construct it.',shadow:'Can buckle under the pressure of its own potential, or burn out chasing scale.',lesson:'Pace the build. A big vision still gets built one solid brick at a time.'},
+ 33:{core:'The master teacher — the 6\'s care raised into a wider, healing responsibility for others.',strengths:'Deeply compassionate, nurturing, able to guide and uplift on a larger scale.',shadow:'Can over-give to the point of self-erasure, carrying weight that was never fully theirs.',lesson:'Teach and heal from love, not from self-sacrifice.'}
+};
+const LAYER_FRAME={
+ 'Birthday':{lead:'is what you naturally bring into life — the instinctive, unlearned part of you, present before anything else shapes you.'},
+ 'Birth Month':{lead:'is another foundation running underneath everything else — the backdrop your birthday energy plays out against.'},
+ 'Day + Month':{lead:'is what happens when your birthday and your birth month meet. It doesn\'t replace either one — it\'s the third energy they create together.'},
+ 'Birth Year':{lead:'is a deeper, more structural foundation — often generational, usually felt rather than consciously noticed.'}
+};
 const CTX_ALIAS={'Current Year':'Personal Year'};
 // Master higher-octave notes — a 20/2, 29/2 etc. isn't "just a 2"
 const ECHO_NOTE={
@@ -392,15 +423,19 @@ const LIFEPATH_DEEP={
  22:{essence:'A master number and the higher octave of the 4. The master builder — here to take a big vision and make it real and lasting in the physical world.',strengths:'Vision plus discipline: you can dream big AND build it, which almost no other number can do at once.',challenge:'The weight of your own potential — pressure, self-doubt, and either playing too small or burning out.',love:'You need a partner who understands the size of your mission and won’t take your intensity personally.',work:'Large-scale building — enterprises, institutions, architecture, systems that outlast you.',mission:'To build something that serves many and endures — while pacing yourself for a marathon, not a sprint.'},
  33:{essence:'A master number and the higher octave of the 6. The master teacher — here to uplift and heal through compassion, holding an unusually high standard of care.',strengths:'Profound compassion, nurturing wisdom, and the ability to guide and heal on a large scale.',challenge:'Self-sacrifice taken to the extreme, and the crushing weight of feeling responsible for everyone.',love:'You give enormously and must learn to receive. A partner who protects your energy is essential.',work:'Teaching, healing, counselling, spiritual or humanitarian leadership — service raised to an art.',mission:'To teach and heal from love — without erasing yourself in the process.'}
 };
-function openNumModal(label,value){
- const parts=String(value).split('/');const root=parseInt(parts[parts.length-1],10);const compound=parseInt(parts[0],10);
+function openNumModal(label,value,extra){
+ extra=extra||{};
+ const parts=String(value).split('/');const partsNum=parts.map(p=>parseInt(p,10));const root=partsNum[partsNum.length-1];const compound=partsNum[0];
  const np=npFor(root);const ti=THEME_INFO[np.t[0]];const what=NUM_WHAT[label]||'one of the numbers that make up your profile';
  const ckey=CTX_ALIAS[label]||label;const ctx=CTX[ckey]&&CTX[ckey][root];
  // Master echo: a compound (20/2, 29/2…) that lands on a 2/4/6 carries the 11/22/33 higher octave.
- const echoNum=(parts.length>1&&compound>9&&![11,22,33].includes(root)&&MFAM[root])?MFAM[root]:null;
+ // Skip if the master is already visible in the display itself (e.g. "22/4") — no point echoing what's shown.
+ const echoNum=(parts.length>1&&compound>9&&![11,22,33].includes(root)&&MFAM[root]&&!partsNum.includes(MFAM[root]))?MFAM[root]:null;
  const echo=echoNum?ECHO_NOTE[echoNum]:null;
  // Deep Life Path read
- const deepKey=[11,22,33].includes(root)?root:root;const deep=(ckey==='Life Path')?LIFEPATH_DEEP[deepKey]:null;
+ const deep=(ckey==='Life Path')?LIFEPATH_DEEP[root]:null;
+ // Birth Architecture layers (Birthday, Birth Month, Day + Month, Birth Year) — shared archetype + layer framing
+ const frame=LAYER_FRAME[label];const arch=frame?ARCHETYPE[root]:null;
  let body=`<p style="margin-top:12px;color:var(--muted);font-size:.92rem">${esc(label)} is ${what}.</p>`;
  if(deep){
   const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
@@ -409,6 +444,15 @@ function openNumModal(label,value){
    row('IN LOVE',deep.love,'var(--purple)')+row('AT WORK',deep.work,'var(--purple)')+
    row('YOUR MISSION',deep.mission,'var(--mint)')+`</div>`;
   if(ctx)body+=`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--lilac)">In one line:</b> <span class="muted">${ctx.act}</span></p>`;
+ } else if(arch){
+  const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
+  body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5">Your ${esc(label)} ${frame.lead}</p><p style="margin-top:10px;font-size:.98rem;line-height:1.5">${arch.core}</p><div style="margin-top:12px">`+
+   row('STRENGTHS',arch.strengths,'var(--mint)')+row('SHADOW',arch.shadow,'var(--lilac)')+row('THE LESSON',arch.lesson,'var(--mint)')+`</div>`;
+  if(label==='Day + Month'&&extra.bday&&extra.bmonth){
+   const bdRoot=parseInt(String(extra.bday).split('/').pop(),10),bmRoot=parseInt(String(extra.bmonth).split('/').pop(),10);
+   const bdT=npFor(bdRoot).t[0],bmT=npFor(bmRoot).t[0];
+   if(bdT&&bmT)body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--purple);border-radius:12px;background:rgba(167,139,250,.06)"><b style="color:var(--purple);font-size:.88rem">Where this comes from</b><p class="muted" style="font-size:.9rem;margin-top:6px;line-height:1.5">Your Birthday (${esc(extra.bday)}) wants ${bdT}. Your Birth Month (${esc(extra.bmonth)}) wants ${bmT}. Meeting in this birth architecture, those two energies combine into ${esc(value)} — bringing ${LABEL[np.t[0]]?LABEL[np.t[0]].toLowerCase():np.m}. Neither original number disappears; this is what they create together.</p></div>`;
+  }
  } else if(ctx){body+=`<p style="margin-top:14px;font-size:.95rem"><b style="color:var(--mint)">How this can look for you:</b> <span class="muted">${ctx.look}</span></p><p style="margin-top:10px;font-size:.95rem"><b style="color:var(--lilac)">How to stay aligned:</b> <span class="muted">${ctx.act}</span></p>`;}
  else{body+=`<p style="margin-top:12px;font-size:.98rem"><b>Yours is ${esc(value)}:</b> <span class="muted">${np.m}.</span></p>${ti?`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px;font-size:.9rem"><b style="color:var(--lilac)">Watch for:</b> <span class="muted">${ti.shadow}.</span></p>`:''}`;}
  if(echo){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--mint);border-radius:12px;background:rgba(110,231,183,.06)"><b style="color:var(--mint);font-size:.88rem">✦ Carries the ${esc(echo.name)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${echo.line}</p><p style="font-size:.85rem;margin-top:6px;color:var(--lilac)">${echo.want}</p></div>`;}
@@ -418,7 +462,7 @@ function openNumModal(label,value){
 }
 function closeNumModal(){const m=document.getElementById('nummodal');if(m){m.classList.remove('on');m.innerHTML='';}}
 // At-a-glance marker: a compound like 20/2 that carries an 11/22/33 higher octave
-function echoBadge(disp){const parts=String(disp).split('/');if(parts.length<2)return '';const c=parseInt(parts[0],10);const r=parseInt(parts[parts.length-1],10);if(c>9&&![11,22,33].includes(r)&&MFAM[r])return ` <span class="echo" title="Carries the master ${MFAM[r]}">↑${MFAM[r]}</span>`;return '';}
+function echoBadge(disp){const parts=String(disp).split('/').map(p=>parseInt(p,10));if(parts.length<2)return '';const c=parts[0];const r=parts[parts.length-1];if(c>9&&![11,22,33].includes(r)&&MFAM[r]&&!parts.includes(MFAM[r]))return ` <span class="echo" title="Carries the master ${MFAM[r]}">↑${MFAM[r]}</span>`;return '';}
 const YEARNOW=new Date().getFullYear();
 const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const capS=s=>{s=String(s||'').trim();return s?s.charAt(0).toUpperCase()+s.slice(1)+(/[.!?]$/.test(s)?'':'.'):'';};
@@ -588,7 +632,7 @@ function vReady(){const c=S.me.context;const items=[['Your numerical blueprint',
   </div></div>`;}
 
 /* ---------- reading ---------- */
-const RSEC=[['overview','Overview'],['you','Who You Are'],['drives','Drives'],['contradictions','Contradictions'],['shadow','Shadow'],['lifemap','Life Map'],['year','Personal Year'],['now','Right Now'],['name','Name'],['home','Home'],['eastern','Eastern'],['matters','What Matters'],['big','Big Picture']];
+const RSEC=[['overview','Overview'],['architecture','Birth Architecture'],['you','Who You Are'],['drives','Drives'],['contradictions','Contradictions'],['shadow','Shadow'],['lifemap','Life Map'],['year','Personal Year'],['now','Right Now'],['name','Name'],['home','Home'],['eastern','Eastern'],['matters','What Matters'],['big','Big Picture']];
 function calcPre(c){return `formula reduces ${c.route.join(' → ')} · result ${c.display}${c.master?' · master preserved':''}`;}
 function readingTarget(){const idx=S.famReadingIdx;const m=idx!=null?S.family[idx]:null;
  if(m){const p=buildProfile(m.dob,m.name,'',m.door||'',YEARNOW);return{p,name:m.name.split(' ')[0],c:{},isMe:false,relationship:m.relationship};}
@@ -611,6 +655,22 @@ function vReading(){const rt=readingTarget();const p=rt.p;const I=buildIntellige
      <p class="muted" style="max-width:600px;margin:12px auto 0">${esc(I.corePattern)}</p>
      <div class="keys">${I.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v">${k.value}${echoBadge(k.value)}</div></div>`).join('')}</div>
      <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
+   </section>
+   <section class="blk" id="architecture">
+    <p class="eyebrow">Nothing here gets discarded</p><h2 style="font-size:1.7rem;margin-top:8px">Your Birth Architecture</h2>
+    <p class="muted" style="margin-top:8px;font-size:.92rem">${first}'s Life Path isn't just "you're a ${p.lifePath.root}." It's built from every layer below, in order — and none of them vanish once the final number appears. Tap any of them to go deeper.</p>
+    <div style="display:grid;gap:10px;margin-top:16px">
+     <div class="card" style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Birthday" data-value="${p.birthday.display}" style="font-size:2.6rem;color:var(--purple);min-width:82px">${p.birthday.display}${echoBadge(p.birthday.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">1 · Birthday ⓘ</div><b style="font-family:var(--heading)">What ${first} naturally brings into life</b></div></div>
+     <div class="card" style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Birth Month" data-value="${p.birthMonth.display}" style="font-size:2.6rem;color:var(--purple);min-width:82px">${p.birthMonth.display}${echoBadge(p.birthMonth.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">2 · Birth Month ⓘ</div><b style="font-family:var(--heading)">Another foundation, underneath</b></div></div>
+     <div class="card beam" style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Day + Month" data-value="${p.dayMonth.display}" data-bday="${p.birthday.display}" data-bmonth="${p.birthMonth.display}" style="font-size:2.6rem;color:var(--mint);min-width:82px">${p.dayMonth.display}${echoBadge(p.dayMonth.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">3 · Day + Month ⓘ</div><b style="font-family:var(--heading)">What happens when they meet</b></div></div>
+     <div class="card" style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Birth Year" data-value="${p.birthYear.display}" style="font-size:2.6rem;color:var(--purple);min-width:82px">${p.birthYear.display}${echoBadge(p.birthYear.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">4 · Birth Year ⓘ</div><b style="font-family:var(--heading)">The deeper structural foundation</b></div></div>
+     <div class="card beam" style="display:flex;align-items:center;gap:14px;border-color:var(--purple)"><span class="bignum num-tap" data-info data-label="Life Path" data-value="${p.lifePath.display}" style="font-size:2.6rem;color:var(--lilac);min-width:82px">${p.lifePath.display}${echoBadge(p.lifePath.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">5 · Life Path ⓘ</div><b style="font-family:var(--heading)">Everything above, combined</b></div></div>
+    </div>
+    <details class="disc" style="margin-top:14px"><summary>Show my calculation</summary><pre>Birthday        ${calcPre(p.birthday)}
+Birth Month     ${calcPre(p.birthMonth)}
+Day + Month     ${p.birthMonth.number} + ${p.birthday.number} = ${p.birthMonth.number+p.birthday.number} → ${calcPre(p.dayMonth)}
+Birth Year      digits of birth year sum to ${digitSum(p.dob.slice(0,4))} → ${calcPre(p.birthYear)}
+Life Path       ${p.dayMonth.number} + ${p.birthYear.number} = ${p.dayMonth.number+p.birthYear.number} → ${calcPre(p.lifePath)}</pre></details>
    </section>
    <section class="blk" id="you"><p class="eyebrow">What the numbers agree on</p><h2 style="font-size:1.7rem;margin-top:8px">Who you are</h2>${I.themes.filter(t=>t.band!=='Background').map(themeRow).join('')}${I.reinforcements[0]?`<div class="card beam" style="margin-top:12px"><p class="eyebrow" style="color:var(--mint)">Strong recurring pattern · ${I.reinforcements[0].label}</p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(I.reinforcements[0].explanation)}</p></div>`:''}</section>
    <section class="blk" id="drives"><p class="eyebrow">Underneath</p><h2 style="font-size:1.7rem;margin-top:8px">What drives you</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px"><span class="bignum num-tap" data-info data-label="Inner Drive" data-value="${p.pyth.soulUrge.display}" style="font-size:3rem;color:var(--purple)">${p.pyth.soulUrge.display}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">Inner drive ⓘ</div><b style="font-family:var(--heading)">A need for ${I.need}</b></div></div><p class="muted" style="margin-top:12px;font-size:.92rem">${esc(I.fiveQuestions.drives)}</p>${workLine}<details class="disc"><summary>Show calculation</summary><pre>Inner Drive · ${calcPre(p.pyth.soulUrge)}</pre></details></div></section>
@@ -794,7 +854,7 @@ document.addEventListener('click',e=>{
   const fsel=e.target.closest('[data-fsel]');
   const changed=e.target.closest('[data-changed]');
   const info=e.target.closest('[data-info]');
-  if(info){openNumModal(info.dataset.label,info.dataset.value);return;}
+  if(info){openNumModal(info.dataset.label,info.dataset.value,{bday:info.dataset.bday,bmonth:info.dataset.bmonth});return;}
   if(e.target.id==='nummodal'){closeNumModal();return;}
   const nameChip=e.target.closest('[data-name]');
   const savedPair=e.target.closest('[data-savedpair]');
