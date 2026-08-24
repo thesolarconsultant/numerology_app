@@ -237,18 +237,22 @@ const TASKS=[
  {id:'rest',label:'Rest / Reflection',themes:['introspection','service']},{id:'celebration',label:'Celebration',themes:['expression','partnership']},
  {id:'wedding',label:'Wedding / Commitment',themes:['partnership','responsibility']}
 ];
-function taskAlignment(profile,dateStr,task){
+// Task fit and profile resonance are scored separately (a matching root is NOT always the best date) --
+// task themes drive the label; resonance only ever nudges the ranking, it can't flip a poor task fit into a good one.
+function taskAlignment(profile,intel,dateStr,task){
  const arch=dailyArchitecture(profile,dateStr);
  const uT=npFor(arch.universalDay.number).t,pT=npFor(arch.personalDay).t;
  let score=0;
  task.themes.forEach(th=>{if(uT.includes(th))score+=2;if(pT.includes(th))score+=3;});
+ const res=intel?dailyResonance(profile,intel,arch):null;
+ if(res&&res.type==='resonance')score+=Math.min(1,(res.sourceLabels?.length||1)*.3);
  const label=score>=4?'Stronger alignment':score>=2?'Supportive':score>=1?'Mixed':'More challenging';
- return{arch,score,label};
+ return{arch,score,label,resonance:res};
 }
-function findDatesFor(profile,task,fromDate,days){
+function findDatesFor(profile,intel,task,fromDate,days){
  const out=[];const start=new Date(fromDate+'T12:00:00Z');
  for(let i=0;i<days;i++){const d=new Date(start);d.setUTCDate(start.getUTCDate()+i);const ds=d.toISOString().slice(0,10);
-  out.push({dateStr:ds,...taskAlignment(profile,ds,task)});}
+  out.push({dateStr:ds,...taskAlignment(profile,intel,ds,task)});}
  return out.sort((a,b)=>b.score-a.score).slice(0,5);
 }
 // Birth Architecture: Birthday -> Month -> Day+Month -> Birth Year -> Life Path. Every layer is kept, none discarded.
@@ -337,6 +341,83 @@ function buildIntelligence(p,now){now=now||new Date();const firstEnd=36-p.lifePa
   const dominant=themes.filter(t=>t.band==='Dominant');const topNeed=NEEDL[npFor(p.lifePath.number).need]||'Meaning';
   const corePattern=(joinL(dominant.map(t=>t.label))||'A single clear theme')+' run'+(dominant.length===1?'s':'')+' through this profile'+(reinforcements.length?', reinforced across '+reinforcements[0].sources.length+' independent numbers':'')+'. '+(contradictions.length?'But it does not sit alone: there is a real '+contradictions[0].title.toLowerCase()+' underneath. '+contradictions[0].explanation:'The supporting numbers largely pull in the same direction, which gives this profile unusual consistency.')+(shadows.length?' Under pressure, the risk to watch is '+shadows[0].theme+(shadows[0].count>=2?' — a pattern that recurs across the profile.':'.'):'');
   return{age,currentPinnacleIndex:cpi,ranges,need:topNeed,keyNumbers:[{label:'Life Path',value:p.lifePath.display,m:npFor(p.lifePath.number).m,raw:p.lifePath},{label:'Birthday',value:p.birthday.display,m:npFor(p.birthday.root).m,raw:p.birthday},{label:'Inner Drive',value:p.pyth.soulUrge.display,m:npFor(p.pyth.soulUrge.number).m,raw:p.pyth.soulUrge},{label:'Expression',value:p.pyth.expression.display,m:npFor(p.pyth.expression.number).m,raw:p.pyth.expression},{label:'Current Year',value:String(p.personalYear),m:npFor(p.personalYear).m}],corePattern,themes,reinforcements,contradictions,shadows,currentChapter:{personalYear:p.personalYear,activated,meaning:npFor(p.personalYear).m},lifeMap:p.pinnacles.map((v,i)=>({value:v.display,range:ranges[i],current:i===cpi,meaning:npFor(v.root).m})),fiveQuestions:{who:'At core, '+(joinL(dominant.map(t=>t.label.toLowerCase()))||'a distinct single theme')+' — '+npFor(p.lifePath.number).m+'.',drives:'A deep need for '+topNeed.toLowerCase()+', expressed through your Inner Drive '+p.pyth.soulUrge.display+': '+npFor(p.pyth.soulUrge.number).m+'.',contradict:contradictions.length?contradictions[0].title+'. '+contradictions[0].explanation:'Your numbers largely agree with each other.',repeats:reinforcements.length?reinforcements[0].label+', through '+reinforcements[0].sources.map(s=>s.label).join(', ')+'.':'No single theme dominates by repetition.',now:'You are in a Personal Year '+p.personalYear+' — '+npFor(p.personalYear).m+'.'}};}
+/* ============================ PERSONAL RESONANCE ENGINE ============================ */
+// A date is never read only from calendar day / universal day / personal year-month-day / weekday --
+// it is also compared against the permanent profile, to see whether today REINFORCES something already
+// strong, COMPLEMENTS something less dominant, or STRETCHES a stronger permanent tendency. A match means
+// familiarity and amplification, never an automatic good outcome -- resonance always pairs strength+shadow.
+const RES_TIER_W={'VERY HIGH':4,'HIGH':2.5,'SUPPORTING':1.2};
+const RES_DAY_W={PRIMARY:3,STRONG:2,BACKGROUND:1};
+function resonanceSources(p,intel){
+ const src=[];const add=(label,tier,r)=>{if(!r)return;src.push({label,tier,root:r.number,compound:(r.rawTotal&&r.rawTotal>9)?r.rawTotal:null});};
+ add('Life Path','VERY HIGH',p.lifePath);add('Birthday','VERY HIGH',p.birthday);add('Expression','VERY HIGH',p.pyth.expression);add('Soul Urge','VERY HIGH',p.pyth.soulUrge);
+ add('Day + Month','HIGH',p.dayMonth);add('Personality','HIGH',p.pyth.personality);
+ const cp=p.pinnacles[intel.currentPinnacleIndex];if(cp)src.push({label:'Active Pinnacle',tier:'HIGH',root:cp.root,compound:(cp.rawTotal&&cp.rawTotal>9)?cp.rawTotal:null});
+ src.push({label:'Attitude',tier:'HIGH',root:p.attitude,compound:null});
+ add('Birth Month','SUPPORTING',p.birthMonth);add('Birth Year','SUPPORTING',p.birthYear);add('Chaldean Name','SUPPORTING',p.chal.expression);
+ if(p.home)add('Home Number','SUPPORTING',p.home);
+ return src;
+}
+// Weighting: root match < exact compound repeat; permanent-number tier and today's-layer tier both scale
+// the strength, but this stays an internal ranking score only -- never a percentage shown to the user.
+function dailyResonance(p,intel,arch){
+ const src=resonanceSources(p,intel);
+ const today=[
+  {label:'Personal Day',tier:'PRIMARY',root:arch.personalDay,compound:null},
+  {label:'Universal Day',tier:'PRIMARY',root:arch.universalDay.number,compound:arch.universalDay.compound},
+  {label:'Calendar Day',tier:'STRONG',root:arch.calendarDay.number,compound:arch.calendarDay.compound},
+  {label:'Personal Month',tier:'STRONG',root:arch.personalMonth,compound:null},
+  {label:'Personal Year',tier:'BACKGROUND',root:arch.personalYear,compound:null}
+ ];
+ const matches=[];
+ src.forEach(s=>today.forEach(t=>{
+  if(s.compound&&t.compound&&s.compound===t.compound)matches.push({type:'exact',root:s.root,srcLabel:s.label,dayLabel:t.label,strength:RES_TIER_W[s.tier]*RES_DAY_W[t.tier]*1.6});
+  else if(s.root===t.root)matches.push({type:'root',root:s.root,srcLabel:s.label,dayLabel:t.label,strength:RES_TIER_W[s.tier]*RES_DAY_W[t.tier]});
+ }));
+ const todayTheme=npFor(arch.personalDay).t[0];
+ const domThemes=(intel.themes||[]).filter(t=>t.band==='Dominant'||t.band==='Strong');
+ const domSet=new Set(domThemes.map(t=>t.theme));
+ if(!matches.length){
+  const tension=CONTRA.find(([a,b])=>(a===todayTheme&&domSet.has(b))||(b===todayTheme&&domSet.has(a)));
+  if(tension){const[a,b,title,ex]=tension;
+   return{type:'stretch',level:'STRETCH',root:arch.personalDay,theme:todayTheme,title,explanation:ex,headline:'Today Stretches Your Normal Rhythm'};}
+  if(domSet.has(todayTheme))return null;
+  return{type:'complement',level:'COMPLEMENT',root:arch.personalDay,theme:todayTheme,headline:'A Useful Complement'};
+ }
+ matches.sort((a,b)=>b.strength-a.strength);
+ const top=matches[0];
+ const rootHits=matches.filter(m=>m.root===top.root);
+ const srcLabels=[...new Set(rootHits.map(m=>m.srcLabel))];
+ const hasExact=rootHits.some(m=>m.type==='exact');
+ const level=srcLabels.length>=3?'VERY HIGH ACTIVATION':hasExact?'EXACT COMPOUND RESONANCE':srcLabels.length>=2?'STRONG RESONANCE':'ROOT RESONANCE';
+ const np=npFor(top.root);const info=THEME_INFO[np.t[0]]||null;
+ return{type:'resonance',level,root:top.root,theme:np.t[0],sourceLabels:srcLabels,exact:hasExact,strength:info?.best,shadow:info?.shadow,headline:srcLabels.length>=2?'Today Speaks Your Language':'A Familiar Note Today'};
+}
+// Plain-English resonance readout for Today / Date Detail -- amplified/reinforced/activated/resonant/more
+// pronounced/more naturally aligned only, never a guarantee of a good day.
+function resonanceText(res,first){
+ if(!res)return '';
+ first=first||'you';const poss=first==='you'?'your':first+"'s";
+ if(res.type==='resonance'){
+  const lab=(LABEL[res.theme]||res.theme).toLowerCase();
+  let s=`Today's ${res.root} energy matches ${res.sourceLabels.length>1?'several of '+poss+' permanent numbers ('+joinL(res.sourceLabels)+')':poss+' '+res.sourceLabels[0]}`+(res.exact?' — an exact compound repeat, not just a shared root':'')+`. ${lab.charAt(0).toUpperCase()+lab.slice(1)}, already central to ${poss} profile, may feel more natural, amplified or activated today than on a day carrying a very different energy.`;
+  if(res.level==='VERY HIGH ACTIVATION')s+=` This root already repeats across ${res.sourceLabels.length} major parts of ${poss} permanent profile, so today's timing activates a genuinely dominant pattern — worth watching for its strength (${res.strength||'its usual best qualities'}) as much as its shadow (${res.shadow||'its usual pitfalls'}) showing up more than usual.`;
+  s+=' A match like this means familiarity and amplification — not an automatic good outcome either way.';
+  return s;
+ }
+ if(res.type==='stretch')return `${res.explanation} This isn't a bad day for ${first==='you'?'you':first} — it's a different one from ${poss} usual rhythm, and that difference can be genuinely useful if it's worked with rather than fought.`;
+ if(res.type==='complement'){const lab=(LABEL[res.theme]||res.theme).toLowerCase();return `Today brings a bit of ${lab} into the mix — not one of ${poss} naturally dominant themes, but a useful addition on top of what's already there.`;}
+ return '';
+}
+// Compact per-date marker for the Calendar grid -- never reduced to a bare good/bad label.
+function resonanceMarker(res){
+ if(!res)return null;
+ if(res.type==='stretch')return{label:'Stretch',color:'var(--lilac)'};
+ if(res.type==='complement')return{label:'Supportive',color:'var(--indigo)'};
+ if(res.level==='VERY HIGH ACTIVATION')return{label:'Mixed',color:'var(--purple)'};
+ if(res.level==='EXACT COMPOUND RESONANCE'||res.level==='STRONG RESONANCE')return{label:'High resonance',color:'var(--mint)'};
+ return{label:'Supportive',color:'var(--mint)'};
+}
 /* family */
 const strong=m=>(m.intel.themes||[]).filter(t=>t.band==='Dominant'||t.band==='Strong');
 function familyBlueprint(members){if(members.length<2)return null;const map={};members.forEach(m=>strong(m).forEach(t=>{map[t.theme]=map[t.theme]||{theme:t.theme,label:t.label,members:[],score:0};if(!map[t.theme].members.includes(m.first))map[t.theme].members.push(m.first);map[t.theme].score+=t.score;}));const ranked=Object.values(map).sort((a,b)=>b.members.length-a.members.length||b.score-a.score);const shared=ranked.filter(t=>t.members.length>=2);let tension=null;for(const[a,b,title]of CONTRA){if(!map[a]||!map[b])continue;const ao=map[a].members.filter(x=>!map[b].members.includes(x)),bo=map[b].members.filter(x=>!map[a].members.includes(x));if(ao.length&&bo.length){tension={title,aLabel:map[a].label,aMembers:ao,bLabel:map[b].label,bMembers:bo};break;}}const nowT={};members.forEach(m=>(m.intel.currentChapter.activated||[]).forEach(t=>nowT[t]=(nowT[t]||0)+1));return{sharedPattern:shared[0]||ranked[0]||null,collectiveStrength:shared[1]||ranked.find(t=>t!==(shared[0]||ranked[0]))||null,tension,householdTheme:Object.entries(nowT).sort((a,b)=>b[1]-a[1])[0]?.[0]||null,needs:members.map(m=>({name:m.first,need:m.intel.need})),themeContributors:ranked};}
@@ -916,8 +997,10 @@ function vDashboard(){const p=meProfile();const arch=dailyArchitecture(p,todaySt
 function vToday(){const p=meProfile();const ds=todayStr();const arch=dailyArchitecture(p,ds);const gw=dailyGoodWatch(arch);
  const first=esc(S.me.first);const already=(S.dailyLog||[]).find(l=>l.date===ds);
  const patterns=patternHistory();
+ const intel=buildIntelligence(p);const res=dailyResonance(p,intel,arch);
  return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:600px">
   <p class="eyebrow">${fmtDate(ds)}</p><h1 style="font-size:2rem;margin-top:8px;text-transform:capitalize">${esc(todayHeadline(arch))}</h1>
+  ${res?`<div class="card beam" style="margin-top:16px;border-color:var(--purple)"><p class="eyebrow" style="color:var(--purple)">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
   <div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:18px">
    <div class="key num-tap" data-info data-label="Current Year" data-value="${arch.universalDay.display}"><div class="l">Overall day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.universalDay.display}</div></div>
    <div class="key"><div class="l">Calendar foundation</div><div class="v">${arch.calendarDay.display}</div></div>
@@ -947,17 +1030,18 @@ function vCalendar(){const p=meProfile();const month=S.calMonth||todayStr().slic
  const first=new Date(Date.UTC(cy,cm-1,1));const daysInMonth=new Date(Date.UTC(cy,cm,0)).getUTCDate();const startWeekday=first.getUTCDay();
  const monthLabel=first.toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
  const cells=[];for(let i=0;i<startWeekday;i++)cells.push(null);for(let d=1;d<=daysInMonth;d++)cells.push(d);
- const ds0=todayStr();
+ const ds0=todayStr();const intel=buildIntelligence(p);
  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px">
   <div style="display:flex;justify-content:space-between;align-items:center"><span class="btn btn-ghost" style="padding:8px 12px" data-act="cal-prev">&larr;</span><h1 style="font-size:1.4rem">${monthLabel}</h1><span class="btn btn-ghost" style="padding:8px 12px" data-act="cal-next">&rarr;</span></div>
   <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px;text-align:center">${['S','M','T','W','T','F','S'].map(d=>`<div class="muted" style="font-size:.68rem;font-weight:700">${d}</div>`).join('')}
-   ${cells.map(d=>{if(!d)return '<div></div>';const ds=`${cy}-${String(cm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const arch=dailyArchitecture(p,ds);const isToday=ds===ds0;
-     return `<div class="pin" style="padding:6px 2px;text-align:center;cursor:pointer;${isToday?'border-color:var(--purple);background:var(--surface)':''}" data-caldate="${ds}"><div style="font-family:var(--heading);font-weight:800;font-size:.95rem">${d}</div><div class="muted" style="font-size:.62rem;margin-top:2px">${arch.universalDay.number}</div><div style="font-size:.6rem;color:var(--mint);margin-top:1px">You:${arch.personalDay}</div></div>`;}).join('')}
+   ${cells.map(d=>{if(!d)return '<div></div>';const ds=`${cy}-${String(cm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const arch=dailyArchitecture(p,ds);const isToday=ds===ds0;const mk=resonanceMarker(dailyResonance(p,intel,arch));
+     return `<div class="pin" style="padding:6px 2px;text-align:center;cursor:pointer;${isToday?'border-color:var(--purple);background:var(--surface)':''}" data-caldate="${ds}"><div style="font-family:var(--heading);font-weight:800;font-size:.95rem">${d}</div><div class="muted" style="font-size:.62rem;margin-top:2px">${arch.universalDay.number}</div><div style="font-size:.6rem;color:var(--mint);margin-top:1px">You:${arch.personalDay}</div>${mk?`<div style="font-size:.52rem;margin-top:1px;color:${mk.color}">${esc(mk.label)}</div>`:''}</div>`;}).join('')}
   </div>
-  <p class="muted" style="font-size:.8rem;margin-top:14px;text-align:center">Small number = the day's overall energy · mint = your Personal Day. Tap any date for the full picture.</p>
+  <p class="muted" style="font-size:.8rem;margin-top:14px;text-align:center">Small number = the day's overall energy · mint = your Personal Day · label = how today's energy relates to your own permanent numbers. Tap any date for the full picture.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;justify-content:center"><button class="btn btn-ghost" data-act="plan-something">Plan something</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
  </div></div>`;}
 function vDateDetail(){const p=meProfile();const ds=S.calDate||todayStr();const arch=dailyArchitecture(p,ds);const gw=dailyGoodWatch(arch);const first=esc(S.me.first);
+ const intel=buildIntelligence(p);const res=dailyResonance(p,intel,arch);
  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px;max-width:600px">
   <p class="eyebrow">Date detail</p><h1 style="font-size:1.8rem;margin-top:8px">${fmtDate(ds)}</h1>
   <div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:16px">
@@ -967,17 +1051,19 @@ function vDateDetail(){const p=meProfile();const ds=S.calDate||todayStr();const 
    <div class="key"><div class="l">Your Personal Month</div><div class="v">${arch.personalMonth}</div></div>
   </div>
   <div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between"><span class="muted">Weekday</span><b style="font-family:var(--heading)">${arch.weekday.name} · ${arch.weekday.planet}</b></div><p class="muted" style="font-size:.85rem;margin-top:6px">A supporting symbolic layer — ${joinL(arch.weekday.t)}. Kept separate from the numerology above.</p></div>
+  ${res?`<div class="card" style="margin-top:12px;border-color:var(--purple)"><p class="eyebrow" style="color:var(--purple)">Your resonance</p><p style="margin-top:8px;font-size:1.05rem;font-family:var(--heading);font-weight:700">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.9rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
   <div class="card" style="margin-top:12px"><p class="eyebrow">What this date looks like for you</p><p style="margin-top:8px;font-size:.95rem;line-height:1.6">${dailySynthesisText(arch,first)}</p></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="view-calendar">&larr; Back to calendar</button><button class="btn btn-ghost" data-act="plan-something">Plan something</button></div>
  </div></div>`;}
 function vPlan(){const p=meProfile();const taskId=S.planTaskId;const task=TASKS.find(t=>t.id===taskId);
- const results=task?findDatesFor(p,task,todayStr(),30):null;
+ const intel=buildIntelligence(p);
+ const results=task?findDatesFor(p,intel,task,todayStr(),30):null;
  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px;max-width:600px">
   <p class="eyebrow">Plan something</p><h1 style="font-size:1.8rem;margin-top:8px">What are you planning?</h1>
   <p class="muted" style="margin-top:8px;font-size:.9rem">NumeraFlow compares your Personal Day and the wider date against what you're planning — never certainty, just symbolic timing worth weighing up.</p>
   <div class="opts" style="margin-top:14px">${TASKS.map(t=>`<span class="opt ${t.id===taskId?'sel':''}" data-plantask="${t.id}">${esc(t.label)}</span>`).join('')}</div>
-  ${results?`<h3 style="font-size:1.2rem;margin-top:24px">Strongest matches — next 30 days</h3><div style="display:grid;gap:10px;margin-top:12px">${results.map(r=>`<div class="pin" style="cursor:pointer" data-caldate="${r.dateStr}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em">${fmtDate(r.dateStr)}</div><div style="font-family:var(--heading);font-weight:800;font-size:1.1rem">${esc(r.label)}</div><div class="muted" style="font-size:.8rem;margin-top:2px">Universal ${r.arch.universalDay.display} · Your day ${r.arch.personalDay}</div></div></div>`).join('')}</div>
-   <p class="muted" style="font-size:.8rem;margin-top:12px">Ratings weigh your Personal Day and the wider date together against ${esc(task.label)} — a date can look attractive on the calendar and still be a weaker fit for your own timing.</p>`:''}
+  ${results?`<h3 style="font-size:1.2rem;margin-top:24px">Strongest matches — next 30 days</h3><div style="display:grid;gap:10px;margin-top:12px">${results.map(r=>`<div class="pin" style="cursor:pointer" data-caldate="${r.dateStr}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em">${fmtDate(r.dateStr)}</div><div style="font-family:var(--heading);font-weight:800;font-size:1.1rem">${esc(r.label)}</div><div class="muted" style="font-size:.8rem;margin-top:2px">Universal ${r.arch.universalDay.display} · Your day ${r.arch.personalDay}${r.resonance&&r.resonance.type==='resonance'?' · resonates with your profile':''}</div></div></div>`).join('')}</div>
+   <p class="muted" style="font-size:.8rem;margin-top:12px">Ratings weigh your Personal Day and the wider date together against ${esc(task.label)} — a date can look attractive on the calendar and still be a weaker fit for your own timing. A resonant date only ever nudges the ranking; the task fit itself still decides the label.</p>`:''}
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="view-calendar">View calendar</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
  </div></div>`;}
 
@@ -1054,11 +1140,18 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
   return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px">
    <section style="text-align:center"><p class="eyebrow">Your Family Blueprint</p><h1 style="font-size:2rem;margin-top:8px">Me · Us · <span class="aurora">All of us</span></h1></section>
    ${bp?`<div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:20px"><div class="key"><div class="l">Shared pattern</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.sharedPattern?bp.sharedPattern.label:'—'}</div></div><div class="key"><div class="l">Collective strength</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.collectiveStrength?bp.collectiveStrength.label:'—'}</div></div><div class="key"><div class="l">Main tension</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.tension?bp.tension.title:'Balanced'}</div></div><div class="key"><div class="l">Household now</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.householdTheme||'Steady'}</div></div></div>`:'<p class="muted" style="text-align:center;margin-top:16px">Add at least two people to see the blueprint.</p>'}
-   ${M.length?`<div class="card" style="margin-top:16px"><p style="font-family:var(--heading);font-weight:700">Family Day · today</p><div style="display:grid;gap:8px;margin-top:10px">${M.map(m=>{const arch=dailyArchitecture(m.profile,todayStr());return `<div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:8px"><b style="font-family:var(--heading)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem">Personal Day ${arch.personalDay} · ${esc(DAY_LABEL[arch.personalDay]||'')}</span></div>`;}).join('')}</div>
-    ${M.length>=2?(()=>{const days=M.map(m=>dailyArchitecture(m.profile,todayStr()).personalDay);const uniq=[...new Set(days)];const aligned=uniq.length<=Math.ceil(M.length/2);
-      return `<p class="muted" style="font-size:.85rem;margin-top:10px">${aligned?'Several of you are on a similar Personal Day today — a naturally easier day to move as one household.':'People are on quite different Personal Days today — not a problem, just worth knowing before assuming everyone\'s in the same mood.'}</p>`;})():''}
-    <div style="margin-top:10px"><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="view-calendar">View calendar</span></div>
-   </div>`:''}
+   ${M.length?(()=>{const famDay=M.map(m=>{const arch=dailyArchitecture(m.profile,todayStr());const res=dailyResonance(m.profile,m.intel,arch);return{m,arch,res,mk:resonanceMarker(res)};});
+     return `<div class="card" style="margin-top:16px"><p style="font-family:var(--heading);font-weight:700">Family Day · today</p><div style="display:grid;gap:8px;margin-top:10px">${famDay.map(({m,arch,mk})=>`<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:8px"><b style="font-family:var(--heading)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem;text-align:right">Personal Day ${arch.personalDay} · ${esc(DAY_LABEL[arch.personalDay]||'')}${mk?`<br><span style="color:${mk.color};font-size:.78rem">${esc(mk.label)}</span>`:''}</span></div>`).join('')}</div>
+     ${M.length>=2?(()=>{const days=famDay.map(f=>f.arch.personalDay);const uniq=[...new Set(days)];const aligned=uniq.length<=Math.ceil(M.length/2);
+       const stretched=famDay.filter(f=>f.res&&f.res.type==='stretch').map(f=>f.m.first);
+       const resonant=famDay.filter(f=>f.res&&f.res.type==='resonance').map(f=>f.m.first);
+       let dyn=aligned?'Several of you are on a similar Personal Day today — a naturally easier day to move as one household.':'People are on quite different Personal Days today — not a problem, just worth knowing before assuming everyone\'s in the same mood.';
+       if(resonant.length&&stretched.length)dyn+=` ${joinL(resonant)} ${resonant.length>1?'are':'is'} in familiar territory today, while ${joinL(stretched)} ${stretched.length>1?'are':'is'} working with a day that stretches ${stretched.length>1?'their':'their'} usual rhythm — the same day is genuinely not the same day for everyone in the house.`;
+       else if(resonant.length)dyn+=` Today leans especially familiar for ${joinL(resonant)} — permanent patterns getting a real echo from the date.`;
+       else if(stretched.length)dyn+=` Today asks a bit more of ${joinL(stretched)} than usual — a stretch, not a warning.`;
+       return `<p class="muted" style="font-size:.85rem;margin-top:10px">${esc(dyn)}</p>`;})():''}
+     <div style="margin-top:10px"><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="view-calendar">View calendar</span></div>
+    </div>`;})():''}
    ${ys&&M.length>=2?`<div class="card beam" style="margin-top:16px"><p class="eyebrow" style="color:var(--mint)">All of us · ${YEARNOW}</p><p style="margin-top:8px;font-size:.95rem">${esc(ys.synth)}</p><div style="margin-top:12px;display:grid;gap:8px">${ys.rows.map(r=>`<div style="border-top:1px solid var(--border);padding-top:8px"><b style="font-family:var(--heading)">${esc(r.name)}</b> <span class="muted" style="font-size:.8rem">· Year ${r.year} ${esc(r.title.toLowerCase())}</span><div class="muted" style="font-size:.85rem;margin-top:2px">${esc(capS(r.short))}</div></div>`).join('')}</div></div>
    <div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Family timeline · everyone's year</p><div style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:12px">${[1,2,3,4,5,6,7,8,9].map(n=>{const who=M.filter(m=>m.profile.personalYear===n).map(m=>m.first);return `<div style="text-align:center"><div class="yr ${who.length?'on':''}" style="width:100%;height:38px;font-size:.95rem"><span>${n}</span><small>${YEAR[n].t}</small></div><div class="muted" style="font-size:.6rem;margin-top:4px;line-height:1.2">${esc(who.join(', '))}</div></div>`;}).join('')}</div></div>`:''}
    ${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--heading)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}
@@ -1279,5 +1372,4 @@ render=function(){_origRender();if(S.screen==='me_reveal'){document.querySelecto
 if(hasMe()&&(S.screen==='landing'||!S.screen))S.screen='dashboard';
 render();
 </script>
-
 </html>
