@@ -519,10 +519,11 @@ function stages(now){const order=[['Foundation','me_dob'],['Identity','me_name']
 function vDob(){return topbar()+stages('me_dob')+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:520px">
   <p class="eyebrow">Let's begin</p><h1 style="font-size:2rem;margin-top:8px">What's your date of birth?</h1>
   <p class="muted" style="margin-top:8px">This gives NumeraFlow your mathematical foundation.</p>
-  <div style="margin-top:20px"><input id="m_dob" type="date" max="${YEARNOW}-12-31" value="${S.me.dob}"></div>
+  <div style="margin-top:20px"><input id="m_dob" type="date" max="${YEARNOW}-12-31" value="${S.me.dob}" oninput="dobLive(this.value)"></div>
   <div class="reveal ${S.me.dob?'on':''}" id="m_reveal" style="border:0;text-align:left;margin-top:18px">${S.me.dob?dobPreview(S.me.dob):''}</div>
   <button class="btn btn-glow btn-block" style="margin-top:20px" data-act="dob-next">Continue →</button>
 </div></div>`;}
+function dobLive(v){if(!v)return;S.me.dob=v;save();const r=document.getElementById('m_reveal');if(r){r.classList.add('on');r.innerHTML=dobPreview(v);}}
 function dobPreview(dob){const lp=lifePathFromDob(dob);const meta=npFor(lp.number);return `<div class="card"><p class="muted" style="margin:0 0 6px">Interesting — your Life Path resolves through</p><div style="display:flex;align-items:center;gap:14px"><span class="bignum" style="font-size:3rem;color:var(--purple)">${lp.display}</span><span style="color:var(--lilac);font-weight:700">${meta.m.split(',')[0]}</span></div><p class="muted" style="font-size:.86rem;margin-top:8px">But your Life Path is only one part of the picture.</p></div>`;}
 
 /* ---------- me: name ---------- */
@@ -815,7 +816,7 @@ document.addEventListener('click',e=>{
   else if(act==='start-fam'){S.journey='fam';track('begin_checkout',{plan:'family',value:28});go('fam_unlock');}
   else if(act==='unlocked-me'){track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
   else if(act==='unlocked-fam'){track('purchase',{plan:'family',value:28,currency:'GBP'});go('fam_anchor');}
-  else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
+  else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){alert('Please choose your date of birth to continue — tap the date field above.');document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
   else if(act==='name-next'){S.me.first=val('n_first');S.me.middle=val('n_middle');S.me.last=val('n_last');S.me.currentName=val('n_current');if(!S.me.first||!S.me.last){alert('First name and surname help build your name profile.');return;}save();go('me_reveal');}
   else if(act==='go-deeper'){S.me.iStep=0;save();go('me_interview');}
   else if(act==='show-reading'){S.famReadingIdx=null;go('me_reading');}
@@ -848,7 +849,7 @@ function val(id){const el=document.getElementById(id);return el?el.value.trim():
 function toggleOpt(o){const q=currentIQ();if(!q)return;const c=S.me.context;if(q.multi){let arr=c[q.id]||[];if(arr.includes(o))arr=arr.filter(x=>x!==o);else{if(q.max&&arr.length>=q.max)arr=arr.slice(1);arr=[...arr,o];}c[q.id]=arr;}else{c[q.id]=o;}save();render();}
 function iqNext(skip){const q=currentIQ();if(q&&(q.input||q.textarea)&&!skip){S.me.context[q.id]=val('iq_input');if(q.id==='door')S.me.door=val('iq_input');}S.me.iStep=(S.me.iStep||0)+1;save();if(S.me.iStep>=IQ.length)go('me_ready');else render();}
 function fmAdd(){const n=val('fm_name'),d=val('fm_dob');const rel=document.querySelector('#fm_rel .opt.sel')?.dataset.rel||'other';if(!n||!d){alert('Add a name and date of birth.');return;}S.family.push({name:n,dob:d,relationship:rel});save();render();}
-function teaser(){const v=document.getElementById('t_dob').value;if(!v){document.getElementById('t_dob').focus();return;}const lp=lifePathFromDob(v);const meta=npFor(lp.number);document.getElementById('t_reveal').classList.add('on');document.getElementById('t_kw').textContent=meta.m.split(',').slice(0,2).join(' ·');document.getElementById('t_mean').textContent='Your Life Path speaks to '+meta.m+'. But this is only one part of the picture.';S.me.dob=v;save();countTo(document.getElementById('t_num'),lp.number,lp.display);}
+function teaser(){const v=document.getElementById('t_dob').value;if(!v){alert('Please choose your date of birth to continue — tap the date field above.');document.getElementById('t_dob').focus();return;}const lp=lifePathFromDob(v);const meta=npFor(lp.number);document.getElementById('t_reveal').classList.add('on');document.getElementById('t_kw').textContent=meta.m.split(',').slice(0,2).join(' ·');document.getElementById('t_mean').textContent='Your Life Path speaks to '+meta.m+'. But this is only one part of the picture.';S.me.dob=v;save();countTo(document.getElementById('t_num'),lp.number,lp.display);}
 function countTo(el,target,disp){const dur=900;let s=null;const ease=t=>1-Math.pow(1-t,3);function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);el.textContent=Math.round(ease(p)*target);if(p<1)requestAnimationFrame(step);else el.textContent=disp||target;}requestAnimationFrame(step);}
 function wireRail(){const ids=RSEC.map(r=>r[0]);const btns=[...document.querySelectorAll('.rail button')];const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){btns.forEach(b=>b.classList.toggle('on',b.dataset.rail===en.target.id));}}),{rootMargin:'-45% 0px -50% 0px'});ids.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
   // animate key numbers with data-count
