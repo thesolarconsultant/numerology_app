@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>NumeraFlow — Archetypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+ :root{--ground:#0b0713;--surface:#160f24;--surface2:#1d1533;--border:#2c2145;--text:#f4f1fa;--muted:#a99fc0;--purple:#a78bfa;--lilac:#d8b4fe;--mint:#6ee7b7;--indigo:#818cf8;--ink:#17111f;--heading:"Manrope",ui-sans-serif,system-ui,sans-serif;--body:"DM Sans",ui-sans-serif,system-ui,sans-serif;}
+ *{box-sizing:border-box;}
+ body{margin:0;background:var(--ground);color:var(--text);font-family:var(--body);line-height:1.5;}
+ .wrap{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
+ h1{font-family:var(--heading);font-weight:800;font-size:1.8rem;margin:0;display:flex;align-items:center;gap:10px;}
+ .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--mint));display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:1.1rem;}
+ .muted{color:var(--muted);}
+ .card{border:1px solid var(--border);background:rgba(22,15,36,.6);border-radius:16px;padding:20px;margin-top:16px;}
+ .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);}
+ .row{display:flex;align-items:center;gap:10px;margin-top:10px;}
+ .rowlabel{width:150px;flex-shrink:0;font-size:.85rem;text-transform:capitalize;}
+ .track{flex:1;height:10px;border-radius:999px;background:var(--border);overflow:hidden;}
+ .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--purple),var(--mint));}
+ .rowval{width:70px;flex-shrink:0;text-align:right;font-size:.82rem;color:var(--muted);}
+ .stat{font-family:var(--heading);font-weight:800;font-size:2.4rem;}
+ .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
+ input,button{font-family:var(--body);font-size:1rem;}
+ input{width:100%;background:rgba(11,7,19,.6);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:14px;}
+ button{background:linear-gradient(120deg,#8b5cf6,#7c3aed);color:#fff;border:0;border-radius:999px;padding:14px 26px;font-weight:700;cursor:pointer;}
+ .gate{max-width:360px;margin:80px auto;text-align:center;}
+ .err{color:#f9a8a8;font-size:.85rem;margin-top:10px;}
+ .takeaway{border-left:3px solid var(--mint);padding-left:12px;margin-top:10px;font-size:.9rem;}
+</style>
+</head>
+<body>
+<div id="app"><div class="gate">
+ <div class="mk" style="margin:0 auto 14px;width:44px;height:44px;font-size:1.5rem">✦</div>
+ <h1 style="justify-content:center">Archetypes</h1>
+ <p class="muted" style="margin-top:6px;font-size:.9rem">Internal view — aggregated, anonymised NumeraFlow user patterns. Not linked to names or contact details.</p>
+ <div style="margin-top:20px"><input id="tok" type="password" placeholder="Admin token"></div>
+ <div style="margin-top:12px"><button id="go">View archetypes</button></div>
+ <p id="err" class="err"></p>
+</div></div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function bar(rows, keyField, total) {
+  const max = Math.max(1, ...rows.map(r => r.n));
+  return rows.map(r => {
+    const label = r[keyField] == null ? '—' : r[keyField];
+    const pct = total ? Math.round((r.n / total) * 100) : 0;
+    return `<div class="row"><span class="rowlabel">${esc(label)}</span><div class="track"><div class="fill" style="width:${Math.round(r.n / max * 100)}%"></div></div><span class="rowval">${r.n} · ${pct}%</span></div>`;
+  }).join('');
+}
+
+async function load(token) {
+  const err = $('#err');
+  err.textContent = '';
+  let data;
+  try {
+    const resp = await fetch('/api/archetypes?token=' + encodeURIComponent(token));
+    if (resp.status === 401) { err.textContent = 'Wrong token.'; return; }
+    if (!resp.ok) { err.textContent = 'Something went wrong loading the data.'; return; }
+    data = await resp.json();
+  } catch (e) {
+    err.textContent = 'Could not reach the server.';
+    return;
+  }
+  try { sessionStorage.setItem('nf_admin_token', token); } catch (e) {}
+
+  const top = arr => arr.length ? arr[0] : null;
+  const topLifePath = top(data.byLifePath);
+  const topTheme = top(data.byTheme1);
+  const topYear = top(data.byPersonalYear);
+  const takeaways = [];
+  if (data.total >= 5) {
+    if (topLifePath) takeaways.push(`Your single biggest segment is Life Path ${topLifePath.life_path_root} (${Math.round(topLifePath.n / data.total * 100)}% of everyone who's shared a profile) — messaging that speaks to that number's themes will land with the largest slice of your audience.`);
+    if (topTheme) takeaways.push(`"${topTheme.theme}" is the most common dominant theme — worth leaning into directly in ad copy and content, since it's already what most of your users' profiles are built around.`);
+    if (topYear != null) takeaways.push(`Personal Year ${topYear.personal_year} is the most common cycle right now — timing-relevant content or offers pitched at that year's themes will be relevant to the largest group at once.`);
+  } else {
+    takeaways.push('Not enough opted-in profiles yet for these patterns to be meaningful — check back once more people have shared theirs.');
+  }
+
+  $('#app').innerHTML = `
+   <div class="wrap">
+    <h1><span class="mk">✦</span> Archetypes</h1>
+    <p class="muted" style="margin-top:4px">Aggregated, anonymised patterns across everyone who opted in to sharing their profile. No names, no contact details — see SETUP.md for exactly what this is and isn't.</p>
+
+    <div class="card">
+     <p class="eyebrow">Opted-in profiles</p>
+     <div class="stats" style="margin-top:12px">
+      <div><div class="stat">${data.total}</div><p class="muted" style="font-size:.8rem">total</p></div>
+      ${data.byTier.map(t => `<div><div class="stat" style="font-size:1.6rem">${t.n}</div><p class="muted" style="font-size:.8rem;text-transform:capitalize">${esc(t.tier)}</p></div>`).join('')}
+     </div>
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">What this means for marketing</p>
+     ${takeaways.map(t => `<p class="takeaway">${esc(t)}</p>`).join('')}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Life Path distribution</p>
+     ${bar(data.byLifePath, 'life_path_root', data.total)}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Dominant theme (primary)</p>
+     ${bar(data.byTheme1, 'theme', data.total)}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Dominant theme (secondary)</p>
+     ${bar(data.byTheme2, 'theme', data.total)}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Core need</p>
+     ${bar(data.byNeed, 'core_need', data.total)}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Personal Year right now</p>
+     ${bar(data.byPersonalYear, 'personal_year', data.total)}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Age band</p>
+     ${data.byAgeBand.length ? bar(data.byAgeBand, 'age_band', data.total) : '<p class="muted" style="margin-top:8px;font-size:.85rem">No age data yet.</p>'}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Opt-ins, last 30 days</p>
+     ${data.recentDaily.length ? data.recentDaily.map(d => `<div class="row"><span class="rowlabel">${esc(d.day)}</span><div class="track"><div class="fill" style="width:${Math.min(100, d.n * 20)}%"></div></div><span class="rowval">${d.n}</span></div>`).join('') : '<p class="muted" style="margin-top:8px;font-size:.85rem">No signups in the last 30 days.</p>'}
+    </div>
+   </div>`;
+}
+
+let saved = '';
+try { saved = sessionStorage.getItem('nf_admin_token') || ''; } catch (e) {}
+if (saved) load(saved);
+$('#go') && $('#go').addEventListener('click', () => { const t = $('#tok').value.trim(); if (t) load(t); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && $('#tok') === document.activeElement) $('#go').click(); });
+</script>
+</body>
+</html>

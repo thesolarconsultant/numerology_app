@@ -1,0 +1,9 @@
+{
+  "name": "numeraflow",
+  "private": true,
+  "version": "1.0.0",
+  "description": "NumeraFlow — self-contained static app + a small serverless backend for anonymised archetype insights.",
+  "dependencies": {
+    "@vercel/postgres": "^0.10.0"
+  }
+}
