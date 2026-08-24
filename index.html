@@ -47,6 +47,7 @@
   .card{border:1px solid var(--border);background:rgba(22,15,36,.6);border-radius:18px;padding:20px;}
   /* topbar */
   .top{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:13px 20px;background:rgba(11,7,19,.72);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);}
+  .stickyfoot{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:14px 20px calc(14px + env(safe-area-inset-bottom));background:rgba(11,7,19,.9);backdrop-filter:blur(10px);border-top:1px solid var(--border);}
   .logo{display:flex;align-items:center;gap:9px;font-family:var(--heading);font-weight:800;font-size:1.1rem;cursor:pointer;}
   .logo .mk{width:25px;height:25px;border-radius:7px;background:linear-gradient(135deg,var(--purple),var(--mint));display:flex;align-items:center;justify-content:center;color:var(--ink);}
   .top .r{display:flex;gap:8px;align-items:center;}
@@ -540,14 +541,14 @@ function vName(){return topbar()+stages('me_name')+`<div class="screen"><div cla
 </div></div>`;}
 
 /* ---------- me: first reveal ---------- */
-function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px">
+function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 100px">
   <div style="text-align:center"><p class="eyebrow">Your NumeraFlow is taking shape</p><h1 style="font-size:2rem;margin-top:8px">${esc(S.me.first)}, here's the structure</h1></div>
   <div class="keys">${intel.keyNumbers.map((k,i)=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v" data-count="${/^\d+$/.test(k.value)?k.value:''}" data-final="${k.value}">${/^\d+$/.test(k.value)?'0':k.value}</div>${echoBadge(k.value)?`<div style="text-align:center;margin-top:-4px">${echoBadge(k.value)}</div>`:''}</div>`).join('')}</div>
   <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
   <div class="card beam" style="margin-top:20px"><p class="eyebrow" style="color:var(--mint)">One pattern already stands out</p><p style="margin-top:8px">${esc(intel.reinforcements[0]?intel.reinforcements[0].explanation:intel.corePattern)}</p></div>
-  <div style="text-align:center;margin-top:28px"><p class="muted" style="max-width:480px;margin:0 auto 18px">Your numbers give the structure. But they don't yet know what's actually happening in your life. Tell NumeraFlow a little and the reading gets far more relevant.</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap"><button class="btn btn-glow" data-act="go-deeper">Yes — go deeper</button><button class="btn btn-ghost" data-act="show-reading">Show my reading now</button></div></div>
-</div></div>`;}
+  <div style="text-align:center;margin-top:28px"><p class="muted" style="max-width:480px;margin:0 auto 18px">Your numbers give the structure. But they don't yet know what's actually happening in your life. Tell NumeraFlow a little and the reading gets far more relevant.</p></div>
+</div></div>
+<div class="stickyfoot"><button class="btn btn-glow" data-act="go-deeper">Yes — go deeper</button><button class="btn btn-ghost" data-act="show-reading">Show my reading now</button></div>`;}
 
 /* ---------- me: deeper choice handled by reveal buttons ---------- */
 function vDeeper(){return vInterview();}
