@@ -760,12 +760,37 @@ function vFamAdd(){const justFinished=S.journey==='fam'&&hasMe()&&!S.family.leng
   <button class="btn btn-glow btn-block" style="margin-top:18px" data-act="fam-explore" ${S.family.length<1?'disabled style="opacity:.5"':''}>Explore our family →</button>
 </div></div>`;}
 function famMembers(){return S.family.map(m=>{const pr=buildProfile(m.dob,m.name,'',m.door||'',YEARNOW);return{first:m.name.split(' ')[0],relationship:m.relationship,profile:pr,intel:buildIntelligence(pr),raw:m};});}
+// How alike two family members' numbers are, and why — used to surface the closest connection(s) in the family.
+// Birth-based factors (same DOB inputs) decide who counts as "closest" — that's the real twins signal.
+// Name-based factors only add colour to the explanation and break ties for display order, never for inclusion.
+function pairCloseness(a,b){let birthScore=0,bonusScore=0;const why=[];
+ if(a.profile.lifePath.display===b.profile.lifePath.display){birthScore+=50;why.push('the exact same Life Path ('+a.profile.lifePath.display+')');}
+ else if(a.profile.lifePath.root===b.profile.lifePath.root){birthScore+=25;why.push('the same Life Path root ('+a.profile.lifePath.root+')');}
+ if(a.profile.birthday.display===b.profile.birthday.display){birthScore+=15;why.push('the same Birthday number ('+a.profile.birthday.display+')');}
+ if(a.profile.personalYear===b.profile.personalYear){birthScore+=15;why.push('the same Personal Year right now ('+a.profile.personalYear+')');}
+ if(a.profile.chinese.birth.animal===b.profile.chinese.birth.animal){birthScore+=10;why.push('both '+a.profile.chinese.birth.animal+'s');}
+ if(a.profile.pyth.expression.number===b.profile.pyth.expression.number){bonusScore+=8;why.push('matching Expression numbers');}
+ if(a.profile.pyth.soulUrge.number===b.profile.pyth.soulUrge.number){bonusScore+=8;why.push('matching Inner Drive numbers');}
+ const at=a.intel.themes.filter(t=>t.band==='Dominant'||t.band==='Strong').map(t=>t.theme);
+ const bt=b.intel.themes.filter(t=>t.band==='Dominant'||t.band==='Strong').map(t=>t.theme);
+ const shared=at.filter(t=>bt.includes(t));
+ if(shared.length){bonusScore+=shared.length*6;why.push('shared '+joinL(shared.map(t=>(LABEL[t]||t).toLowerCase()))+(shared.length>1?' as strong themes':' as a strong theme'));}
+ return{score:birthScore+bonusScore,birthScore,why};}
+function closestPairs(M){if(M.length<2)return{pairs:[],topScore:0};
+ const all=[];for(let i=0;i<M.length;i++)for(let j=i+1;j<M.length;j++)all.push({i,j,...pairCloseness(M[i],M[j])});
+ const topBirth=Math.max(...all.map(p=>p.birthScore));
+ if(topBirth<=0)return{pairs:[],topScore:0};
+ // Everyone tied on birth-based closeness gets shown -- e.g. triplets with the same DOB but different
+ // names, where name-derived numbers would otherwise (wrongly) split them into a single "winner".
+ const pairs=all.filter(p=>p.birthScore===topBirth).sort((a,b)=>b.score-a.score);
+ return{pairs,topScore:topBirth};}
 function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M.length?familyYearSummary(M):null;const tab=S.readingTab||'overview';
+  const{pairs:closest}=closestPairs(M);
   const nodes=`<div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${M.map((m,i)=>`<div class="fnode ${(S.famSel||[]).includes(i)?'sel':''}" data-fsel="${i}"><b style="font-family:var(--heading)">${esc(m.first)}</b><div class="muted" style="font-size:.8rem">${m.relationship} · age ${m.intel.age} · LP ${m.profile.lifePath.display}</div><div class="muted" style="font-size:.75rem;margin-top:2px">${m.profile.chinese.birth.animal} · Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</div></div>`).join('')}</div>`;
   let panel='';
   const sel=(S.famSel||[]);
   if(sel.length===2){const cmp=familyCompare(M[sel[0]],M[sel[1]]);
-    panel=`<div class="card" style="margin-top:16px;border-color:var(--purple)">
+    panel=`<div class="card" id="fam-compare-panel" style="margin-top:16px;border-color:var(--purple)">
       <p class="eyebrow" style="color:var(--purple)">${esc(cmp.heading)}</p>
       <h3 style="font-size:1.4rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
       <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
@@ -793,6 +818,7 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
    ${bp?`<div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:20px"><div class="key"><div class="l">Shared pattern</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.sharedPattern?bp.sharedPattern.label:'—'}</div></div><div class="key"><div class="l">Collective strength</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.collectiveStrength?bp.collectiveStrength.label:'—'}</div></div><div class="key"><div class="l">Main tension</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.tension?bp.tension.title:'Balanced'}</div></div><div class="key"><div class="l">Household now</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.householdTheme||'Steady'}</div></div></div>`:'<p class="muted" style="text-align:center;margin-top:16px">Add at least two people to see the blueprint.</p>'}
    ${ys&&M.length>=2?`<div class="card beam" style="margin-top:16px"><p class="eyebrow" style="color:var(--mint)">All of us · ${YEARNOW}</p><p style="margin-top:8px;font-size:.95rem">${esc(ys.synth)}</p><div style="margin-top:12px;display:grid;gap:8px">${ys.rows.map(r=>`<div style="border-top:1px solid var(--border);padding-top:8px"><b style="font-family:var(--heading)">${esc(r.name)}</b> <span class="muted" style="font-size:.8rem">· Year ${r.year} ${esc(r.title.toLowerCase())}</span><div class="muted" style="font-size:.85rem;margin-top:2px">${esc(capS(r.short))}</div></div>`).join('')}</div></div>
    <div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Family timeline · everyone's year</p><div style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:12px">${[1,2,3,4,5,6,7,8,9].map(n=>{const who=M.filter(m=>m.profile.personalYear===n).map(m=>m.first);return `<div style="text-align:center"><div class="yr ${who.length?'on':''}" style="width:100%;height:38px;font-size:.95rem"><span>${n}</span><small>${YEAR[n].t}</small></div><div class="muted" style="font-size:.6rem;margin-top:4px;line-height:1.2">${esc(who.join(', '))}</div></div>`;}).join('')}</div></div>`:''}
+   ${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--heading)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}
    <h3 style="font-size:1.2rem;margin-top:26px">Tap a person — or two to compare</h3>
    <div style="margin-top:12px">${nodes}</div>
    ${panel}
@@ -940,6 +966,7 @@ document.addEventListener('click',e=>{
   else if(act==='upsell-no')go('dashboard');
   else if(act==='open-reading'){S.famReadingIdx=null;go('me_reading');}
   else if(act==='fam-view-full'){S.famReadingIdx=+a.dataset.favidx;save();go('me_reading');}
+  else if(act==='fam-compare-pair'){S.famSel=[+a.dataset.i,+a.dataset.j];save();render();document.getElementById('fam-compare-panel')?.scrollIntoView({behavior:'smooth',block:'start'});}
   else if(act==='name-match')go('name_match');
   else if(act==='glossary'){S.priorScreen=S.screen;save();go('glossary');}
   else if(act==='glossary-back')go(S.priorScreen||'landing');
