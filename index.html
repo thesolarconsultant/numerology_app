@@ -734,8 +734,12 @@ function openNumModal(label,value,extra){
   if(digits.length>1){const dt=digits.map(n=>npFor(n).t[0]).filter(Boolean);
    if(dt.length>1)body+=`<p class="muted" style="font-size:.85rem;margin-top:12px">This arrives through the compound ${compound}, not just the root ${root} — carrying a touch of ${joinL(dt)} underneath.</p>`;}
  }
+ // Tapping someone else's number (a family member, via extra.who) must not speak as if it's about the
+ // account owner -- this content is written in "you" throughout for the common case of someone reading
+ // their OWN number, so re-voice the whole assembled block into third person for anyone else's.
+ if(extra.who)body=toGeneric(body);
  const m=document.getElementById('nummodal');if(!m)return;
- m.innerHTML=`<div class="mbox"><button class="mclose" data-act="num-close" aria-label="Close">✕</button><p class="eyebrow">${esc(label)}</p><div style="font-family:var(--heading);font-weight:800;font-size:2.6rem;color:var(--purple);line-height:1;margin-top:2px">${esc(value)}${echoNum?` <span style="font-size:1.1rem;color:var(--mint)">↑${echoNum}</span>`:''}${kd?` <span style="font-size:1rem;color:#fbbf24">⚡${compound}</span>`:''}${wealth?` <span style="font-size:1rem;color:var(--mint)">💰${compound}</span>`:''}</div>${body}</div>`;
+ m.innerHTML=`<div class="mbox"><button class="mclose" data-act="num-close" aria-label="Close">✕</button><p class="eyebrow">${esc(label)}${extra.who?' · '+esc(extra.who):''}</p><div style="font-family:var(--heading);font-weight:800;font-size:2.6rem;color:var(--purple);line-height:1;margin-top:2px">${esc(value)}${echoNum?` <span style="font-size:1.1rem;color:var(--mint)">↑${echoNum}</span>`:''}${kd?` <span style="font-size:1rem;color:#fbbf24">⚡${compound}</span>`:''}${wealth?` <span style="font-size:1rem;color:var(--mint)">💰${compound}</span>`:''}</div>${body}</div>`;
  m.classList.add('on');try{track('number_info',{label,value,echo:echoNum||undefined});}catch(e){}
 }
 function closeNumModal(){const m=document.getElementById('nummodal');if(m){m.classList.remove('on');m.innerHTML='';}}
@@ -757,6 +761,47 @@ const addDays=(dateStr,n)=>{const d=new Date(dateStr+'T12:00:00Z');d.setUTCDate(
 const fmtDate=dateStr=>{const[y,m,d]=dateStr.split('-').map(Number);return new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'UTC'});};
 const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const capS=s=>{s=String(s||'').trim();return s?s.charAt(0).toUpperCase()+s.slice(1)+(/[.!?]$/.test(s)?'':'.'):'';};
+// LIFEPATH_DEEP/ARCHETYPE/THEME_INFO/KARMIC_DEBT read are written as "you" (they're shown to someone
+// looking at their OWN number, e.g. tapping it inside a reading). The standalone glossary shows every
+// number to a reader who very likely doesn't have most of them, so "you" there reads as presumptuous --
+// this turns that same text into third person for that context, without needing a second copy of the
+// content to maintain. Handles both subject ("you'd" -> "they'd") and the specific object-case "you"
+// phrases this content actually contains ("handing you" -> "handing them"), verified against every
+// number's full text rather than assumed from the pattern alone.
+const GENERIC_FIXES=[
+ ['where they push forward, you soften','where a 1 pushes forward, a 2 softens'], // avoids a they/they clash comparing 2 to 1
+ ['handing you situations','handing them situations'],
+ ['complete you.','complete them.'],
+ ['can also anchor you','can also anchor them'],
+ ['Words matter to you','Words matter to them'],
+ ['makes you feel flat','makes them feel flat'],
+ ['gives you room and adventure','gives them room and adventure'],
+ ['come easily to you','come easily to them'],
+ ['tends to find you early','tends to find them early'],
+ ['People open up to you fast','People open up to them fast'],
+ ['they tell you secrets','they tell them secrets'],
+ ['ask you for advice','ask them for advice'],
+ ['meeting you.','meeting them.'],
+ ['gives you real intuition','gives them real intuition'],
+ ['systems that outlast you','systems that outlast them'],
+ ['letting it run you.','letting it run them.'],
+ ['to carry you or','to carry them or'],
+];
+function toGeneric(txt){
+ if(!txt)return txt;
+ let out=txt;
+ GENERIC_FIXES.forEach(([a,b])=>{out=out.split(a).join(b);});
+ const swap=(re,rep)=>{out=out.replace(re,m=>m[0]===m[0].toUpperCase()?rep.charAt(0).toUpperCase()+rep.slice(1):rep);};
+ swap(/\byourself\b/gi,'themselves');
+ swap(/\byou're\b/gi,"they're");
+ swap(/\byou'd\b/gi,"they'd");
+ swap(/\byou'll\b/gi,"they'll");
+ swap(/\byou've\b/gi,"they've");
+ swap(/\byours\b/gi,'theirs');
+ swap(/\byour\b/gi,'their');
+ swap(/\byou\b/gi,'they');
+ return out;
+}
 const listNames=a=>a.length<=1?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
 const fullName=()=>[S.me.first,S.me.middle,S.me.last].filter(Boolean).join(' ').trim();
 const meProfile=()=>buildProfile(S.me.dob,fullName(),S.me.currentName,S.me.door,YEARNOW);
@@ -1171,7 +1216,7 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
       <p class="eyebrow" style="margin-top:18px;color:var(--mint)">How to support each other right now</p>
       <div style="display:grid;gap:12px;margin-top:10px">
       ${cmp.support.map(s=>`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.03)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div>
         <p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--text)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p>
         <p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p>
       </div>`).join('')}
@@ -1186,7 +1231,7 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
       ${cmp.tension?`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--heading)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
       <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>
     </div>`;}
-  else if(sel.length===1){const m=M[sel[0]];panel=`<div class="card" style="margin-top:16px"><h3 style="font-size:1.3rem">${esc(m.first)}'s NumeraFlow</h3><div class="keys" style="margin-top:12px">${m.intel.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} ⓘ</div><div class="v">${k.value}</div></div>`).join('')}</div><p class="muted" style="margin-top:12px;font-size:.9rem">${esc(m.intel.corePattern)}</p><div style="margin-top:14px"><button class="btn btn-glow" data-act="fam-view-full" data-favidx="${sel[0]}">See ${esc(m.first)}'s full profile &rarr;</button></div><p class="muted" style="font-size:.82rem;margin-top:10px">Tap a number to learn it · tap a second person to compare.</p></div>`;}
+  else if(sel.length===1){const m=M[sel[0]];panel=`<div class="card" style="margin-top:16px"><h3 style="font-size:1.3rem">${esc(m.first)}'s NumeraFlow</h3><div class="keys" style="margin-top:12px">${m.intel.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}" data-who="${esc(m.first)}"><div class="l">${k.label} ⓘ</div><div class="v">${k.value}</div></div>`).join('')}</div><p class="muted" style="margin-top:12px;font-size:.9rem">${esc(m.intel.corePattern)}</p><div style="margin-top:14px"><button class="btn btn-glow" data-act="fam-view-full" data-favidx="${sel[0]}">See ${esc(m.first)}'s full profile &rarr;</button></div><p class="muted" style="font-size:.82rem;margin-top:10px">Tap a number to learn it · tap a second person to compare.</p></div>`;}
   return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px">
    <section style="text-align:center"><p class="eyebrow">Your Family Blueprint</p><h1 style="font-size:2rem;margin-top:8px">Me · Us · <span class="aurora">All of us</span></h1></section>
    ${bp?`<div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:20px"><div class="key"><div class="l">Shared pattern</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.sharedPattern?bp.sharedPattern.label:'—'}</div></div><div class="key"><div class="l">Collective strength</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.collectiveStrength?bp.collectiveStrength.label:'—'}</div></div><div class="key"><div class="l">Main tension</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.tension?bp.tension.title:'Balanced'}</div></div><div class="key"><div class="l">Household now</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.householdTheme||'Steady'}</div></div></div>`:'<p class="muted" style="text-align:center;margin-top:16px">Add at least two people to see the blueprint.</p>'}
@@ -1253,19 +1298,19 @@ function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33,44];
   <p class="muted" style="margin-top:8px">Your place to learn it yourself. 1–9 are the core numbers; 11, 22, 33 and 44 are the master numbers. Full depth on every one — the same read you'd get tapping that number inside your own reading.</p>
   <div style="display:grid;gap:14px;margin-top:20px">${nums.map(n=>{const np=npFor(n);const deep=LIFEPATH_DEEP[n]||{};const arch=ARCHETYPE[n]||{};const isMaster=MM.includes(n);
     return `<div class="card"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-family:var(--heading);font-weight:800;font-size:2.2rem;color:${isMaster?'var(--mint)':'var(--purple)'};min-width:52px">${n}</span><div><b style="font-family:var(--heading)">${(np.t.map(t=>LABEL[t]||t).join(' · '))||'—'}</b>${isMaster?' <span class="muted" style="font-size:.7rem">· master</span>':''}<div class="muted" style="font-size:.82rem">Needs: ${NEEDL[np.need]||np.need}</div></div></div>
-     <p style="margin-top:12px;font-size:.95rem;line-height:1.55">${deep.essence||arch.core||np.m+'.'}</p>
-     <div style="margin-top:8px">${row('STRENGTHS',deep.strengths||arch.strengths,'var(--mint)')}${row('THE CHALLENGE',deep.challenge||arch.shadow,'var(--lilac)')}${row('IN LOVE',deep.love,'var(--purple)')}${row('AT WORK',deep.work,'var(--purple)')}${row('THE MISSION',deep.mission||arch.lesson,'var(--mint)')}</div>
-     ${deep.pattern?`<p class="muted" style="font-size:.8rem;font-style:italic;margin-top:10px">${deep.pattern}</p>`:''}
+     <p style="margin-top:12px;font-size:.95rem;line-height:1.55">${toGeneric(deep.essence||arch.core||np.m+'.')}</p>
+     <div style="margin-top:8px">${row('STRENGTHS',toGeneric(deep.strengths||arch.strengths),'var(--mint)')}${row('THE CHALLENGE',toGeneric(deep.challenge||arch.shadow),'var(--lilac)')}${row('IN LOVE',toGeneric(deep.love),'var(--purple)')}${row('AT WORK',toGeneric(deep.work),'var(--purple)')}${row('THE MISSION',toGeneric(deep.mission||arch.lesson),'var(--mint)')}</div>
+     ${deep.pattern?`<p class="muted" style="font-size:.8rem;font-style:italic;margin-top:10px">${toGeneric(deep.pattern)}</p>`:''}
     </div>`;}).join('')}</div>
   <h2 style="font-size:1.5rem;margin-top:32px">Karmic Debt &amp; the Wealth Number</h2>
   <p class="muted" style="margin-top:6px">A handful of compound numbers carry a specific lesson of their own — never just flattened to their root.</p>
   <div style="display:grid;gap:10px;margin-top:16px">
-   <div class="card" style="border-color:var(--mint)"><b style="font-family:var(--heading);color:var(--mint)">💰 ${esc(WEALTH_NUMBER.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${WEALTH_NUMBER.lesson}</p></div>
-   ${Object.values(KARMIC_DEBT).map(kd=>`<div class="card" style="border-color:#fbbf24"><b style="font-family:var(--heading);color:#fbbf24">⚡ ${esc(kd.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${kd.lesson}</p></div>`).join('')}
+   <div class="card" style="border-color:var(--mint)"><b style="font-family:var(--heading);color:var(--mint)">💰 ${esc(WEALTH_NUMBER.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${toGeneric(WEALTH_NUMBER.lesson)}</p></div>
+   ${Object.values(KARMIC_DEBT).map(kd=>`<div class="card" style="border-color:#fbbf24"><b style="font-family:var(--heading);color:#fbbf24">⚡ ${esc(kd.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${toGeneric(kd.lesson)}</p></div>`).join('')}
   </div>
   <h2 style="font-size:1.5rem;margin-top:32px">The themes explained</h2>
-  <p class="muted" style="margin-top:6px">The recurring patterns your numbers point to — what each looks like at its best, its shadow, and how to grow with it.</p>
-  <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--heading);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${ti.shadow}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${ti.grow}.</span></p></div>`).join('')}</div>
+  <p class="muted" style="margin-top:6px">The recurring patterns numbers point to — what each looks like at its best, its shadow, and how to grow with it.</p>
+  <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--heading);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${toGeneric(ti.best)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${toGeneric(ti.shadow)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${toGeneric(ti.grow)}.</span></p></div>`).join('')}</div>
   <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="glossary-back">&larr; Back to where you were</span></p>
  </div></div>`;}
 
@@ -1274,7 +1319,7 @@ function renderCompare(cmp){return `
  <h3 style="font-size:1.3rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
  <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
  <p class="eyebrow" style="margin-top:16px;color:var(--mint)">How to support each other</p>
- <div style="display:grid;gap:12px;margin-top:10px">${cmp.support.map(s=>`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.03)"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div><p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--text)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p><p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p></div>`).join('')}</div>
+ <div style="display:grid;gap:12px;margin-top:10px">${cmp.support.map(s=>`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.03)"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div><p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--text)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p><p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p></div>`).join('')}</div>
  <div class="card beam" style="margin-top:14px;background:rgba(124,58,237,.14)"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
  <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow" style="color:var(--lilac)">Chinese astrology</p><p style="margin-top:8px"><b style="font-family:var(--heading)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--heading)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p></div>
  ${cmp.tension?`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--heading)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
@@ -1333,7 +1378,7 @@ document.addEventListener('click',e=>{
   if(logday){S.dailyLog=S.dailyLog||[];S.dailyLog.push({date:todayStr(),personalDay:dailyArchitecture(meProfile(),todayStr()).personalDay,rating:logday.dataset.logday});save();render();return;}
   const changed=e.target.closest('[data-changed]');
   const info=e.target.closest('[data-info]');
-  if(info){openNumModal(info.dataset.label,info.dataset.value,{bday:info.dataset.bday,bmonth:info.dataset.bmonth});return;}
+  if(info){openNumModal(info.dataset.label,info.dataset.value,{bday:info.dataset.bday,bmonth:info.dataset.bmonth,who:info.dataset.who});return;}
   if(e.target.id==='nummodal'){closeNumModal();return;}
   if(e.target.id==='sysmodal'){closeSysModal();return;}
   const nameChip=e.target.closest('[data-name]');
