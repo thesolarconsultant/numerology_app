@@ -10,9 +10,9 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://numerology.lifestyle/">
 <link rel="canonical" href="https://numerology.lifestyle/">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192-v3.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" sizes="180x180" href="icon-180-v3.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="NUMIO">
@@ -272,6 +272,49 @@
      image — an <svg> that slices to fill its frame. */
   .bloom{position:absolute;inset:0;width:100%;height:100%;display:block;}
   .onart{position:relative;z-index:1;}
+
+  /* ── the calendar, as a printed sheet ──────────────────────────────────
+     A month is a table, not thirty-one floating tiles. Continuous hairlines,
+     one big numeral per cell, and the state of the day carried by the colour
+     of a single overprint disc rather than a word repeated twenty times. */
+  .calsheet{background:var(--surface);border:1px solid var(--rule);border-radius:20px;
+    overflow:hidden;box-shadow:0 26px 54px -34px rgba(35,26,21,.42);}
+  .calhead{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--rule);
+    background:var(--surface-2);}
+  .calhead span{padding:10px 0;text-align:center;font-size:.62rem;font-weight:800;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--stone);}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);}
+  .cel{position:relative;aspect-ratio:1/1.06;border-right:1px solid var(--rule-soft,#EFE7D6);
+    border-bottom:1px solid var(--rule-soft,#EFE7D6);padding:6px 5px 5px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    cursor:pointer;transition:background .15s ease;touch-action:manipulation;min-width:0;}
+  .cel:nth-child(7n){border-right:0;}
+  .cel.wk{background:rgba(224,213,192,.16);}   /* weekends, the way a wall calendar tints them */
+  .cel.void{cursor:default;background:rgba(224,213,192,.10);}
+  .cel:not(.void):active{background:var(--surface-2);}
+  .cel .dnum{font-family:var(--display);font-weight:500;font-size:1.12rem;line-height:1;color:var(--ink);}
+  .cel .uni{position:absolute;top:6px;right:6px;font-size:.56rem;font-weight:700;color:var(--stone);
+    font-variant-numeric:tabular-nums;opacity:.75;}
+  .cel .pd{align-self:flex-start;width:20px;height:20px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.64rem;font-weight:800;font-variant-numeric:tabular-nums;
+    color:var(--on-accent);background:var(--stone-2);}
+  .cel .pd.high{background:var(--rust-fill);}
+  .cel .pd.mixed{background:var(--plum-fill);}
+  .cel .pd.support{background:var(--ochre);color:var(--ink);}
+  .cel .pd.stretch{background:var(--surface);color:var(--stone-2);box-shadow:inset 0 0 0 2px var(--stone-2);}
+  .cel.today{background:var(--accent);}
+  .cel.today .dnum,.cel.today .uni{color:var(--on-accent);opacity:1;}
+  .cel.today .pd{box-shadow:0 0 0 2px var(--accent),0 0 0 3.5px rgba(246,240,228,.65);}
+  @media(max-width:390px){.cel{padding:5px 3px 4px;}.cel .dnum{font-size:1rem;}.cel .pd{width:18px;height:18px;font-size:.6rem;}}
+
+  .callegend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:16px;justify-content:center;}
+  .callegend b{display:inline-flex;align-items:center;gap:7px;font-size:.72rem;font-weight:600;color:var(--stone);}
+  .callegend i{width:15px;height:15px;border-radius:50%;flex-shrink:0;font-style:normal;}
+  .callegend i.out{background:var(--surface);box-shadow:inset 0 0 0 2px var(--stone-2);}
+  .calmonth{display:flex;align-items:baseline;justify-content:center;gap:10px;}
+  .calmonth h1{font-size:1.75rem;letter-spacing:-.01em;}
+  .calmonth .calyr{font-family:var(--display);font-size:1.2rem;color:var(--stone);background:none;border:0;padding:0;width:auto;height:auto;border-radius:0;}
   /* Same surface as .card, so a panelled paragraph and a real card read as one
      material rather than two. */
   .paperpanel{position:relative;z-index:1;}
@@ -642,11 +685,11 @@ function resonanceText(res,first){
 // Compact per-date marker for the Calendar grid -- never reduced to a bare good/bad label.
 function resonanceMarker(res){
  if(!res)return null;
- if(res.type==='stretch')return{label:'Stretch',color:'var(--stone-2)'};
- if(res.type==='complement')return{label:'Supportive',color:'var(--ink-2)'};
- if(res.level==='VERY HIGH ACTIVATION')return{label:'Mixed',color:'var(--accent)'};
- if(res.level==='EXACT COMPOUND RESONANCE'||res.level==='STRONG RESONANCE')return{label:'High resonance',color:'var(--accent-2)'};
- return{label:'Supportive',color:'var(--accent-2)'};
+ if(res.type==='stretch')return{label:'Stretch',color:'var(--stone-2)',tone:'stretch'};
+ if(res.type==='complement')return{label:'Supportive',color:'var(--ink-2)',tone:'support'};
+ if(res.level==='VERY HIGH ACTIVATION')return{label:'Mixed',color:'var(--accent)',tone:'mixed'};
+ if(res.level==='EXACT COMPOUND RESONANCE'||res.level==='STRONG RESONANCE')return{label:'High resonance',color:'var(--accent-2)',tone:'high'};
+ return{label:'Supportive',color:'var(--accent-2)',tone:'support'};
 }
 // Shortened labels for the tight Calendar month-grid cells — full wording is used everywhere else.
 const CAL_MARKER_SHORT={'High resonance':'High res','Supportive':'Support','Stretch':'Stretch','Mixed':'Mixed'};
@@ -1646,18 +1689,47 @@ function patternHistory(){const log=S.dailyLog||[];if(log.length<5)return '';
 }
 function vCalendar(){const p=meProfile();const month=S.calMonth||todayStr().slice(0,7);const[cy,cm]=month.split('-').map(Number);
  const first=new Date(Date.UTC(cy,cm-1,1));const daysInMonth=new Date(Date.UTC(cy,cm,0)).getUTCDate();const startWeekday=first.getUTCDay();
- const monthLabel=first.toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
+ const monthName=first.toLocaleDateString('en-GB',{month:'long',timeZone:'UTC'});
  const cells=[];for(let i=0;i<startWeekday;i++)cells.push(null);for(let d=1;d<=daysInMonth;d++)cells.push(d);
+ while(cells.length%7)cells.push(null);   /* square the sheet off, so the grid never ends ragged */
  const ds0=todayStr();const intel=buildIntelligence(p);
- return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px">
-  <div style="display:flex;justify-content:space-between;align-items:center"><span class="btn btn-ghost" style="padding:8px 12px" data-act="cal-prev">&larr;</span><h1 style="font-size:1.4rem">${monthLabel}</h1><span class="btn btn-ghost" style="padding:8px 12px" data-act="cal-next">&rarr;</span></div>
-  <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:16px;text-align:center">${['S','M','T','W','T','F','S'].map(d=>`<div class="muted" style="font-size:.68rem;font-weight:700">${d}</div>`).join('')}
-   ${cells.map(d=>{if(!d)return '<div></div>';const ds=`${cy}-${String(cm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const arch=dailyArchitecture(p,ds);const isToday=ds===ds0;const mk=resonanceMarker(dailyResonance(p,intel,arch));const mkShort=mk?(CAL_MARKER_SHORT[mk.label]||mk.label):null;
-     return `<div style="border:1px solid var(--rule);border-radius:3px;padding:5px 1px;min-width:0;text-align:center;cursor:pointer;${isToday?'border-color:var(--accent);background:var(--surface)':''}" data-caldate="${ds}"><div style="font-family:var(--display);font-weight:500;font-size:.9rem">${d}</div><div class="muted" style="font-size:.58rem;margin-top:2px">${arch.universalDay.number}</div><div style="font-size:.56rem;color:var(--accent-2);margin-top:1px">You:${arch.personalDay}</div>${mkShort?`<div style="font-size:.5rem;margin-top:1px;color:${mk.color};overflow-wrap:break-word">${esc(mkShort)}</div>`:''}</div>`;}).join('')}
+ const DOW=['S','M','T','W','T','F','S'];
+ return topbar()+`<div class="screen"><div class="wrap" style="padding:22px 16px 60px;max-width:620px">
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+   <span class="btn btn-ghost" style="padding:8px 13px" data-act="cal-prev" aria-label="Previous month">&larr;</span>
+   <span class="calmonth"><h1>${monthName}</h1><span class="calyr">${cy}</span></span>
+   <span class="btn btn-ghost" style="padding:8px 13px" data-act="cal-next" aria-label="Next month">&rarr;</span>
   </div>
-  <p class="muted" style="font-size:.8rem;margin-top:14px;text-align:center">Small number = the day's overall energy · the rust line = your Personal Day · label = how today's energy relates to your own permanent numbers. Tap any date for the full picture.</p>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;justify-content:center"><button class="btn btn-ghost" data-act="plan-something">Plan something</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
+
+  <div class="calsheet" style="margin-top:18px">
+   <div class="calhead">${DOW.map(d=>`<span>${d}</span>`).join('')}</div>
+   <div class="calgrid">${cells.map((d,ix)=>{
+     const weekend=(ix%7===0||ix%7===6);
+     if(!d)return `<div class="cel void${weekend?' wk':''}"></div>`;
+     const ds=`${cy}-${String(cm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+     const arch=dailyArchitecture(p,ds);
+     const isToday=ds===ds0;
+     const mk=resonanceMarker(dailyResonance(p,intel,arch));
+     const tone=mk&&mk.tone?mk.tone:'';
+     return `<div class="cel${weekend?' wk':''}${isToday?' today':''}" data-caldate="${ds}" role="button" tabindex="0" aria-label="${esc(fmtDate(ds))}, your day ${arch.personalDay}${mk?', '+esc(mk.label):''}">
+       <span class="dnum">${d}</span>
+       <span class="uni">${arch.universalDay.number}</span>
+       <span class="pd ${tone}">${arch.personalDay}</span>
+     </div>`;}).join('')}</div>
+  </div>
+
+  <div class="callegend">
+   <b><i style="background:var(--rust-fill)"></i>High resonance</b>
+   <b><i style="background:var(--plum-fill)"></i>Mixed</b>
+   <b><i style="background:var(--ochre)"></i>Supportive</b>
+   <b><i class="out"></i>Stretch</b>
+  </div>
+  <p class="muted" style="font-size:.78rem;margin-top:12px;text-align:center;max-width:44ch;margin-left:auto;margin-right:auto">The disc is <b>your</b> Personal Day, coloured by how it meets your own numbers. The small figure top right is the day&rsquo;s universal energy. Tap any date for the full picture.</p>
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;justify-content:center"><button class="btn btn-ghost" data-act="plan-something">Plan something</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
  </div></div>`;}
+
 function vDateDetail(){const p=meProfile();const ds=S.calDate||todayStr();const arch=dailyArchitecture(p,ds);const gw=dailyGoodWatch(arch);const first=esc(S.me.first);
  const intel=buildIntelligence(p);const res=dailyResonance(p,intel,arch);
  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px;max-width:600px">
