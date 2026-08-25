@@ -3,151 +3,175 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b0713">
-<meta name="description" content="NumeraFlow — your family's numbers, decoded. Deep numerology readings for you and the people you love.">
-<meta property="og:title" content="NumeraFlow">
-<meta property="og:description" content="Your family's numbers, decoded.">
+<meta name="theme-color" content="#F6F0E4">
+<meta name="description" content="NUMIO — the pattern behind your life. Your full numerology profile, your people, and a daily calendar that tells you what today actually is.">
+<meta property="og:title" content="NUMIO">
+<meta property="og:description" content="The pattern behind your life.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://numerology.lifestyle/">
+<link rel="canonical" href="https://numerology.lifestyle/">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="NumeraFlow">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="NUMIO">
 <meta name="mobile-web-app-capable" content="yes">
-<title>NumeraFlow App</title>
+<title>NUMIO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Figtree:wght@400;500;600;700;800&display=swap">
 <style>
-  :root{--ground:#0b0713;--surface:#160f24;--surface2:#1d1533;--border:#2c2145;--text:#f4f1fa;--muted:#a99fc0;--purple:#a78bfa;--lilac:#d8b4fe;--mint:#6ee7b7;--indigo:#818cf8;--ink:#17111f;--heading:"Manrope",ui-sans-serif,system-ui,sans-serif;--body:"DM Sans",ui-sans-serif,system-ui,sans-serif;}
+  /* NUMIO — the perforation system.
+     Paper, not white. Ink, not black. One accent (acid olive), reserved for
+     alignment: a day that matches a number you carry, a position two people share.
+     --accent is the text-safe olive; --accent-2 is its mid tone; --olive-fill is
+     the bright graphic value, used only in marks and never behind body text. */
+  /* NUMIO — OVERPRINT.
+     Three inks that make nine. Plum leads, rust acts, ochre arrives.
+     They are chosen to overprint well: every pairing makes a believable
+     third colour rather than mud. Warm paper, warm ink, no cold greys. */
+  :root{
+    --paper:#F6F0E4; --surface:#FFFCF6; --surface-2:#EFE7D6;
+    --rule:#E0D5C0; --ink:#231A15; --ink-2:#4A3B31;
+    --stone:#6B5B4F; --stone-2:#7A6A5C;
+    --accent:#5C2A4F;      /* plum  — primary, text-safe on paper */
+    --accent-2:#A8461F;    /* rust  — secondary, text-safe on paper */
+    --ochre:#D9982B; --plum-fill:#5C2A4F; --rust-fill:#BE5430;
+    --olive-fill:#BE5430; --olive-wash:#F4DED2;   /* legacy names, overprint values */
+    --on-accent:#F6F0E4;
+    --display:"Fraunces",ui-serif,Georgia,serif;
+    --ui:"Figtree",ui-sans-serif,system-ui,sans-serif;
+    --mono:"Figtree",ui-sans-serif,system-ui,sans-serif;
+  }
+  /* Restored base rules — these sit between the two :root blocks in the
+     original stylesheet and must not be dropped when the palette is swapped. */
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html{scroll-behavior:smooth;}
-  body{margin:0;background:var(--ground);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-  h1,h2,h3,h4{font-family:var(--heading);font-weight:800;margin:0;text-wrap:balance;line-height:1.1;}
-  .aurora{background-image:linear-gradient(120deg,var(--purple),var(--lilac),var(--mint),var(--indigo),var(--purple));background-size:300% 300%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:aurora 6s ease infinite;}
-  @keyframes aurora{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance;line-height:1.12;}
+  .aurora{color:var(--accent);}
   @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
-  /* --topbar-h is .top's own content+padding height with no safe-area inset applied (the
-     inset is additive on top of it, both here and wherever something needs to clear .top). */
   :root{--topbar-h:56px;}
   #app{position:relative;z-index:1;min-height:100vh;padding-top:env(safe-area-inset-top);padding-bottom:calc(var(--topbar-h) + env(safe-area-inset-bottom));}
   .screen{animation:fade .45s ease;}
-  .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(5,3,12,.72);backdrop-filter:blur(4px);}
+  .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(35,26,21,.45);backdrop-filter:blur(4px);}
   .modal.on{display:flex;animation:fade .25s ease;}
-  .mbox{position:relative;max-width:400px;width:100%;max-height:calc(100dvh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;box-shadow:0 24px 70px -20px #000;}
-  .mclose{position:absolute;top:12px;right:12px;background:none;border:0;color:var(--muted);font-size:1.05rem;cursor:pointer;padding:6px;}
+  .mbox{position:relative;max-width:400px;width:100%;max-height:calc(100dvh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:24px;box-shadow:0 24px 60px -22px rgba(35,26,21,.28);}
+  .mclose{position:absolute;top:12px;right:12px;background:none;border:0;color:var(--stone);font-size:1.05rem;cursor:pointer;padding:6px;}
   .num-tap{cursor:pointer;}
-  .echo{display:inline-block;font-size:.62em;font-weight:700;color:var(--mint);background:rgba(110,231,183,.12);border:1px solid rgba(110,231,183,.35);border-radius:999px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
-  .kd{display:inline-block;font-size:.62em;font-weight:700;color:#fbbf24;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4);border-radius:999px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
+  .echo{display:inline-block;font-size:.62em;font-weight:700;color:var(--accent-2);background:#F7E8DE;border:1px solid rgba(190,84,48,.35);border-radius:2px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
+  .kd{display:inline-block;font-size:.62em;font-weight:700;color:#8A5A08;background:#FAF0DE;border:1px solid rgba(217,152,43,.4);border-radius:2px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
   .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
-  .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--purple);}
-  .muted{color:var(--muted);}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--heading);font-weight:700;border-radius:999px;padding:14px 26px;cursor:pointer;border:1px solid transparent;font-size:.98rem;transition:transform .12s ease,background .2s,box-shadow .2s;user-select:none;touch-action:manipulation;}
+  .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);}
+  .muted{color:var(--stone);}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:500;border-radius:2px;padding:14px 26px;cursor:pointer;border:1px solid transparent;font-size:.98rem;transition:transform .12s ease,background .2s,box-shadow .2s;user-select:none;touch-action:manipulation;}
   .btn:hover{transform:translateY(-1px);}
   .btn:active{transform:scale(.95);}
-  .btn-primary{background:#fff;color:#0b0713;}
-  .btn-glow{background:linear-gradient(120deg,#8b5cf6,#7c3aed);color:#fff;box-shadow:0 8px 30px -8px rgba(139,92,246,.7);}
-  .btn-ghost{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);color:#fff;}
+  .btn-primary{background:var(--ink);color:var(--paper);}
+  .btn-glow{background:var(--ink);color:var(--paper);box-shadow:0 8px 30px -8px rgba(92,42,79,.7);}
+  .btn-ghost{background:transparent;border:1px solid var(--ink);color:var(--ink);}
   .btn-block{width:100%;}
-  input,textarea{width:100%;background:rgba(11,7,19,.6);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:14px;font-family:var(--body);font-size:1rem;color-scheme:dark;}
-  input:focus,textarea:focus{outline:none;border-color:var(--purple);}
-  label.fl{display:block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 7px;}
-  .card{border:1px solid var(--border);background:rgba(22,15,36,.6);border-radius:18px;padding:20px;}
+  input,textarea{width:100%;background:var(--surface-2);border:1px solid var(--rule);border-radius:2px;color:var(--ink);padding:14px;font-family:var(--ui);font-size:1rem;color-scheme:light;}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent);}
+  label.fl{display:block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin:0 0 7px;}
+  .card{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:20px;}
   /* topbar */
-  .top{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 20px calc(13px + env(safe-area-inset-bottom));background:rgba(11,7,19,.9);backdrop-filter:blur(10px);border-top:1px solid var(--border);}
+  .top{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 20px calc(13px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--rule);}
   @media(max-width:420px){.top{padding:11px 12px calc(11px + env(safe-area-inset-bottom));}.logo{font-size:.98rem;gap:6px;}.top .r{gap:5px;}}
-  .stickyfoot{position:fixed;left:0;right:0;bottom:calc(var(--topbar-h) + env(safe-area-inset-bottom));z-index:25;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:14px 20px;background:rgba(11,7,19,.9);backdrop-filter:blur(10px);border-top:1px solid var(--border);}
-  .logo{display:flex;align-items:center;gap:9px;font-family:var(--heading);font-weight:800;font-size:1.1rem;cursor:pointer;white-space:nowrap;}
-  .logo .mk{width:25px;height:25px;border-radius:7px;background:linear-gradient(135deg,var(--purple),var(--mint));display:flex;align-items:center;justify-content:center;color:var(--ink);flex-shrink:0;}
-  .instmk{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--purple),var(--mint));display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:2.2rem;margin:0 auto;box-shadow:0 10px 30px -8px rgba(139,92,246,.6);}
-  .inststep{display:flex;gap:12px;align-items:flex-start;text-align:left;border-top:1px solid var(--border);padding:12px 0;}
-  .inststep .n{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;font-family:var(--heading);}
+  .stickyfoot{position:fixed;left:0;right:0;bottom:calc(var(--topbar-h) + env(safe-area-inset-bottom));z-index:25;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:14px 20px;background:var(--paper);border-top:1px solid var(--rule);}
+  /* The wordmark: NUMI + a punched hole for the O. The O is an absence — a void with
+     the burr ring a real punch leaves — never a ring with something orbiting it. */
+  .logo{display:flex;align-items:center;gap:0;font-family:var(--display);font-weight:500;font-size:1.22rem;letter-spacing:.005em;cursor:pointer;white-space:nowrap;}
+  .logo .mk{width:.6em;height:.6em;border-radius:50%;background:var(--ink);flex-shrink:0;margin-left:.06em;box-shadow:0 0 0 1.5px var(--paper),0 0 0 2.5px rgba(35,26,21,.22);}
+  .instmk{width:64px;height:64px;border-radius:50%;background:var(--ink);margin:0 auto;box-shadow:0 0 0 3px var(--paper),0 0 0 5px rgba(35,26,21,.2);font-size:0;box-shadow:0 10px 30px -8px rgba(92,42,79,.6);}
+  .inststep{display:flex;gap:12px;align-items:flex-start;text-align:left;border-top:1px solid var(--rule);padding:12px 0;}
+  .inststep .n{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#F2EEE9;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;font-family:var(--display);}
   .top .left{display:flex;align-items:center;gap:6px;min-width:0;}
-  .backbtn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;flex-shrink:0;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:1.35rem;line-height:1;cursor:pointer;touch-action:manipulation;}
-  .backbtn:active{transform:scale(.92);background:rgba(255,255,255,.12);}
+  .backbtn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;flex-shrink:0;border-radius:50%;background:#EBE5DA;border:1px solid rgba(35,26,21,.14);color:var(--ink);font-size:1.35rem;line-height:1;cursor:pointer;touch-action:manipulation;}
+  .backbtn:active{transform:scale(.92);background:#E1DACF;}
   .top .r{display:flex;gap:8px;align-items:center;}
   /* hero */
   .hero{text-align:center;padding:56px 20px 30px;position:relative;overflow:hidden;}
-  .halo{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% -5%,rgba(139,92,246,.30),transparent 65%);pointer-events:none;}
+  .halo{position:absolute;inset:0;background:radial-gradient(80% 55% at 50% -10%,rgba(190,84,48,.10),transparent 62%);pointer-events:none;}
   .hero h1{font-size:clamp(2.5rem,8vw,4.6rem);margin-top:18px;}
-  .hero .sub{max-width:560px;margin:18px auto 0;color:var(--muted);font-size:1.1rem;}
-  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);border-radius:999px;padding:7px 15px;font-size:.72rem;font-weight:700;color:var(--lilac);}
+  .hero .sub{max-width:560px;margin:18px auto 0;color:var(--stone);font-size:1.1rem;}
+  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(35,26,21,.14);background:#EEE7DC;border-radius:2px;padding:7px 15px;font-size:.72rem;font-weight:700;color:var(--stone-2);}
   /* teaser */
   .teaser{max-width:500px;margin:30px auto 0;text-align:left;}
-  .reveal{display:none;margin-top:18px;border-top:1px solid var(--border);padding-top:16px;text-align:center;}
+  .reveal{display:none;margin-top:18px;border-top:1px solid var(--rule);padding-top:16px;text-align:center;}
   .reveal.on{display:block;animation:fade .5s ease;}
-  .bignum{font-family:var(--heading);font-weight:800;font-size:4.2rem;line-height:1;}
+  .bignum{font-family:var(--display);font-weight:500;font-size:4.2rem;line-height:1;}
   /* journeys */
   .journeys{display:grid;gap:16px;margin:34px auto 0;max-width:760px;}
   @media(min-width:720px){.journeys{grid-template-columns:1fr 1fr;}}
-  .jcard{position:relative;overflow:hidden;border-radius:20px;padding:26px;border:1px solid var(--border);text-align:left;}
-  .jcard.me{background:linear-gradient(165deg,rgba(124,58,237,.22),rgba(22,15,36,.7));}
-  .jcard.fam{background:linear-gradient(165deg,rgba(110,231,183,.13),rgba(22,15,36,.7));}
-  .jcard .price{font-family:var(--heading);font-weight:800;font-size:3rem;margin:8px 0;}
+  .jcard{position:relative;overflow:hidden;border-radius:3px;padding:26px;border:1px solid var(--rule);text-align:left;}
+  .jcard.me{background:linear-gradient(165deg,#E6D6E2,var(--surface));}
+  .jcard.fam{background:linear-gradient(165deg,#F6DFD3,var(--surface));}
+  .jcard .price{font-family:var(--display);font-weight:500;font-size:3rem;margin:8px 0;}
   .jcard ul{list-style:none;margin:14px 0 20px;padding:0;}
-  .jcard li{display:flex;gap:9px;color:var(--muted);font-size:.9rem;margin:8px 0;}
-  .jcard li b{color:var(--mint);}
+  .jcard li{display:flex;gap:9px;color:var(--stone);font-size:.9rem;margin:8px 0;}
+  .jcard li b{color:var(--accent-2);}
   /* progress stages */
   .stages{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:0 auto 4px;padding:14px 20px 0;}
-  .stg{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 10px;}
-  .stg.done{background:color-mix(in srgb,var(--mint) 16%,transparent);color:var(--mint);border-color:transparent;}
-  .stg.now{background:#7c3aed;color:#fff;border-color:#7c3aed;}
+  .stg{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);border:1px solid var(--rule);border-radius:2px;padding:4px 10px;}
+  .stg.done{background:color-mix(in srgb,var(--accent-2) 16%,transparent);color:var(--accent-2);border-color:transparent;}
+  .stg.now{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
   /* option chips */
   .opts{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;}
-  .opt{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:14px;padding:12px 16px;cursor:pointer;font-weight:600;font-size:.95rem;transition:transform .12s ease,border-color .15s,background .15s;touch-action:manipulation;}
-  .opt:hover{border-color:var(--purple);}
-  .opt:active{transform:scale(.94);border-color:var(--purple);}
-  .opt.sel{background:#7c3aed;border-color:#7c3aed;color:#fff;}
-  .say{color:var(--mint);font-style:italic;font-size:.9rem;margin-top:2px;animation:fade .5s ease;}
+  .opt{border:1px solid var(--rule);background:#F0EADE;border-radius:3px;padding:12px 16px;cursor:pointer;font-weight:600;font-size:.95rem;transition:transform .12s ease,border-color .15s,background .15s;touch-action:manipulation;}
+  .opt:hover{border-color:var(--accent);}
+  .opt:active{transform:scale(.94);border-color:var(--accent);}
+  .opt.sel{background:var(--accent);border-color:var(--accent);color:var(--on-accent);}
+  .say{color:var(--accent-2);font-style:italic;font-size:.9rem;margin-top:2px;animation:fade .5s ease;}
   /* key numbers */
   .keys{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px;}
   @media(min-width:600px){.keys{grid-template-columns:repeat(5,1fr);}}
-  .key{border:1px solid var(--border);background:rgba(29,21,51,.6);border-radius:16px;padding:14px 8px;text-align:center;transition:transform .12s ease,border-color .15s;touch-action:manipulation;}
-  .key.num-tap:active{transform:scale(.94);border-color:var(--purple);}
-  .key .l{font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
-  .key .v{font-family:var(--heading);font-weight:800;font-size:1.9rem;line-height:1;margin-top:6px;}
+  .key{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:14px 8px;text-align:center;transition:transform .12s ease,border-color .15s;touch-action:manipulation;}
+  .key.num-tap:active{transform:scale(.94);border-color:var(--accent);}
+  .key .l{font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);}
+  .key .v{font-family:var(--display);font-weight:500;font-size:1.9rem;line-height:1;margin-top:6px;}
   /* rail */
-  .rail{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:rgba(11,7,19,.85);backdrop-filter:blur(8px);border-top:1px solid var(--border);border-bottom:1px solid var(--border);scrollbar-width:none;}
+  .rail{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);scrollbar-width:none;}
   .rail::-webkit-scrollbar{display:none;}
-  .rail button{white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--muted);padding:6px 12px;border-radius:999px;border:0;background:none;cursor:pointer;}
-  .rail button.on{background:#3a2d5c;color:var(--text);}
-  section.blk{border-top:1px solid rgba(44,33,69,.6);padding:32px 0;scroll-margin-top:110px;}
+  .rail button{white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--stone);padding:6px 12px;border-radius:2px;border:0;background:none;cursor:pointer;}
+  .rail button.on{background:var(--olive-wash);color:var(--accent);}
+  section.blk{border-top:1px solid rgba(224,213,192,.6);padding:32px 0;scroll-margin-top:110px;}
   .theme{margin-top:10px;}
   .theme .tp{display:flex;justify-content:space-between;align-items:baseline;}
-  .track{height:6px;border-radius:999px;background:var(--border);overflow:hidden;margin-top:8px;}
-  .fill{height:100%;border-radius:999px;}
-  .t-Dominant{color:var(--purple)}.b-Dominant{background:var(--purple)}
-  .t-Strong{color:var(--mint)}.b-Strong{background:var(--mint)}
-  .t-Supporting{color:var(--lilac)}.b-Supporting{background:var(--lilac)}
-  .disc{margin-top:12px;border-top:1px solid rgba(44,33,69,.5);padding-top:10px;max-width:100%;overflow:hidden;}
-  .disc summary{color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;list-style:none;}
+  .track{height:6px;border-radius:2px;background:var(--rule);overflow:hidden;margin-top:8px;}
+  .fill{height:100%;border-radius:2px;}
+  .t-Dominant{color:var(--accent)}.b-Dominant{background:var(--accent)}
+  .t-Strong{color:var(--accent-2)}.b-Strong{background:var(--accent-2)}
+  .t-Supporting{color:var(--stone-2)}.b-Supporting{background:var(--stone-2)}
+  .disc{margin-top:12px;border-top:1px solid rgba(224,213,192,.5);padding-top:10px;max-width:100%;overflow:hidden;}
+  .disc summary{color:var(--stone);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;list-style:none;}
   .disc summary::-webkit-details-marker{display:none;}
   .disc summary::marker{content:'';}
-  .disc pre{margin:10px 0 0;background:rgba(11,7,19,.6);border-radius:8px;padding:12px;font-size:.72rem;color:var(--muted);white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;max-width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace;}
-  .pin{border:1px solid var(--border);background:rgba(22,15,36,.5);border-radius:14px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
-  .pin.now{border-color:var(--purple);background:var(--surface);}
-  .here{background:var(--purple);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;border-radius:999px;}
+  .disc pre{margin:10px 0 0;background:var(--surface-2);border-radius:2px;padding:12px;font-size:.72rem;color:var(--stone);white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;max-width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace;}
+  .pin{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .pin.now{border-color:var(--accent);background:var(--surface);}
+  .here{background:var(--accent);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;border-radius:2px;}
   /* year wheel */
   .wheel{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:14px 0;}
-  .yr{width:46px;height:50px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--surface2);font-family:var(--heading);font-weight:800;font-size:1.1rem;}
-  .yr small{font-size:.46rem;font-weight:700;color:var(--muted);letter-spacing:.02em;margin-top:2px;}
-  .yr.on{background:var(--purple);color:var(--ink);border-color:var(--purple);}
-  .yr.on small{color:var(--ink);}
+  .yr{width:46px;height:50px;border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--rule);background:var(--surface-2);font-family:var(--display);font-weight:500;font-size:1.1rem;}
+  .yr small{font-size:.46rem;font-weight:700;color:var(--stone);letter-spacing:.02em;margin-top:2px;}
+  .yr.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
+  .yr.on small{color:var(--on-accent);}
   .trio{display:grid;gap:10px;margin-top:12px;}
   @media(min-width:600px){.trio{grid-template-columns:repeat(3,1fr);}}
-  .trio .t{border:1px solid var(--border);border-radius:12px;padding:13px;background:rgba(22,15,36,.5);}
-  .trio .t.mid{border-color:var(--purple);}
+  .trio .t{border:1px solid var(--rule);border-radius:2px;padding:13px;background:var(--surface);}
+  .trio .t.mid{border-color:var(--accent);}
   .beam{position:relative;overflow:hidden;}
-  .beam::before{content:"";position:absolute;width:64px;height:64px;top:-32px;left:-32px;background:conic-gradient(from 0deg,transparent,var(--purple),var(--mint),transparent);animation:spin 7s linear infinite;opacity:.5;}
+  .beam::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--olive-fill);}
   @keyframes spin{to{transform:rotate(360deg)}}
   /* family */
-  .fnode{border:1px solid var(--border);background:rgba(22,15,36,.6);border-radius:16px;padding:16px;cursor:pointer;transition:transform .12s ease,border-color .15s;touch-action:manipulation;}
-  .fnode:hover{border-color:var(--purple);}
+  .fnode{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:16px;cursor:pointer;transition:transform .12s ease,border-color .15s;touch-action:manipulation;}
+  .fnode:hover{border-color:var(--accent);}
   .fnode:active{transform:scale(.97);}
-  .fnode.sel{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple);}
-  .foot{text-align:center;color:var(--muted);font-size:.76rem;padding:26px 20px 60px;}
+  .fnode.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+  .foot{text-align:center;color:var(--stone);font-size:.76rem;padding:26px 20px 60px;}
   /* staggered pop-in for repeated grid/list items */
   .jcard{animation:fade .5s ease backwards;transition:transform .12s ease;}
   .jcard:active{transform:scale(.98);}
@@ -158,11 +182,132 @@
   .keys .key:nth-child(5),.opts .opt:nth-child(5),.fnode:nth-child(5){animation-delay:.24s}
   .keys .key:nth-child(n+6),.opts .opt:nth-child(n+6),.fnode:nth-child(n+6){animation-delay:.3s}
   @media(prefers-reduced-motion:reduce){.aurora,.beam::before{animation:none;}.screen,.jcard,.keys .key,.opts .opt,.journeys .jcard,.fnode{animation:none;}}
+
+  /* ── OVERPRINT: round two ──────────────────────────────────────────
+     Numerology is cyclical and overlapping, not filed into boxes. Round
+     one squared everything off at 2px and it fought the subject matter.
+     Nothing here has a hard corner: the smallest radius is 14px, and
+     anything that can be a pill, is one. Appended last so it wins the
+     cascade without having to unpick the earlier rules. */
+  .btn{border-radius:999px;padding:15px 28px;font-weight:700;letter-spacing:0;}
+  .btn-glow{background:var(--accent);color:var(--on-accent);box-shadow:0 10px 26px -14px rgba(92,42,79,.75);}
+  .btn-primary{background:var(--ink);color:var(--paper);}
+  .btn-ghost{background:transparent;color:var(--ink);border:2px solid rgba(35,26,21,.22);}
+  .badge,.echo,.kd,.stg,.here,.opt.sel{border-radius:999px;}
+  .card,.jcard,.mbox,.key,.fnode,.pin,.trio .t,.teaser,.opt{border-radius:22px;}
+  .jcard,.mbox{border-radius:28px;}
+  input,textarea{border-radius:999px;padding:14px 20px;border:2px solid rgba(35,26,21,.14);background:var(--surface-2);}
+  textarea{border-radius:22px;}
+  input:focus,textarea:focus{border-color:var(--accent);}
+  .rail{border-radius:0;}
+  .rail button{border-radius:999px;}
+  .rail button.on{background:var(--olive-wash);color:var(--accent-2);}
+  .disc pre{border-radius:16px;}
+  .stages .stg{border-radius:999px;}
+  .yr{border-radius:16px;}
+  .top{border-radius:0;}
+
+  /* Type: warm serif for display, friendly grotesque for everything else.
+     Weights kept heavy — round one was unreadably thin. */
+  h1,h2,h3,h4{font-weight:600;font-variation-settings:'SOFT' 100;letter-spacing:-.015em;}
+  body{font-size:16.5px;line-height:1.62;}
+  .muted{color:var(--stone);}
+  .eyebrow{font-family:var(--ui);font-weight:800;letter-spacing:.15em;font-size:.72rem;color:var(--accent-2);}
+
+  /* The wordmark: NUMI + an O of two overprinting inks. Two circles meeting
+     and making a third colour — the product's whole idea in one glyph. */
+  .logo{gap:0;font-family:var(--display);font-weight:700;font-size:1.24rem;font-variation-settings:'SOFT' 100;}
+  .logo .mk{
+    width:1.02em;height:.66em;border-radius:0;background:none;box-shadow:none;
+    margin-left:.05em;flex-shrink:0;position:relative;
+  }
+  .logo .mk::before,.logo .mk::after{
+    content:"";position:absolute;top:0;width:.66em;height:.66em;border-radius:50%;
+    mix-blend-mode:multiply;
+  }
+  .logo .mk::before{left:0;background:var(--plum-fill);opacity:.88;}
+  .logo .mk::after{right:0;background:var(--rust-fill);opacity:.88;}
+  /* The living wordmark. The drawn version stays underneath and is what you
+     actually see until the clip reports it can play — so a slow connection, a
+     blocked autoplay or a missing file all land on the static mark instead of
+     an empty gap. The clip is graded so its own ground is the paper colour:
+     blend modes are unreliable on video, which a compositor hands to its own
+     layer, so the ground has to match rather than be blended away. */
+  .logo{position:relative;}
+  .logo .logovid{position:absolute;left:-.30em;top:50%;transform:translateY(-50%);
+    height:1.95em;width:auto;opacity:0;pointer-events:none;
+    filter:brightness(1.015);
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),
+      linear-gradient(180deg,transparent 0,#000 13%,#000 87%,transparent 100%);
+    -webkit-mask-composite:source-in;
+    mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),
+      linear-gradient(180deg,transparent 0,#000 13%,#000 87%,transparent 100%);
+    mask-composite:intersect;
+    transition:opacity .3s ease;}
+  .logo.vid-on .logovid{opacity:1;}
+  .logo.vid-on .lgtext{visibility:hidden;}
+
+  /* Install-prompt mark, same language at 64px */
+  .instmk{
+    width:96px;height:62px;border-radius:0;background:none;box-shadow:none;
+    position:relative;margin:0 auto;font-size:0;
+  }
+  .instmk::before,.instmk::after{
+    content:"";position:absolute;top:0;width:62px;height:62px;border-radius:50%;
+    mix-blend-mode:multiply;
+  }
+  .instmk::before{left:0;background:var(--plum-fill);opacity:.88;}
+  .instmk::after{right:0;background:var(--rust-fill);opacity:.88;}
+
+  /* The beam rule reads as an ink edge rather than a hairline */
+  .beam::before{width:3px;background:var(--accent-2);}
+
+  /* ── Bloom artwork ────────────────────────────────────────────────
+     Generated overprint discs. Never stretched, never a background
+     image — an <svg> that slices to fill its frame. */
+  .bloom{position:absolute;inset:0;width:100%;height:100%;display:block;}
+  .onart{position:relative;z-index:1;}
+  /* Thirteen numbers with the full read open at once is a wall. Collapsed, the
+     page becomes a list you can scan; the depth is one tap away and unchanged. */
+  .numdet{margin-top:12px;}
+  .numdet>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+    font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--accent);border:1px solid var(--rule);border-radius:999px;padding:8px 15px;
+    background:var(--surface-2);transition:border-color .15s ease;}
+  .numdet>summary::-webkit-details-marker{display:none;}
+  .numdet>summary:hover{border-color:var(--accent);}
+  .numdet>summary::after{content:"+";font-size:1rem;line-height:1;font-weight:700;}
+  .numdet[open]>summary::after{content:"–";}
+  .numdet>summary .sm-shut{display:none;}
+  .numdet[open]>summary .sm-open{display:none;}
+  .numdet[open]>summary .sm-shut{display:inline;}
+  .screen>.wrap{position:relative;}
+  .bloomframe{position:relative;overflow:hidden;border-radius:28px;background:var(--surface-2);}
+  .bloomframe.tall{aspect-ratio:4/3;}
+  .bloomframe.band{aspect-ratio:16/6;border-radius:22px;}
+  .bloomframe.hero{aspect-ratio:5/3;border-radius:32px;}
+  /* Hero art sits behind the headline at low strength so type stays first */
+  .heroart{position:absolute;inset:-8% -12% auto;height:78%;opacity:.5;pointer-events:none;z-index:0;
+    -webkit-mask-image:linear-gradient(180deg,#000 40%,transparent 100%);
+    mask-image:linear-gradient(180deg,#000 40%,transparent 100%);}
+  .heroart .bloom{height:100%;}
+  /* One press sheet behind the whole app. It is fixed, so the paper stays put
+     and the content travels over it — the same field on every screen, which is
+     what makes it read as a brand instead of a decorated homepage. The four
+     source pieces are composited into it, so there is nothing left to line up
+     and nothing to split. */
+  #artfield{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:url('art/field.jpg');background-repeat:no-repeat;
+    background-size:cover;background-position:center top;
+    mix-blend-mode:multiply;opacity:.26;}
+  .hero .wrap{position:relative;z-index:1;}
+  .bloomcap{font-size:.78rem;color:var(--stone);margin-top:9px;font-weight:600;}
 </style>
 </head>
 <body>
 
 <canvas id="stars"></canvas>
+<div id="artfield" aria-hidden="true"></div>
 <div id="app"></div>
 <div id="nummodal" class="modal"></div>
 <div id="sysmodal" class="modal"></div>
@@ -333,7 +478,7 @@ function kdBadge(r){const kd=karmicDebtOf(r);return kd?` <span class="kd" title=
 // never hidden behind the reduction, wherever it appears as the RAW total behind a number.
 const WEALTH_NUMBER={title:'28/1 · The Wealth Number',lesson:'Two brings people awareness, eight brings money, power and material ambition, and they combine into the leadership and independence of 1. Twenty-eight is one of the important wealth signatures in this system — this is not a plain 1.'};
 function wealthOf(r){return r&&r.rawTotal===28?WEALTH_NUMBER:null;}
-function wealthBadge(r){return wealthOf(r)?` <span class="kd" style="color:var(--mint);background:rgba(110,231,183,.12);border-color:rgba(110,231,183,.4)" title="${esc(WEALTH_NUMBER.title)}">💰28</span>`:'';}
+function wealthBadge(r){return wealthOf(r)?` <span class="kd" style="color:var(--accent-2);background:#F7E8DE;border-color:rgba(190,84,48,.4)" title="${esc(WEALTH_NUMBER.title)}">💰28</span>`:'';}
 function buildProfile(dob,fullName,currentName,door,year){const[y,m,d]=dob.split('-').map(Number);const arch=birthArchitecture(dob);const{birthMonth,birthday,dayMonth,birthYear,lifePath}=arch;const pyth=nameCalc(fullName,PY,MM),chal=nameCalc(fullName,CH,[]);const p1=dayMonth,p2=reduce(birthday.number+birthYear.number,MM);const pinnacles=[p1,p2,reduce(p1.number+p2.number,MM),reduce(birthMonth.number+birthYear.number,MM)];const challenges=challengeNumbers(dob);const hn=String(door||'').toUpperCase().replace(/^(FLAT|APARTMENT|APT|UNIT)\s*/i,'').replace(/[^A-Z0-9]/g,'');const home=hn?reduce(hn.split('').reduce((s,ch)=>s+(/\d/.test(ch)?+ch:(PY[ch]||0)),0),MM):null;return{dob,name:fullName,currentName,door,homeNorm:hn,year,lifePath,birthday,birthMonth,dayMonth,birthYear,attitude:reduce(m+d).root,pyth,chal,pinnacles,challenges,home,personalYear:personalYearFor(m,d,year),personalYearPrev:personalYearFor(m,d,year-1),personalYearNext:personalYearFor(m,d,year+1),chinese:chineseYear(dob,year),month:m,day:d};}
 const CHALLENGE_MEANING={
  0:{name:'The Number of Choice',obstacle:'With no clear single obstacle, the challenge is really abundance — many tools available, and the real risk is scattering across all of them instead of committing to a direction.',lesson:'Choose deliberately rather than trying to use everything at once.'},
@@ -469,11 +614,11 @@ function resonanceText(res,first){
 // Compact per-date marker for the Calendar grid -- never reduced to a bare good/bad label.
 function resonanceMarker(res){
  if(!res)return null;
- if(res.type==='stretch')return{label:'Stretch',color:'var(--lilac)'};
- if(res.type==='complement')return{label:'Supportive',color:'var(--indigo)'};
- if(res.level==='VERY HIGH ACTIVATION')return{label:'Mixed',color:'var(--purple)'};
- if(res.level==='EXACT COMPOUND RESONANCE'||res.level==='STRONG RESONANCE')return{label:'High resonance',color:'var(--mint)'};
- return{label:'Supportive',color:'var(--mint)'};
+ if(res.type==='stretch')return{label:'Stretch',color:'var(--stone-2)'};
+ if(res.type==='complement')return{label:'Supportive',color:'var(--ink-2)'};
+ if(res.level==='VERY HIGH ACTIVATION')return{label:'Mixed',color:'var(--accent)'};
+ if(res.level==='EXACT COMPOUND RESONANCE'||res.level==='STRONG RESONANCE')return{label:'High resonance',color:'var(--accent-2)'};
+ return{label:'Supportive',color:'var(--accent-2)'};
 }
 // Shortened labels for the tight Calendar month-grid cells — full wording is used everywhere else.
 const CAL_MARKER_SHORT={'High resonance':'High res','Supportive':'Support','Stretch':'Stretch','Mixed':'Mixed'};
@@ -576,6 +721,9 @@ function namesByNumber(list,target,n){n=n||14;const seen=new Set();const out=[];
 const YEAR=[null,{t:'BEGIN',k:'initiation · identity · new direction',b:'This is the first year of a fresh nine-year sequence. Plant seeds, make decisions, start what is yours.'},{t:'DEVELOP',k:'patience · relationships · cooperation',b:'Slower by design. Nurture what began last year; progress comes through people, not force.'},{t:'EXPRESS',k:'communication · creativity · visibility',b:'Energy lifts. Say it, make it, show it — a social, expressive, enjoyable year.'},{t:'BUILD',k:'structure · discipline · foundations',b:'Head down. Systems, work and consolidation. The groundwork the later years stand on.'},{t:'CHANGE',k:'movement · freedom · the unexpected',b:'Things loosen and move. Adapt, experiment, allow disruption — freedom over routine.'},{t:'COMMIT',k:'family · home · responsibility',b:'The heart of the cycle turns to people and place. Care, commitment and what you are responsible for.'},{t:'UNDERSTAND',k:'introspection · reflection · reassessment',b:'A quieter, inward year. Research, reassess, understand — depth over output.'},{t:'MATERIALISE',k:'achievement · money · consequence',b:'Effort meets result. Authority, material lessons and the harvest of the last seven years.'},{t:'COMPLETE',k:'culmination · release · closure',b:'The end of the nine-year sequence. Finish, release, forgive, take perspective — and make space for what follows.'}];
 
 /* ============================ STATE ============================ */
+/* Storage keys stay on the old 'numeraflow_*' / 'nf_*' names on purpose. They are
+   invisible plumbing, and renaming them at the rebrand would orphan every saved
+   profile already on a user's device — everyone would silently reappear as brand new. */
 const KEY='numeraflow_app_v1';
 let S=load()||{screen:'landing',journey:null,me:{dob:'',first:'',middle:'',last:'',currentName:'',door:'',context:{}},family:[],readingTab:'overview'};
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
@@ -740,35 +888,35 @@ function openNumModal(label,value,extra){
  // no number should ever land on a bare one-liner.
  const frame=LAYER_FRAME[label];const arch=ARCHETYPE[root];
  const chal=CHALLENGE_LABELS.includes(label)?CHALLENGE_MEANING[root]:null;
- const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
- let body=`<p style="margin-top:12px;color:var(--muted);font-size:.92rem">${esc(label)} is ${what}.</p>`;
+ const row=(lab,txt,col)=>`<div style="border-top:1px solid var(--rule);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`;
+ let body=`<p style="margin-top:12px;color:var(--stone);font-size:.92rem">${esc(label)} is ${what}.</p>`;
  if(chal){
-  body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5"><b style="font-family:var(--heading)">${chal.name}</b></p><div style="margin-top:10px">`+row('THE OBSTACLE',chal.obstacle,'var(--lilac)')+row('THE LESSON',chal.lesson,'var(--mint)')+`</div><p class="muted" style="font-size:.82rem;margin-top:10px">Challenges work differently to Pinnacles — they\'re built from subtraction, not addition, and point to what you\'re overcoming rather than what comes naturally.</p>`;
+  body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5"><b style="font-family:var(--display)">${chal.name}</b></p><div style="margin-top:10px">`+row('THE OBSTACLE',chal.obstacle,'var(--stone-2)')+row('THE LESSON',chal.lesson,'var(--accent-2)')+`</div><p class="muted" style="font-size:.82rem;margin-top:10px">Challenges work differently to Pinnacles — they\'re built from subtraction, not addition, and point to what you\'re overcoming rather than what comes naturally.</p>`;
  } else if(deep){
   body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5">${deep.essence}</p><div style="margin-top:12px">`+
-   row('STRENGTHS',deep.strengths,'var(--mint)')+row('THE CHALLENGE',deep.challenge,'var(--lilac)')+
-   row('IN LOVE',deep.love,'var(--purple)')+row('AT WORK',deep.work,'var(--purple)')+
-   row('YOUR MISSION',deep.mission,'var(--mint)')+`</div>`;
+   row('STRENGTHS',deep.strengths,'var(--accent-2)')+row('THE CHALLENGE',deep.challenge,'var(--stone-2)')+
+   row('IN LOVE',deep.love,'var(--accent)')+row('AT WORK',deep.work,'var(--accent)')+
+   row('YOUR MISSION',deep.mission,'var(--accent-2)')+`</div>`;
   if(deep.pattern)body+=`<p style="margin-top:12px;font-size:.82rem;font-style:italic" class="muted">${deep.pattern}</p>`;
-  if(ctx)body+=`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--lilac)">In one line:</b> <span class="muted">${ctx.act}</span></p>`;
+  if(ctx)body+=`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--stone-2)">In one line:</b> <span class="muted">${ctx.act}</span></p>`;
  } else if(ctx){
-  body+=`<p style="margin-top:14px;font-size:.95rem"><b style="color:var(--mint)">How this can look for you:</b> <span class="muted">${ctx.look}</span></p><p style="margin-top:10px;font-size:.95rem"><b style="color:var(--lilac)">How to stay aligned:</b> <span class="muted">${ctx.act}</span></p>`;
-  if(arch)body+=`<div style="margin-top:14px">`+row('THE UNDERLYING PATTERN',arch.core,'var(--purple)')+`</div>`;
+  body+=`<p style="margin-top:14px;font-size:.95rem"><b style="color:var(--accent-2)">How this can look for you:</b> <span class="muted">${ctx.look}</span></p><p style="margin-top:10px;font-size:.95rem"><b style="color:var(--stone-2)">How to stay aligned:</b> <span class="muted">${ctx.act}</span></p>`;
+  if(arch)body+=`<div style="margin-top:14px">`+row('THE UNDERLYING PATTERN',arch.core,'var(--accent)')+`</div>`;
  } else if(arch){
   body+=`<p style="margin-top:14px;font-size:.98rem;line-height:1.5">Your ${esc(label)} ${frame?frame.lead:'carries this pattern:'}</p><p style="margin-top:10px;font-size:.98rem;line-height:1.5">${arch.core}</p><div style="margin-top:12px">`+
-   row('STRENGTHS',arch.strengths,'var(--mint)')+row('SHADOW',arch.shadow,'var(--lilac)')+row('THE LESSON',arch.lesson,'var(--mint)')+`</div>`;
+   row('STRENGTHS',arch.strengths,'var(--accent-2)')+row('SHADOW',arch.shadow,'var(--stone-2)')+row('THE LESSON',arch.lesson,'var(--accent-2)')+`</div>`;
   if(label==='Day + Month'&&extra.bday&&extra.bmonth){
    const bdRoot=parseInt(String(extra.bday).split('/').pop(),10),bmRoot=parseInt(String(extra.bmonth).split('/').pop(),10);
    const bdT=npFor(bdRoot).t[0],bmT=npFor(bmRoot).t[0];
-   if(bdT&&bmT)body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--purple);border-radius:12px;background:rgba(167,139,250,.06)"><b style="color:var(--purple);font-size:.88rem">Where this comes from</b><p class="muted" style="font-size:.9rem;margin-top:6px;line-height:1.5">Your Birthday (${esc(extra.bday)}) wants ${bdT}. Your Birth Month (${esc(extra.bmonth)}) wants ${bmT}. Meeting in this birth architecture, those two energies combine into ${esc(value)} — bringing ${LABEL[np.t[0]]?LABEL[np.t[0]].toLowerCase():np.m}. Neither original number disappears; this is what they create together.</p></div>`;
+   if(bdT&&bmT)body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent);border-radius:2px;background:#F5EFEC"><b style="color:var(--accent);font-size:.88rem">Where this comes from</b><p class="muted" style="font-size:.9rem;margin-top:6px;line-height:1.5">Your Birthday (${esc(extra.bday)}) wants ${bdT}. Your Birth Month (${esc(extra.bmonth)}) wants ${bmT}. Meeting in this birth architecture, those two energies combine into ${esc(value)} — bringing ${LABEL[np.t[0]]?LABEL[np.t[0]].toLowerCase():np.m}. Neither original number disappears; this is what they create together.</p></div>`;
   }
  } else {
   // Unreachable in practice — ARCHETYPE covers every possible root — but kept as a hard safety net.
-  body+=`<p style="margin-top:12px;font-size:.98rem"><b>Yours is ${esc(value)}:</b> <span class="muted">${np.m}.</span></p>${ti?`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px;font-size:.9rem"><b style="color:var(--lilac)">Watch for:</b> <span class="muted">${ti.shadow}.</span></p>`:''}`;
+  body+=`<p style="margin-top:12px;font-size:.98rem"><b>Yours is ${esc(value)}:</b> <span class="muted">${np.m}.</span></p>${ti?`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--accent-2)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px;font-size:.9rem"><b style="color:var(--stone-2)">Watch for:</b> <span class="muted">${ti.shadow}.</span></p>`:''}`;
  }
- if(echo){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--mint);border-radius:12px;background:rgba(110,231,183,.06)"><b style="color:var(--mint);font-size:.88rem">✦ Carries the ${esc(echo.name)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${echo.line}</p><p style="font-size:.85rem;margin-top:6px;color:var(--lilac)">${echo.want}</p></div>`;}
- if(kd){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid #fbbf24;border-radius:12px;background:rgba(251,191,36,.07)"><b style="color:#fbbf24;font-size:.88rem">⚡ ${esc(kd.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${kd.lesson}</p></div>`;}
- if(wealth){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--mint);border-radius:12px;background:rgba(110,231,183,.07)"><b style="color:var(--mint);font-size:.88rem">💰 ${esc(wealth.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${wealth.lesson}</p></div>`;}
+ if(echo){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent-2);border-radius:2px;background:#FBF2EA"><b style="color:var(--accent-2);font-size:.88rem">✦ Carries the ${esc(echo.name)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${echo.line}</p><p style="font-size:.85rem;margin-top:6px;color:var(--stone-2)">${echo.want}</p></div>`;}
+ if(kd){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid #8A5A08;border-radius:2px;background:#FCF5E8"><b style="color:#8A5A08;font-size:.88rem">⚡ ${esc(kd.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${kd.lesson}</p></div>`;}
+ if(wealth){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent-2);border-radius:2px;background:#FAF0E8"><b style="color:var(--accent-2);font-size:.88rem">💰 ${esc(wealth.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${wealth.lesson}</p></div>`;}
  else if(compound>9&&!echo&&!kd&&root<=9&&root!==compound){
   // Generic compound-differentiation note: any ordinary compound (not master, not karmic, not the
   // wealth number) still isn't just its root — decompose it into its own digits for a bit of its own flavour.
@@ -781,7 +929,7 @@ function openNumModal(label,value,extra){
  // their OWN number, so re-voice the whole assembled block into third person for anyone else's.
  if(extra.who)body=toGeneric(body);
  const m=document.getElementById('nummodal');if(!m)return;
- m.innerHTML=`<div class="mbox"><button class="mclose" data-act="num-close" aria-label="Close">✕</button><p class="eyebrow">${esc(label)}${extra.who?' · '+esc(extra.who):''}</p><div style="font-family:var(--heading);font-weight:800;font-size:2.6rem;color:var(--purple);line-height:1;margin-top:2px">${esc(value)}${echoNum?` <span style="font-size:1.1rem;color:var(--mint)">↑${echoNum}</span>`:''}${kd?` <span style="font-size:1rem;color:#fbbf24">⚡${compound}</span>`:''}${wealth?` <span style="font-size:1rem;color:var(--mint)">💰${compound}</span>`:''}</div>${body}</div>`;
+ m.innerHTML=`<div class="mbox"><button class="mclose" data-act="num-close" aria-label="Close">✕</button><p class="eyebrow">${esc(label)}${extra.who?' · '+esc(extra.who):''}</p><div style="font-family:var(--display);font-weight:500;font-size:2.6rem;color:var(--accent);line-height:1;margin-top:2px">${esc(value)}${echoNum?` <span style="font-size:1.1rem;color:var(--accent-2)">↑${echoNum}</span>`:''}${kd?` <span style="font-size:1rem;color:#8A5A08">⚡${compound}</span>`:''}${wealth?` <span style="font-size:1rem;color:var(--accent-2)">💰${compound}</span>`:''}</div>${body}</div>`;
  m.classList.add('on');try{track('number_info',{label,value,echo:echoNum||undefined});}catch(e){}
 }
 function closeNumModal(){const m=document.getElementById('nummodal');if(m){m.classList.remove('on');m.innerHTML='';}}
@@ -862,7 +1010,7 @@ function fireConfetti(){
  const dpr=devicePixelRatio||1;c.width=innerWidth*dpr;c.height=innerHeight*dpr;
  document.body.appendChild(c);
  const x=c.getContext('2d');x.scale(dpr,dpr);
- const colors=['#a78bfa','#6ee7b7','#d8b4fe','#818cf8','#ffffff'];
+ const colors=['#5C2A4F','#BE5430','#D9982B','#A8461F','#F6F0E4'];
  const parts=Array.from({length:90},()=>({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.3,vx:(Math.random()-.5)*3.2,vy:2+Math.random()*3,r:4+Math.random()*4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.35,color:colors[Math.floor(Math.random()*colors.length)],rect:Math.random()<.5}));
  let t=0;
  function draw(){
@@ -880,7 +1028,85 @@ function fireConfetti(){
 const ROOT_SCREENS=['landing','dashboard'];
 
 /* ============================ RENDER ============================ */
+
+/* ============ THE BLOOM ============================================
+   Decorative artwork, generated — never a stock image. Each person's
+   layers become overlapping ink discs that overprint into secondary
+   colours, with a risograph grain laid over the top. Because it is
+   drawn from real roots, no two people get the same picture, and the
+   whole thing weighs nothing: it is a few hundred bytes of SVG, not a
+   megabyte of JPEG. Brand rule: generate every bloom from real data. */
+const BLOOM_INKS=['#5C2A4F','#BE5430','#D9982B'];
+let __bloomId=0;
+/* Deterministic jitter so a given person's bloom is always identical,
+   rather than reshuffling on every re-render. */
+function bloomRand(seed){let x=Math.sin(seed*127.1)*43758.5453;return x-Math.floor(x);}
+function bloomSVG(roots,opts){
+ opts=opts||{};
+ const W=opts.w||600,H=opts.h||420,dark=!!opts.dark;
+ const id='bl'+(++__bloomId);
+ const rs=(roots&&roots.length?roots:[3,5,8]).slice(0,6);
+ let out='<svg class="bloom" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">';
+ out+='<defs>'
+   +'<filter id="g'+id+'" x="-12%" y="-12%" width="124%" height="124%">'
+   +'<feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="'+(rs[0]*7+3)+'" result="t"/>'
+   +'<feDisplacementMap in="SourceGraphic" in2="t" scale="'+(opts.wobble||18)+'" xChannelSelector="R" yChannelSelector="G"/>'
+   +'</filter>'
+   +'<filter id="n'+id+'">'
+   +'<feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="'+(rs.length*13+5)+'"/>'
+   +'<feColorMatrix type="saturate" values="0"/>'
+   +'</filter>'
+ +'</defs>';
+ out+='<g filter="url(#g'+id+')" style="mix-blend-mode:multiply">';
+ rs.forEach(function(n,i){
+   const j1=bloomRand(n*3+i*11), j2=bloomRand(n*5+i*7);
+   const r=(0.26+(n/9)*0.20)*Math.min(W,H)*(opts.scale||1.35);
+   const cx=W*(0.16+(i/Math.max(1,rs.length-1))*0.68)+(j1-0.5)*W*0.18;
+   const cy=H*(0.50)+(j2-0.5)*H*0.55;
+   out+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+r.toFixed(1)+'" fill="'+BLOOM_INKS[(n-1)%3]+'" fill-opacity="'+(dark?0.72:0.82)+'"/>';
+ });
+ out+='</g>';
+ /* the riso grain — the thing that stops it looking like clean vector art */
+ out+='<rect x="-2" y="-2" width="'+(W+4)+'" height="'+(H+4)+'" filter="url(#n'+id+')" opacity="'+(dark?0.10:0.13)+'" style="mix-blend-mode:multiply"/>';
+ out+='</svg>';
+ return out;
+}
+/* Someone's roots, in layer order — the same five the card is built from. */
+function bloomRoots(p){
+ if(!p)return[3,5,8];
+ return[p.birthday,p.birthMonth,p.dayMonth,p.birthYear,p.lifePath]
+   .filter(Boolean).map(function(x){return x.root;});
+}
+function meBloom(opts){
+ try{ return bloomSVG(bloomRoots(meProfile()),opts); }
+ catch(e){ return bloomSVG([3,5,8],opts); }
+}
+
+
+/* ============ BACKGROUND ART =======================================
+   All of it now lives in one fixed sheet behind the app — see #artfield in
+   the stylesheet. Nothing is drawn per screen any more: the same field sits
+   under every view and stays put while the content scrolls over it.
+   bloomSVG/meBloom remain for the generated marks that are not background.
+   =================================================================== */
+
 const app=()=>document.getElementById('app');
+/* The animated wordmark swaps in only once the clip is genuinely playable, so a
+   slow connection, a blocked autoplay policy or a missing file all leave the
+   drawn mark in place rather than a hole in the nav bar. Anyone who has asked
+   for less motion keeps the drawn mark permanently. */
+function wireLogoMark(){
+  const v=document.querySelector('.logo .logovid');
+  if(!v)return;
+  let reduce=false;
+  try{ reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  if(reduce){ v.remove(); return; }
+  const show=()=>{ const l=v.closest('.logo'); if(l)l.classList.add('vid-on'); };
+  if(v.readyState>=2) show(); else v.addEventListener('loadeddata',show,{once:true});
+  v.addEventListener('error',()=>{ const l=v.closest('.logo'); if(l)l.classList.remove('vid-on'); v.remove(); },{once:true});
+  const pl=v.play&&v.play();
+  if(pl&&pl.catch) pl.catch(function(){});
+}
 function render(){
   const s=S.screen;let html='';
   if(s==='landing')html=vLanding();
@@ -908,6 +1134,7 @@ function render(){
   else if(s==='plan')html=vPlan();
   else html=vLanding();
   app().innerHTML=html;
+  wireLogoMark();
   if(s==='me_reading')wireRail();
 }
 // Screens outside ROOT_SCREENS get a visible back button (tapping it just calls history.back(), so it
@@ -915,41 +1142,41 @@ function render(){
 // The wordmark shrinks to icon-only on those screens to make room without squeezing the topbar on mobile.
 function topbar(){const returning=hasMe();const acct=S.account;const label=acct?esc(acct.name.split(' ')[0]||'Account'):(returning?'My profile':'Log in');const act=returning?'dashboard':'auth';
  const showBack=!ROOT_SCREENS.includes(S.screen);
- return `<div class="top"><div class="left"><span class="backbtn" data-act="nav-back" aria-label="Back" title="Back" style="${showBack?'':'display:none'}">‹</span><div class="logo" data-act="home"><span class="mk">✦</span>${showBack?'':' NumeraFlow'}</div></div><div class="r"><span class="btn btn-ghost" data-act="glossary" style="padding:7px 10px;font-size:.78rem" title="What every number means">Numbers</span><span class="btn btn-ghost" data-act="${act}" style="padding:7px 12px;font-size:.82rem">${label}</span></div></div>`;}
+ return `<div class="top"><div class="left"><span class="backbtn" data-act="nav-back" aria-label="Back" title="Back" style="${showBack?'':'display:none'}">‹</span><div class="logo" data-act="home" aria-label="NUMIO"><span class="lgtext">NUMI<span class="mk"></span></span><video class="logovid" poster="art/numio-mark.jpg" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"><source src="art/numio-mark.webm" type="video/webm"><source src="art/numio-mark.mp4" type="video/mp4"></video></div></div><div class="r"><span class="btn btn-ghost" data-act="glossary" style="padding:7px 10px;font-size:.78rem" title="What every number means">Numbers</span><span class="btn btn-ghost" data-act="${act}" style="padding:7px 12px;font-size:.82rem">${label}</span></div></div>`;}
 
 /* ---------- landing ---------- */
 function vLanding(){return topbar()+`<div class="screen">
   <div class="hero"><div class="halo"></div><div class="wrap" style="position:relative">
-    <span class="badge">✦ One number never explains a whole person</span>
-    <h1>Your numbers.<br><span class="aurora">Read properly.</span></h1>
-    <p class="sub">NumeraFlow builds a living profile that actually gets to know you — your patterns, your contradictions, and where you are in your cycle right now.</p>
+    <span class="badge">One number never explains a whole person</span>
+    <h1>You are more<br>than <span class="aurora">one number</span>.</h1>
+    <p class="sub">Your date of birth is not a single number. It is an architecture — and it is still audible in how you handle a Tuesday. NUMIO keeps the whole structure on the table.</p>
     <div class="teaser card">
       <label class="fl">Start with your date of birth</label>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><input id="t_dob" type="date" max="${YEARNOW}-12-31" style="flex:1;min-width:160px"><button class="btn btn-glow" data-act="teaser">Reveal my Life Path</button></div>
-      <div class="reveal" id="t_reveal"><div class="bignum" id="t_num">0</div><div style="color:var(--lilac);font-weight:700;margin-top:4px" id="t_kw"></div><div class="muted" style="font-size:.9rem;margin-top:8px" id="t_mean"></div><div style="margin-top:16px"><button class="btn btn-primary" data-act="choose">This is one number. Unlock the whole picture →</button></div></div>
+      <div class="reveal" id="t_reveal"><div class="bignum" id="t_num">0</div><div style="color:var(--stone-2);font-weight:700;margin-top:4px" id="t_kw"></div><div class="muted" style="font-size:.9rem;margin-top:8px" id="t_mean"></div><div style="margin-top:16px"><button class="btn btn-primary" data-act="choose">This is one number. Unlock the whole picture →</button></div></div>
     </div>
-    <div style="margin-top:26px;display:flex;gap:16px 24px;flex-wrap:wrap;justify-content:center;font-size:.76rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)"><span>⚡ Instant</span><span>◆ One-off payment</span><span>∞ Yours to keep</span><span>✎ We show our working</span></div>
+    <div style="margin-top:26px;display:flex;gap:16px 24px;flex-wrap:wrap;justify-content:center;font-size:.76rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stone)"><span>⚡ Instant</span><span>◆ One-off payment</span><span>∞ Yours to keep</span><span>✎ We show our working</span></div>
   </div></div>
   <div class="wrap" id="pricing" style="padding-bottom:20px">
     <div style="text-align:center;max-width:560px;margin:20px auto 0"><p class="eyebrow">Two ways in</p><h2 style="font-size:2rem;margin-top:8px">Just you, or your whole family</h2></div>
     <div class="journeys">
-      <div class="jcard fam" style="box-shadow:0 0 0 1px var(--mint)"><span style="position:absolute;top:16px;right:16px;background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:999px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--mint)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family NumeraFlow</h3><div class="price">£28</div>
+      <div class="jcard fam" style="box-shadow:0 0 0 1px var(--accent-2)"><span style="position:absolute;top:16px;right:16px;background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:2px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--accent-2)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family Reading</h3><div class="price">£28</div>
         <ul><li><b>✦</b> The full profile for everyone you love</li><li><b>✦</b> How to support each person through their year</li><li><b>✦</b> Partners, parents, kids &amp; siblings compared</li><li><b>✦</b> Your whole family's timing in one place</li></ul>
         <p class="muted" style="font-size:.8rem;margin:-4px 0 14px">Cheaper than 4 single readings — and it's unlimited.</p>
         <button class="btn btn-glow btn-block" data-act="start-fam">Map my family — £28</button></div>
-      <div class="jcard me"><p class="eyebrow">Just me</p><h3 style="font-size:1.4rem;margin-top:4px">Personal NumeraFlow</h3><div class="price">£8.88</div>
+      <div class="jcard me"><p class="eyebrow">Just me</p><h3 style="font-size:1.4rem;margin-top:4px">Personal Reading</h3><div class="price">£8.88</div>
         <ul><li>✦ Your full blueprint &amp; what drives you</li><li>✦ Strengths, shadows &amp; contradictions</li><li>✦ Life cycles &amp; where you are now</li></ul>
         <button class="btn btn-primary btn-block" data-act="start-me">Just do mine — £8.88</button></div>
     </div>
   </div>
   <div style="text-align:center;padding:6px 20px 0"><button class="btn btn-ghost" data-act="glossary">Browse what every number means →</button></div>
-  <p class="foot">NumeraFlow is an interpretive tool for reflection — not scientifically validated prediction. Prototype: checkout &amp; login are represented, not live.</p>
+  <p class="foot">NUMIO is an interpretive tool for reflection — not scientifically validated prediction. Prototype: checkout &amp; login are represented, not live.</p>
 </div>`;}
 
 /* ---------- unlock (pay up front) ---------- */
 function vUnlock(kind){const me=kind==='me';const price=me?'£8.88':'£28.00';const acct=S.account||{email:''};return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:460px">
-  <p class="eyebrow">Checkout</p><h1 style="font-size:2rem;margin-top:8px">${me?'Personal NumeraFlow':'Family NumeraFlow'}</h1>
-  <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="muted">${me?'One complete personal profile, yours to keep':'Your whole family, unlimited profiles &amp; comparisons'}</span><b style="font-family:var(--heading);font-size:1.3rem">${price}</b></div><div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between"><b>Total</b><b style="font-family:var(--heading)">${price}</b></div></div>
+  <p class="eyebrow">Checkout</p><h1 style="font-size:2rem;margin-top:8px">${me?'Personal Reading':'Family Reading'}</h1>
+  <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="muted">${me?'One complete personal profile, yours to keep':'Your whole family, unlimited profiles &amp; comparisons'}</span><b style="font-family:var(--display);font-size:1.3rem">${price}</b></div><div style="border-top:1px solid var(--rule);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between"><b>Total</b><b style="font-family:var(--display)">${price}</b></div></div>
   <div class="card" style="margin-top:14px"><label class="fl">Email for your receipt</label><input id="co_email" value="${esc(acct.email)}" placeholder="you@email.com">
    <label class="fl" style="margin-top:12px">Card details</label><input value="4242 4242 4242 4242" disabled style="opacity:.55"><div style="display:flex;gap:10px;margin-top:10px"><input value="MM / YY" disabled style="opacity:.55"><input value="CVC" disabled style="opacity:.55"></div>
    <p class="muted" style="font-size:.72rem;margin-top:10px">🔒 Prototype checkout — no real charge is taken. A live build drops Stripe in right here.</p>
@@ -958,19 +1185,19 @@ function vUnlock(kind){const me=kind==='me';const price=me?'£8.88':'£28.00';co
   <p style="margin-top:16px;text-align:center"><span class="muted" style="cursor:pointer;font-size:.85rem;text-decoration:underline" data-act="home">Cancel</span></p>
 </div></div>`;}
 function vAuth(){const a=S.account||{name:'',email:''};return topbar()+`<div class="screen"><div class="wrap" style="padding:44px 20px 60px;max-width:420px">
-  <p class="eyebrow">Your account</p><h1 style="font-size:2rem;margin-top:8px">${a.name?'Welcome back':'Create your NumeraFlow'}</h1>
+  <p class="eyebrow">Your account</p><h1 style="font-size:2rem;margin-top:8px">${a.name?'Welcome back':'Create your NUMIO'}</h1>
   <p class="muted" style="margin-top:8px">Your profile saves to this device so you can return anytime. (Prototype: a live build adds secure email login here.)</p>
   <div style="display:grid;gap:12px;margin-top:20px"><div><label class="fl">Name</label><input id="ac_name" value="${esc(a.name)}" placeholder="Your name"></div><div><label class="fl">Email</label><input id="ac_email" value="${esc(a.email)}" placeholder="you@email.com"></div></div>
   <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="do-auth">${a.name?'Save':'Continue'}</button>
   <p style="margin-top:18px"><span class="muted" style="cursor:pointer;font-size:.85rem;text-decoration:underline" data-act="home">Back</span></p>
-  <div style="border-top:1px solid var(--border);margin-top:26px;padding-top:16px"><p class="muted" style="font-size:.8rem">Made a mistake, or want to hand the phone to someone else?</p><p style="margin-top:8px"><span style="cursor:pointer;font-size:.85rem;color:#f9a8a8;text-decoration:underline" data-act="reset">Clear all data &amp; start fresh</span></p></div>
+  <div style="border-top:1px solid var(--rule);margin-top:26px;padding-top:16px"><p class="muted" style="font-size:.8rem">Made a mistake, or want to hand the phone to someone else?</p><p style="margin-top:8px"><span style="cursor:pointer;font-size:.85rem;color:#9B3520;text-decoration:underline" data-act="reset">Clear all data &amp; start fresh</span></p></div>
 </div></div>`;}
 
 function vUpsell(){return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:520px;text-align:center">
   <p class="eyebrow">One more thing, ${esc(S.me.first)}</p>
   <h1 style="font-size:2rem;margin-top:8px">You've seen <span class="aurora">your</span> numbers. Now see <span class="aurora">us</span>.</h1>
   <p class="muted" style="margin-top:12px">Your reading is powerful on its own — but numerology comes alive <i>between</i> people. Add your partner, kids, parents and see exactly how to support each other, who naturally clashes, and where your years collide this year.</p>
-  <div class="card" style="margin-top:18px;text-align:left"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-family:var(--heading)">Family NumeraFlow</b><b style="font-family:var(--heading);font-size:1.3rem">£28</b></div><ul style="margin:12px 0 0;padding-left:18px;color:var(--muted);font-size:.9rem"><li>Everyone's full profile</li><li>How to support each person through their year</li><li>Compatibility, the family blueprint &amp; everyone's timing</li></ul></div>
+  <div class="card" style="margin-top:18px;text-align:left"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-family:var(--display)">Family Reading</b><b style="font-family:var(--display);font-size:1.3rem">£28</b></div><ul style="margin:12px 0 0;padding-left:18px;color:var(--stone);font-size:.9rem"><li>Everyone's full profile</li><li>How to support each person through their year</li><li>Compatibility, the family blueprint &amp; everyone's timing</li></ul></div>
   <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="upsell-yes">Add my family — £28</button>
   <p style="margin-top:14px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="upsell-no">Maybe later</span></p>
 </div></div>`;}
@@ -978,13 +1205,13 @@ function vUpsell(){return topbar()+`<div class="screen"><div class="wrap" style=
 function stages(now){const order=[['Foundation','me_dob'],['Identity','me_name'],['Life Context','me_interview'],['Timing','me_ready'],['Deep Synthesis','me_reading']];const idx=order.findIndex(o=>o[1]===now);return `<div class="stages">${order.map((o,i)=>`<span class="stg ${i<idx?'done':''} ${i===idx?'now':''}">${o[0]}</span>`).join('')}</div>`;}
 function vDob(){return topbar()+stages('me_dob')+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:520px">
   <p class="eyebrow">Let's begin</p><h1 style="font-size:2rem;margin-top:8px">What's your date of birth?</h1>
-  <p class="muted" style="margin-top:8px">This gives NumeraFlow your mathematical foundation.</p>
+  <p class="muted" style="margin-top:8px">This gives NUMIO your mathematical foundation.</p>
   <div style="margin-top:20px"><input id="m_dob" type="date" max="${YEARNOW}-12-31" value="${S.me.dob}" oninput="dobLive(this.value)"></div>
   <div class="reveal ${S.me.dob?'on':''}" id="m_reveal" style="border:0;text-align:left;margin-top:18px">${S.me.dob?dobPreview(S.me.dob):''}</div>
   <button class="btn btn-glow btn-block" style="margin-top:20px" data-act="dob-next">Continue →</button>
 </div></div>`;}
 function dobLive(v){if(!v)return;S.me.dob=v;save();const r=document.getElementById('m_reveal');if(r){r.classList.add('on');r.innerHTML=dobPreview(v);}}
-function dobPreview(dob){const lp=lifePathFromDob(dob);const meta=npFor(lp.number);return `<div class="card"><p class="muted" style="margin:0 0 6px">Interesting — your Life Path resolves through</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum" style="font-size:3rem;color:var(--purple)">${lp.display}</span><span style="color:var(--lilac);font-weight:700">${meta.m.split(',')[0]}</span></div><p class="muted" style="font-size:.86rem;margin-top:8px">But your Life Path is only one part of the picture.</p></div>`;}
+function dobPreview(dob){const lp=lifePathFromDob(dob);const meta=npFor(lp.number);return `<div class="card"><p class="muted" style="margin:0 0 6px">Interesting — your Life Path resolves through</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum" style="font-size:3rem;color:var(--accent)">${lp.display}</span><span style="color:var(--stone-2);font-weight:700">${meta.m.split(',')[0]}</span></div><p class="muted" style="font-size:.86rem;margin-top:8px">But your Life Path is only one part of the picture.</p></div>`;}
 
 /* ---------- me: name ---------- */
 function vName(){return topbar()+stages('me_name')+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:520px">
@@ -1001,7 +1228,9 @@ function vName(){return topbar()+stages('me_name')+`<div class="screen"><div cla
 
 /* ---------- me: first reveal ---------- */
 function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 100px">
-  <div style="text-align:center"><p class="eyebrow">Your NumeraFlow is taking shape</p><h1 style="font-size:2rem;margin-top:8px">${esc(S.me.first)}, here's the structure</h1></div>
+  
+  <div class="onart" style="text-align:center"><p class="eyebrow">Your pattern is taking shape</p><h1 style="font-size:2rem;margin-top:8px">${esc(S.me.first)}, here's the structure</h1></div>
+
   <div class="keys">${intel.keyNumbers.map((k,i)=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v" data-count="${/^\d+$/.test(k.value)?k.value:''}" data-final="${k.value}">${/^\d+$/.test(k.value)?'0':k.value}</div>${echoBadge(k.value)||kdBadge(k.raw)?`<div style="text-align:center;margin-top:-4px">${echoBadge(k.value)}${kdBadge(k.raw)}${wealthBadge(k.raw)}</div>`:''}</div>`).join('')}</div>
   <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
   <p class="eyebrow" style="text-align:center;margin-top:22px">The layers beneath your Life Path</p>
@@ -1010,9 +1239,9 @@ function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return t
    <div class="key num-tap" data-info data-label="Day + Month" data-value="${esc(p.dayMonth.display)}" data-bday="${esc(p.birthday.display)}" data-bmonth="${esc(p.birthMonth.display)}"><div class="l">Day+Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.dayMonth.display}${echoBadge(p.dayMonth.display)}</div></div>
    <div class="key num-tap" data-info data-label="Birth Year" data-value="${esc(p.birthYear.display)}"><div class="l">Birth Year <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.birthYear.display}${echoBadge(p.birthYear.display)}</div></div>
   </div>
-  <div class="card beam" style="margin-top:16px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">Putting it all together</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${birthArchNarrative(p,esc(S.me.first))}</p></div>
-  <div class="card beam" style="margin-top:20px"><p class="eyebrow" style="color:var(--mint)">One pattern already stands out</p><p style="margin-top:8px">${esc(intel.reinforcements[0]?intel.reinforcements[0].explanation:intel.corePattern)}</p></div>
-  <div style="text-align:center;margin-top:28px"><p class="muted" style="max-width:480px;margin:0 auto 18px">Your numbers give the structure. But they don't yet know what's actually happening in your life. Tell NumeraFlow a little and the reading gets far more relevant.</p></div>
+  <div class="card beam" style="margin-top:16px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">Putting it all together</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${birthArchNarrative(p,esc(S.me.first))}</p></div>
+  <div class="card beam" style="margin-top:20px"><p class="eyebrow" style="color:var(--accent-2)">One pattern already stands out</p><p style="margin-top:8px">${esc(intel.reinforcements[0]?intel.reinforcements[0].explanation:intel.corePattern)}</p></div>
+  <div style="text-align:center;margin-top:28px"><p class="muted" style="max-width:480px;margin:0 auto 18px">Your numbers give the structure. But they don't yet know what's actually happening in your life. Tell NUMIO a little and the reading gets far more relevant.</p></div>
 </div></div>
 <div class="stickyfoot"><button class="btn btn-glow" data-act="go-deeper">Yes — go deeper</button><button class="btn btn-ghost" data-act="show-reading">Show my reading now</button></div>`;}
 
@@ -1026,7 +1255,7 @@ const IQ=[
  {id:'chapter',q:'Which feels closest to where you are in life?',multi:false,opts:['Starting something','Building','Changing direction','Ending something','Recovering','Rebuilding','Waiting','Searching','Pretty settled',"I don't know"]},
  {id:'matters',q:"What's taking most of your attention right now?",hint:'Up to three.',multi:true,max:3,opts:['Relationship','Family','Children','Career','Business','Money','Home','Health','Direction','A big decision']},
  {id:'door',q:'What number is on your front door?',hint:'Optional — adds your home layer. Skip if you prefer.',input:true,placeholder:'e.g. 28A'},
- {id:'one',q:'If NumeraFlow could help you understand one thing right now, what would it be?',hint:'In your own words.',textarea:true,placeholder:'Tell us in your own words…'}
+ {id:'one',q:'If NUMIO could help you understand one thing right now, what would it be?',hint:'In your own words.',textarea:true,placeholder:'Tell us in your own words…'}
 ];
 function currentIQ(){const step=S.me.iStep||0;return IQ[step];}
 function vInterview(){const step=S.me.iStep||0;const q=IQ[step];if(!q){go('me_ready');return '';}
@@ -1048,8 +1277,8 @@ function ackFor(id){const c=S.me.context;if(id==='work'&&c.work)return {'Busines
 /* ---------- ready ---------- */
 function vReady(){const c=S.me.context;const items=[['Your numerical blueprint',true],['Your name profile',true],['Your current cycle',true],['Relationships',(c.world||[]).length],['Your work situation',!!c.work],['Your home',!!S.me.door],['What matters most right now',!!c.one||(c.matters||[]).length]];
   return topbar()+stages('me_ready')+`<div class="screen"><div class="wrap" style="padding:40px 20px 60px;max-width:520px;text-align:center">
-   <p class="eyebrow">Your profile is ready</p><h1 style="font-size:2.2rem;margin-top:10px">NumeraFlow now understands ${esc(S.me.first)}</h1>
-   <div class="card" style="text-align:left;margin-top:22px">${items.map(([t,on])=>`<div style="display:flex;gap:10px;padding:6px 0;color:${on?'var(--text)':'var(--muted)'}">${on?'✓':'○'} ${t}</div>`).join('')}</div>
+   <p class="eyebrow">Your profile is ready</p><h1 style="font-size:2.2rem;margin-top:10px">NUMIO now understands ${esc(S.me.first)}</h1>
+   <div class="card" style="text-align:left;margin-top:22px">${items.map(([t,on])=>`<div style="display:flex;gap:10px;padding:6px 0;color:${on?'var(--ink)':'var(--stone)'}">${on?'✓':'○'} ${t}</div>`).join('')}</div>
    <button class="btn btn-glow btn-block" style="margin-top:22px" data-act="build-reading">Build my deep reading →</button>
   </div></div>`;}
 
@@ -1097,21 +1326,21 @@ function vReading(){const rt=readingTarget();const p=rt.p;const I=buildIntellige
   // nothing visible until you tap into it reads as thin even when the depth is one tap away. The specific
   // sources are named WITH their own value (not just the label), so it's concrete rather than a bare list.
   const themeRow=t=>{const ti=THEME_INFO[t.theme]||{};
-   return `<div class="theme card"><div class="tp"><span style="font-family:var(--heading);font-weight:700">${t.label}</span><span class="t-${t.band}" style="font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase">${t.band}</span></div><div class="track"><div class="fill b-${t.band}" style="width:${t.pct}%"></div></div>
+   return `<div class="theme card"><div class="tp"><span style="font-family:var(--display);font-weight:500">${t.label}</span><span class="t-${t.band}" style="font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase">${t.band}</span></div><div class="track"><div class="fill b-${t.band}" style="width:${t.pct}%"></div></div>
     ${ti.best?`<p style="margin-top:10px;font-size:.9rem">${capS(ti.best)}</p>`:''}
     <p class="muted" style="font-size:.78rem;margin-top:8px">Carried by ${t.sources.map(s=>`${s.label} ${s.value}`).join(', ')}${t.sources.length>=2?` — ${t.sources.length} independent numbers pointing the same way, which is why it lands as ${t.band.toLowerCase()} rather than a passing note`:''}.</p>
-    ${ti.shadow?`<details class="disc"><summary>Shadow &amp; how to grow through it</summary><div style="margin-top:8px;font-size:.86rem"><p><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${ti.shadow}.</span></p><p style="margin-top:6px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${ti.grow}.</span></p></div></details>`:''}</div>`;};
+    ${ti.shadow?`<details class="disc"><summary>Shadow &amp; how to grow through it</summary><div style="margin-top:8px;font-size:.86rem"><p><b style="color:var(--stone-2)">Shadow:</b> <span class="muted">${ti.shadow}.</span></p><p style="margin-top:6px"><b style="color:var(--accent)">Grow:</b> <span class="muted">${ti.grow}.</span></p></div></details>`:''}</div>`;};
   const yearWheel=`<div class="wheel">${[1,2,3,4,5,6,7,8,9].map(n=>`<div class="yr ${n===p.personalYear?'on':''}"><span>${n}</span><small>${YEAR[n].t}</small></div>`).join('')}</div>`;
-  const yTrio=`<div class="trio"><div class="t"><p class="eyebrow">Previous · ${YEARNOW-1}</p><p style="margin-top:4px"><b>${p.personalYearPrev} — ${YEAR[p.personalYearPrev].t[0]+YEAR[p.personalYearPrev].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYearPrev].k}</span></p></div><div class="t mid"><p class="eyebrow" style="color:var(--purple)">Now · ${YEARNOW}</p><p style="margin-top:4px"><b>${p.personalYear} — ${YEAR[p.personalYear].t[0]+YEAR[p.personalYear].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYear].k}</span></p></div><div class="t"><p class="eyebrow">Next · ${YEARNOW+1}</p><p style="margin-top:4px"><b>${p.personalYearNext} — ${YEAR[p.personalYearNext].t[0]+YEAR[p.personalYearNext].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYearNext].k}</span></p></div></div>`;
+  const yTrio=`<div class="trio"><div class="t"><p class="eyebrow">Previous · ${YEARNOW-1}</p><p style="margin-top:4px"><b>${p.personalYearPrev} — ${YEAR[p.personalYearPrev].t[0]+YEAR[p.personalYearPrev].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYearPrev].k}</span></p></div><div class="t mid"><p class="eyebrow" style="color:var(--accent)">Now · ${YEARNOW}</p><p style="margin-top:4px"><b>${p.personalYear} — ${YEAR[p.personalYear].t[0]+YEAR[p.personalYear].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYear].k}</span></p></div><div class="t"><p class="eyebrow">Next · ${YEARNOW+1}</p><p style="margin-top:4px"><b>${p.personalYearNext} — ${YEAR[p.personalYearNext].t[0]+YEAR[p.personalYearNext].t.slice(1).toLowerCase()}</b><br><span class="muted" style="font-size:.82rem">${YEAR[p.personalYearNext].k}</span></p></div></div>`;
   // context-aware year para
   let yearCtx=YEAR[p.personalYear].b;
-  if(p.personalYear===9&&c.chapter&&/Ending|Changing|Rebuilding|Recovering/.test(c.chapter))yearCtx+=` Because you told NumeraFlow you're ${c.chapter.toLowerCase()}, the completion themes of this 9 year speak directly to that — not as an instruction, but as timing worth noticing.`;
-  const oneThing=c.one?`<section class="blk" id="matters"><p class="eyebrow">What you came to understand</p><h2 style="font-size:1.7rem;margin-top:8px">In your own words</h2><div class="card" style="margin-top:14px"><p style="font-style:italic;color:var(--lilac)">"${esc(c.one)}"</p><p class="muted" style="margin-top:12px">Held against your profile: your dominant ${I.themes.filter(t=>t.band==='Dominant').map(t=>t.label.toLowerCase()).join(' and ')||'pattern'} and your current Personal Year ${p.personalYear} are the lenses that speak most directly to this. ${I.contradictions[0]?'Your '+I.contradictions[0].title.toLowerCase()+' is likely part of why it feels unresolved.':''}</p></div></section>`:((c.matters||[]).length?`<section class="blk" id="matters"><p class="eyebrow">What deserves your attention</p><h2 style="font-size:1.7rem;margin-top:8px">Right now, for you</h2><div class="card" style="margin-top:14px"><p class="muted">You said your attention is on ${(c.matters||[]).join(', ').toLowerCase()}. In a Personal Year ${p.personalYear} (${YEAR[p.personalYear].t.toLowerCase()}), that combination points to ${I.need.toLowerCase()} as the underlying need to protect.</p></div></section>`:'');
+  if(p.personalYear===9&&c.chapter&&/Ending|Changing|Rebuilding|Recovering/.test(c.chapter))yearCtx+=` Because you told NUMIO you're ${c.chapter.toLowerCase()}, the completion themes of this 9 year speak directly to that — not as an instruction, but as timing worth noticing.`;
+  const oneThing=c.one?`<section class="blk" id="matters"><p class="eyebrow">What you came to understand</p><h2 style="font-size:1.7rem;margin-top:8px">In your own words</h2><div class="card" style="margin-top:14px"><p style="font-style:italic;color:var(--stone-2)">"${esc(c.one)}"</p><p class="muted" style="margin-top:12px">Held against your profile: your dominant ${I.themes.filter(t=>t.band==='Dominant').map(t=>t.label.toLowerCase()).join(' and ')||'pattern'} and your current Personal Year ${p.personalYear} are the lenses that speak most directly to this. ${I.contradictions[0]?'Your '+I.contradictions[0].title.toLowerCase()+' is likely part of why it feels unresolved.':''}</p></div></section>`:((c.matters||[]).length?`<section class="blk" id="matters"><p class="eyebrow">What deserves your attention</p><h2 style="font-size:1.7rem;margin-top:8px">Right now, for you</h2><div class="card" style="margin-top:14px"><p class="muted">You said your attention is on ${(c.matters||[]).join(', ').toLowerCase()}. In a Personal Year ${p.personalYear} (${YEAR[p.personalYear].t.toLowerCase()}), that combination points to ${I.need.toLowerCase()} as the underlying need to protect.</p></div></section>`:'');
   const workLine=c.work?`<p class="muted" style="margin-top:10px">You're ${c.work.toLowerCase()} — so read your Expression ${p.pyth.expression.display} and this year's ${YEAR[p.personalYear].t.toLowerCase()} theme together: that's where work and direction meet for you this cycle.</p>`:'';
   return topbar()+rail+`<div class="screen"><div class="wrap">
    <section class="blk" id="overview" style="border:0;text-align:center;padding-top:26px">
      ${rt.isMe?'':`<p style="margin-bottom:8px"><span class="badge">Viewing ${first}'s profile${rt.relationship?' · '+esc(rt.relationship):''}</span></p>`}
-     <p class="eyebrow">${rt.isMe?'Your NumeraFlow':first+"'s NumeraFlow"}</p><h1 style="font-size:2.4rem;margin-top:10px">${first}</h1>
+     <p class="eyebrow">${rt.isMe?'Your pattern':first+"'s pattern"}</p><h1 style="font-size:2.4rem;margin-top:10px">${first}</h1>
      <p class="muted" style="max-width:600px;margin:12px auto 0">${esc(I.corePattern)}</p>
      <div class="keys">${I.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v">${k.value}${echoBadge(k.value)}${kdBadge(k.raw)}${wealthBadge(k.raw)}</div></div>`).join('')}</div>
      <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
@@ -1120,59 +1349,59 @@ function vReading(){const rt=readingTarget();const p=rt.p;const I=buildIntellige
     <p class="eyebrow">Nothing here gets discarded</p><h2 style="font-size:1.7rem;margin-top:8px">Your Birth Architecture</h2>
     <p class="muted" style="margin-top:8px;font-size:.92rem">${first}'s Life Path isn't just "you're a ${p.lifePath.root}." It's built from every layer below, in order — and none of them vanish once the final number appears. Tap any of them to go deeper.</p>
     <div style="display:grid;gap:10px;margin-top:16px">
-     <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Birthday" data-value="${p.birthday.display}" style="font-size:2.6rem;color:var(--purple);min-width:82px">${p.birthday.display}${echoBadge(p.birthday.display)}${kdBadge(p.birthday)}${wealthBadge(p.birthday)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">1 · Birthday ⓘ</div><b style="font-family:var(--heading)">What ${first} naturally brings into life</b></div></div>
-     <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Birth Month" data-value="${p.birthMonth.display}" style="font-size:2.6rem;color:var(--purple);min-width:82px">${p.birthMonth.display}${echoBadge(p.birthMonth.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">2 · Birth Month ⓘ</div><b style="font-family:var(--heading)">Another foundation, underneath</b></div></div>
-     <div class="card beam" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Day + Month" data-value="${p.dayMonth.display}" data-bday="${p.birthday.display}" data-bmonth="${p.birthMonth.display}" style="font-size:2.6rem;color:var(--mint);min-width:82px">${p.dayMonth.display}${echoBadge(p.dayMonth.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">3 · Day + Month ⓘ</div><b style="font-family:var(--heading)">What happens when they meet</b></div></div>
-     <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Birth Year" data-value="${p.birthYear.display}" style="font-size:2.6rem;color:var(--purple);min-width:82px">${p.birthYear.display}${echoBadge(p.birthYear.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">4 · Birth Year ⓘ</div><b style="font-family:var(--heading)">The deeper structural foundation</b></div></div>
-     <div class="card beam" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-color:var(--purple)"><span class="bignum num-tap" data-info data-label="Life Path" data-value="${p.lifePath.display}" style="font-size:2.6rem;color:var(--lilac);min-width:82px">${p.lifePath.display}${echoBadge(p.lifePath.display)}${kdBadge(p.lifePath)}${wealthBadge(p.lifePath)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">5 · Life Path ⓘ</div><b style="font-family:var(--heading)">Everything above, combined</b></div></div>
+     <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Birthday" data-value="${p.birthday.display}" style="font-size:2.6rem;color:var(--accent);min-width:82px">${p.birthday.display}${echoBadge(p.birthday.display)}${kdBadge(p.birthday)}${wealthBadge(p.birthday)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">1 · Birthday ⓘ</div><b style="font-family:var(--display)">What ${first} naturally brings into life</b></div></div>
+     <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Birth Month" data-value="${p.birthMonth.display}" style="font-size:2.6rem;color:var(--accent);min-width:82px">${p.birthMonth.display}${echoBadge(p.birthMonth.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">2 · Birth Month ⓘ</div><b style="font-family:var(--display)">Another foundation, underneath</b></div></div>
+     <div class="card beam" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Day + Month" data-value="${p.dayMonth.display}" data-bday="${p.birthday.display}" data-bmonth="${p.birthMonth.display}" style="font-size:2.6rem;color:var(--accent-2);min-width:82px">${p.dayMonth.display}${echoBadge(p.dayMonth.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">3 · Day + Month ⓘ</div><b style="font-family:var(--display)">What happens when they meet</b></div></div>
+     <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Birth Year" data-value="${p.birthYear.display}" style="font-size:2.6rem;color:var(--accent);min-width:82px">${p.birthYear.display}${echoBadge(p.birthYear.display)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">4 · Birth Year ⓘ</div><b style="font-family:var(--display)">The deeper structural foundation</b></div></div>
+     <div class="card beam" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-color:var(--accent)"><span class="bignum num-tap" data-info data-label="Life Path" data-value="${p.lifePath.display}" style="font-size:2.6rem;color:var(--stone-2);min-width:82px">${p.lifePath.display}${echoBadge(p.lifePath.display)}${kdBadge(p.lifePath)}${wealthBadge(p.lifePath)}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">5 · Life Path ⓘ</div><b style="font-family:var(--display)">Everything above, combined</b></div></div>
     </div>
-    <div class="card beam" style="margin-top:14px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">Putting it all together</p><p style="margin-top:8px;font-size:.95rem;line-height:1.6">${birthArchNarrative(p,first)}</p></div>
+    <div class="card beam" style="margin-top:14px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">Putting it all together</p><p style="margin-top:8px;font-size:.95rem;line-height:1.6">${birthArchNarrative(p,first)}</p></div>
     <details class="disc" style="margin-top:14px"><summary>Show my calculation</summary><pre>Birthday        ${calcPre(p.birthday)}
 Birth Month     ${calcPre(p.birthMonth)}
 Day + Month     ${p.birthMonth.number} + ${p.birthday.number} = ${p.birthMonth.number+p.birthday.number} → ${calcPre(p.dayMonth)}
 Birth Year      digits of birth year sum to ${digitSum(p.dob.slice(0,4))} → ${calcPre(p.birthYear)}
 Life Path       ${p.dayMonth.number} + ${p.birthYear.number} = ${p.dayMonth.number+p.birthYear.number} → ${calcPre(p.lifePath)}</pre></details>
    </section>
-   <section class="blk" id="you"><p class="eyebrow">What the numbers agree on</p><h2 style="font-size:1.7rem;margin-top:8px">Who you are</h2>${I.themes.filter(t=>t.band!=='Background').map(themeRow).join('')}${I.reinforcements[0]?`<div class="card beam" style="margin-top:12px"><p class="eyebrow" style="color:var(--mint)">Strong recurring pattern · ${I.reinforcements[0].label}</p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(I.reinforcements[0].explanation)}</p></div>`:''}</section>
-   <section class="blk" id="drives"><p class="eyebrow">Underneath</p><h2 style="font-size:1.7rem;margin-top:8px">What drives you</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Inner Drive" data-value="${p.pyth.soulUrge.display}" style="font-size:3rem;color:var(--purple)">${p.pyth.soulUrge.display}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">Inner drive ⓘ</div><b style="font-family:var(--heading)">A need for ${I.need}</b></div></div>
+   <section class="blk" id="you"><p class="eyebrow">What the numbers agree on</p><h2 style="font-size:1.7rem;margin-top:8px">Who you are</h2>${I.themes.filter(t=>t.band!=='Background').map(themeRow).join('')}${I.reinforcements[0]?`<div class="card beam" style="margin-top:12px"><p class="eyebrow" style="color:var(--accent-2)">Strong recurring pattern · ${I.reinforcements[0].label}</p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(I.reinforcements[0].explanation)}</p></div>`:''}</section>
+   <section class="blk" id="drives"><p class="eyebrow">Underneath</p><h2 style="font-size:1.7rem;margin-top:8px">What drives you</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Inner Drive" data-value="${p.pyth.soulUrge.display}" style="font-size:3rem;color:var(--accent)">${p.pyth.soulUrge.display}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">Inner drive ⓘ</div><b style="font-family:var(--display)">A need for ${I.need}</b></div></div>
     <p class="muted" style="margin-top:12px;font-size:.92rem">Your Inner Drive is built from just the vowels in your name — the private want underneath everything you actually show people. ${esc(I.fiveQuestions.drives)}</p>
-    ${(()=>{const a=ARCHETYPE[p.pyth.soulUrge.number]||{};if(!a.core)return'';const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.78rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${txt}</div></div>`:'';
-     return `<p style="margin-top:12px;font-size:.92rem;line-height:1.55">${a.core}</p><div style="margin-top:8px">${row('WHAT IT NEEDS TO FEEL SATISFIED',a.strengths,'var(--mint)')}${row('WHAT IT STARVES WITHOUT',a.shadow,'var(--lilac)')}${row('THE LESSON UNDERNEATH IT',a.lesson,'var(--mint)')}</div>`;})()}
+    ${(()=>{const a=ARCHETYPE[p.pyth.soulUrge.number]||{};if(!a.core)return'';const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--rule);padding:9px 0"><b style="color:${col};font-size:.78rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${txt}</div></div>`:'';
+     return `<p style="margin-top:12px;font-size:.92rem;line-height:1.55">${a.core}</p><div style="margin-top:8px">${row('WHAT IT NEEDS TO FEEL SATISFIED',a.strengths,'var(--accent-2)')}${row('WHAT IT STARVES WITHOUT',a.shadow,'var(--stone-2)')}${row('THE LESSON UNDERNEATH IT',a.lesson,'var(--accent-2)')}</div>`;})()}
     ${workLine}<details class="disc"><summary>Show calculation</summary><pre>Inner Drive · ${calcPre(p.pyth.soulUrge)}</pre></details></div></section>
-   <section class="blk" id="contradictions"><p class="eyebrow">The most personal part</p><h2 style="font-size:1.7rem;margin-top:8px">Where you contradict yourself</h2>${I.contradictions.length?I.contradictions.map(ct=>`<div class="card beam" style="margin-top:14px"><div style="font-family:var(--heading);font-weight:800;font-size:1.2rem"><span style="color:var(--purple)">${ct.a}</span> <span class="muted" style="font-size:.9rem">vs</span> <span style="color:var(--mint)">${ct.b}</span></div><p class="muted" style="margin-top:10px;font-size:.92rem">${esc(ct.explanation)}</p></div>`).join(''):`<p class="muted" style="margin-top:12px">Your numbers largely pull the same way — unusually consistent, harder to knock off course.</p>`}</section>
-   <section class="blk" id="shadow"><p class="eyebrow">Where strengths tip into strain</p><h2 style="font-size:1.7rem;margin-top:8px">Your shadow</h2>${I.shadows.length?I.shadows.map(sh=>{const ti=THEME_INFO[sh.theme]||{};const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`:'';
+   <section class="blk" id="contradictions"><p class="eyebrow">The most personal part</p><h2 style="font-size:1.7rem;margin-top:8px">Where you contradict yourself</h2>${I.contradictions.length?I.contradictions.map(ct=>`<div class="card beam" style="margin-top:14px"><div style="font-family:var(--display);font-weight:500;font-size:1.2rem"><span style="color:var(--accent)">${ct.a}</span> <span class="muted" style="font-size:.9rem">vs</span> <span style="color:var(--accent-2)">${ct.b}</span></div><p class="muted" style="margin-top:10px;font-size:.92rem">${esc(ct.explanation)}</p></div>`).join(''):`<p class="muted" style="margin-top:12px">Your numbers largely pull the same way — unusually consistent, harder to knock off course.</p>`}</section>
+   <section class="blk" id="shadow"><p class="eyebrow">Where strengths tip into strain</p><h2 style="font-size:1.7rem;margin-top:8px">Your shadow</h2>${I.shadows.length?I.shadows.map(sh=>{const ti=THEME_INFO[sh.theme]||{};const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--rule);padding:9px 0"><b style="color:${col};font-size:.82rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.9rem;margin-top:2px">${txt}</div></div>`:'';
     // Ground the theme-level shadow in each contributing number's OWN shadow text (ARCHETYPE), rather than
     // the single generic THEME_INFO sentence already shown for this theme in the glossary and "who you are".
-    const perSource=(sh.detail||[]).map(d=>{const a=ARCHETYPE[d.root]||{};return a.shadow?`<div style="border-top:1px solid var(--border);padding:9px 0"><b style="color:var(--purple);font-size:.78rem;letter-spacing:.02em">${esc(d.label.toUpperCase())} ${esc(d.value)}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${a.shadow}</div></div>`:'';}).join('');
-    return `<div class="card" style="margin-top:12px"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-family:var(--heading);text-transform:capitalize;font-size:1.05rem">${sh.theme}</b>${sh.count>=2?'<span style="font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--lilac)">Recurring</span>':''}</div><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(sh.explanation)}</p><div style="margin-top:8px">`+
+    const perSource=(sh.detail||[]).map(d=>{const a=ARCHETYPE[d.root]||{};return a.shadow?`<div style="border-top:1px solid var(--rule);padding:9px 0"><b style="color:var(--accent);font-size:.78rem;letter-spacing:.02em">${esc(d.label.toUpperCase())} ${esc(d.value)}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${a.shadow}</div></div>`:'';}).join('');
+    return `<div class="card" style="margin-top:12px"><div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font-family:var(--display);text-transform:capitalize;font-size:1.05rem">${sh.theme}</b>${sh.count>=2?'<span style="font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--stone-2)">Recurring</span>':''}</div><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(sh.explanation)}</p><div style="margin-top:8px">`+
      perSource+
-     row('HOW TO GROW THROUGH IT',ti.grow?ti.grow.charAt(0).toUpperCase()+ti.grow.slice(1)+'.':'','var(--mint)')+
+     row('HOW TO GROW THROUGH IT',ti.grow?ti.grow.charAt(0).toUpperCase()+ti.grow.slice(1)+'.':'','var(--accent-2)')+
      `</div></div>`;}).join(''):'<p class="muted" style="margin-top:12px">No single shadow theme stands out strongly in this profile.</p>'}</section>
-   <section class="blk" id="lifemap"><p class="eyebrow">You are ${I.age} · your map</p><h2 style="font-size:1.7rem;margin-top:8px">Life map</h2>${I.lifeMap.map((pin,i)=>{const pinLabel=PINNACLE_LABELS[i];return `<div class="pin ${pin.current?'now':''} num-tap" data-info data-label="${pinLabel}" data-value="${esc(pin.value)}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">${pinLabel} · ${pin.range} <span style="opacity:.5">&#9432;</span></div><div style="font-family:var(--heading);font-weight:800;font-size:1.4rem">${pin.value}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${pin.meaning}</div></div>${pin.current?'<span class="here">You are here</span>':''}</div>`;}).join('')}</section>
+   <section class="blk" id="lifemap"><p class="eyebrow">You are ${I.age} · your map</p><h2 style="font-size:1.7rem;margin-top:8px">Life map</h2>${I.lifeMap.map((pin,i)=>{const pinLabel=PINNACLE_LABELS[i];return `<div class="pin ${pin.current?'now':''} num-tap" data-info data-label="${pinLabel}" data-value="${esc(pin.value)}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">${pinLabel} · ${pin.range} <span style="opacity:.5">&#9432;</span></div><div style="font-family:var(--display);font-weight:500;font-size:1.4rem">${pin.value}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${pin.meaning}</div></div>${pin.current?'<span class="here">You are here</span>':''}</div>`;}).join('')}</section>
    <section class="blk" id="challenges"><p class="eyebrow">The other side of the map</p><h2 style="font-size:1.7rem;margin-top:8px">Your Challenges</h2><p class="muted" style="margin-top:8px;font-size:.92rem">Pinnacles show the gifts each life period hands you. Challenges show the obstacle running alongside — built from subtraction between your day, month and year, not addition.</p>
-    ${[['First','First Challenge',p.challenges.first,I.ranges[0],I.currentPinnacleIndex===0],['Second','Second Challenge',p.challenges.second,I.ranges[1],I.currentPinnacleIndex===1],['Main','Third Challenge',p.challenges.third,'your whole life',null],['Fourth','Fourth Challenge',p.challenges.fourth,I.ranges[3],I.currentPinnacleIndex===3]].map(([nth,dataLabel,val,range,isNow])=>`<div class="pin ${isNow?'now':''} num-tap" data-info data-label="${dataLabel}" data-value="${val}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">${nth} Challenge · ${range} ⓘ</div><div style="font-family:var(--heading);font-weight:800;font-size:1.4rem">${val}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${CHALLENGE_MEANING[val].name}</div></div>${isNow?'<span class="here">You are here</span>':''}</div>`).join('')}
+    ${[['First','First Challenge',p.challenges.first,I.ranges[0],I.currentPinnacleIndex===0],['Second','Second Challenge',p.challenges.second,I.ranges[1],I.currentPinnacleIndex===1],['Main','Third Challenge',p.challenges.third,'your whole life',null],['Fourth','Fourth Challenge',p.challenges.fourth,I.ranges[3],I.currentPinnacleIndex===3]].map(([nth,dataLabel,val,range,isNow])=>`<div class="pin ${isNow?'now':''} num-tap" data-info data-label="${dataLabel}" data-value="${val}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em">${nth} Challenge · ${range} ⓘ</div><div style="font-family:var(--display);font-weight:500;font-size:1.4rem">${val}</div><div class="muted" style="font-size:.82rem;margin-top:2px">${CHALLENGE_MEANING[val].name}</div></div>${isNow?'<span class="here">You are here</span>':''}</div>`).join('')}
    </section>
-   <section class="blk" id="year"><p class="eyebrow">The nine-year story</p><h2 style="font-size:1.7rem;margin-top:8px">Your Personal Year</h2>${yearWheel}${yTrio}<div class="card" style="margin-top:14px"><b style="font-family:var(--heading)">${YEARNOW} — Personal Year ${p.personalYear} · ${YEAR[p.personalYear].t}</b><p class="muted" style="margin-top:8px;font-size:.92rem">${esc(yearCtx)}</p>${p.personalYear===9?`<p class="muted" style="margin-top:10px;font-size:.9rem">This is the <b style="color:var(--text)">end of a nine-year sequence</b> — it does not mean everything must end. Ask instead: what has reached completion? What are you carrying out of habit? What deserves to come into the next cycle? <b style="color:var(--text)">Next year begins a new 1</b> — new identity, new seeds.</p>`:''}</div></section>
+   <section class="blk" id="year"><p class="eyebrow">The nine-year story</p><h2 style="font-size:1.7rem;margin-top:8px">Your Personal Year</h2>${yearWheel}${yTrio}<div class="card" style="margin-top:14px"><b style="font-family:var(--display)">${YEARNOW} — Personal Year ${p.personalYear} · ${YEAR[p.personalYear].t}</b><p class="muted" style="margin-top:8px;font-size:.92rem">${esc(yearCtx)}</p>${p.personalYear===9?`<p class="muted" style="margin-top:10px;font-size:.9rem">This is the <b style="color:var(--ink)">end of a nine-year sequence</b> — it does not mean everything must end. Ask instead: what has reached completion? What are you carrying out of habit? What deserves to come into the next cycle? <b style="color:var(--ink)">Next year begins a new 1</b> — new identity, new seeds.</p>`:''}</div></section>
    <section class="blk" id="now"><p class="eyebrow">Your current chapter</p><h2 style="font-size:1.7rem;margin-top:8px">Right now</h2><div class="card" style="margin-top:14px"><p class="muted">${esc(I.fiveQuestions.now)} ${I.currentChapter.activated.length?'This pulls forward the '+joinL(I.currentChapter.activated)+' already built into you.':''}</p></div></section>
-   <section class="blk" id="name"><p class="eyebrow">Two separate systems</p><h2 style="font-size:1.7rem;margin-top:8px">Your name</h2><div class="card" style="margin-top:14px"><p class="eyebrow" style="color:var(--purple)">Pythagorean</p>${[['Expression','built from every letter of your full birth name — what you naturally express and what you\'re here to build in the world',p.pyth.expression],['Soul Urge','built from just the vowels — the private want underneath everything you actually show people',p.pyth.soulUrge],['Personality','built from just the consonants — the version of you a stranger meets before they know the rest',p.pyth.personality]].map(([l,desc,cc])=>{const a=ARCHETYPE[cc.number]||{};const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--border);padding:7px 0"><b style="color:${col};font-size:.72rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.84rem;margin-top:2px">${txt}</div></div>`:'';
-     return `<div style="border-bottom:1px solid var(--border);padding:12px 0"><div style="display:flex;justify-content:space-between"><span style="font-family:var(--heading);font-weight:700">${l}</span><b class="num-tap" data-info data-label="${l}" data-value="${cc.display}" style="font-family:var(--heading);color:var(--purple)">${cc.display} ⓘ${kdBadge(cc)}${wealthBadge(cc)}</b></div><p class="muted" style="font-size:.82rem;margin-top:4px;font-style:italic">${desc}.</p>${a.core?`<p style="margin-top:8px;font-size:.9rem;line-height:1.5">${a.core}</p><div style="margin-top:4px">${row('STRENGTHS',a.strengths,'var(--mint)')}${row('SHADOW',a.shadow,'var(--lilac)')}</div>`:`<p class="muted" style="font-size:.84rem;margin-top:4px">${npFor(cc.number).m}.</p>`}</div>`;}).join('')}<p class="eyebrow" style="color:var(--mint);margin-top:14px">Chaldean</p><div style="display:flex;justify-content:space-between;padding:6px 0"><span class="muted">Full name vibration</span><b style="font-family:var(--heading)">${p.chal.expression.display}</b></div><p class="muted" style="font-size:.82rem;margin-top:4px">A second, older system for the same full name — where Pythagorean assigns 1-9 in strict alphabet order, Chaldean groups letters by their traditional vibration and keeps the raw compound rather than preserving master numbers. The two won't always agree, and that's expected: think of it as a second opinion on the same name, not a contradiction to resolve.</p><details class="disc"><summary>Show calculation</summary><pre>Expression (Pythagorean) · ${calcPre(p.pyth.expression)}
+   <section class="blk" id="name"><p class="eyebrow">Two separate systems</p><h2 style="font-size:1.7rem;margin-top:8px">Your name</h2><div class="card" style="margin-top:14px"><p class="eyebrow" style="color:var(--accent)">Pythagorean</p>${[['Expression','built from every letter of your full birth name — what you naturally express and what you\'re here to build in the world',p.pyth.expression],['Soul Urge','built from just the vowels — the private want underneath everything you actually show people',p.pyth.soulUrge],['Personality','built from just the consonants — the version of you a stranger meets before they know the rest',p.pyth.personality]].map(([l,desc,cc])=>{const a=ARCHETYPE[cc.number]||{};const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--rule);padding:7px 0"><b style="color:${col};font-size:.72rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.84rem;margin-top:2px">${txt}</div></div>`:'';
+     return `<div style="border-bottom:1px solid var(--rule);padding:12px 0"><div style="display:flex;justify-content:space-between"><span style="font-family:var(--display);font-weight:500">${l}</span><b class="num-tap" data-info data-label="${l}" data-value="${cc.display}" style="font-family:var(--display);color:var(--accent)">${cc.display} ⓘ${kdBadge(cc)}${wealthBadge(cc)}</b></div><p class="muted" style="font-size:.82rem;margin-top:4px;font-style:italic">${desc}.</p>${a.core?`<p style="margin-top:8px;font-size:.9rem;line-height:1.5">${a.core}</p><div style="margin-top:4px">${row('STRENGTHS',a.strengths,'var(--accent-2)')}${row('SHADOW',a.shadow,'var(--stone-2)')}</div>`:`<p class="muted" style="font-size:.84rem;margin-top:4px">${npFor(cc.number).m}.</p>`}</div>`;}).join('')}<p class="eyebrow" style="color:var(--accent-2);margin-top:14px">Chaldean</p><div style="display:flex;justify-content:space-between;padding:6px 0"><span class="muted">Full name vibration</span><b style="font-family:var(--display)">${p.chal.expression.display}</b></div><p class="muted" style="font-size:.82rem;margin-top:4px">A second, older system for the same full name — where Pythagorean assigns 1-9 in strict alphabet order, Chaldean groups letters by their traditional vibration and keeps the raw compound rather than preserving master numbers. The two won't always agree, and that's expected: think of it as a second opinion on the same name, not a contradiction to resolve.</p><details class="disc"><summary>Show calculation</summary><pre>Expression (Pythagorean) · ${calcPre(p.pyth.expression)}
 Chaldean keeps the raw compound; Pythagorean preserves master numbers.</pre></details></div></section>
-   ${p.home?(()=>{const a=ARCHETYPE[p.home.number]||{};const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--border);padding:8px 0"><b style="color:${col};font-size:.76rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.86rem;margin-top:2px">${txt}</div></div>`:'';
-     return `<section class="blk" id="home"><p class="eyebrow">Your environment</p><h2 style="font-size:1.7rem;margin-top:8px">Your home</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Home" data-value="${p.home.display}" style="font-size:3rem;color:var(--lilac)">${p.home.display}</span><p class="muted" style="font-size:.9rem">Door ${esc(p.homeNorm)} routes through ${p.home.display} — the address number itself is reduced the same way a birth date is. This describes the atmosphere the space quietly reinforces, not whether it's lucky.</p></div>
-     ${a.core?`<p style="margin-top:12px;font-size:.92rem;line-height:1.55">Living behind a ${p.home.display} door tends to mean ${a.core.charAt(0).toLowerCase()+a.core.slice(1)}</p><div style="margin-top:6px">${row('WHAT THE SPACE ENCOURAGES',a.strengths,'var(--mint)')}${row('WHAT IT CAN TIP INTO IF UNCHECKED',a.shadow,'var(--lilac)')}${row('HOW TO WORK WITH IT',a.lesson,'var(--mint)')}</div>`:''}
+   ${p.home?(()=>{const a=ARCHETYPE[p.home.number]||{};const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--rule);padding:8px 0"><b style="color:${col};font-size:.76rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.86rem;margin-top:2px">${txt}</div></div>`:'';
+     return `<section class="blk" id="home"><p class="eyebrow">Your environment</p><h2 style="font-size:1.7rem;margin-top:8px">Your home</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Home" data-value="${p.home.display}" style="font-size:3rem;color:var(--stone-2)">${p.home.display}</span><p class="muted" style="font-size:.9rem">Door ${esc(p.homeNorm)} routes through ${p.home.display} — the address number itself is reduced the same way a birth date is. This describes the atmosphere the space quietly reinforces, not whether it's lucky.</p></div>
+     ${a.core?`<p style="margin-top:12px;font-size:.92rem;line-height:1.55">Living behind a ${p.home.display} door tends to mean ${a.core.charAt(0).toLowerCase()+a.core.slice(1)}</p><div style="margin-top:6px">${row('WHAT THE SPACE ENCOURAGES',a.strengths,'var(--accent-2)')}${row('WHAT IT CAN TIP INTO IF UNCHECKED',a.shadow,'var(--stone-2)')}${row('HOW TO WORK WITH IT',a.lesson,'var(--accent-2)')}</div>`:''}
     </div></section>`;})():''}
-   <section class="blk" id="eastern"><p class="eyebrow">A separate system — Chinese astrology</p><h2 style="font-size:1.7rem;margin-top:8px">Eastern profile</h2><div class="card" style="margin-top:14px"><b style="font-family:var(--heading);font-size:1.4rem">${p.chinese.birth.yinYang} ${p.chinese.birth.element} ${p.chinese.birth.animal}</b><p style="margin-top:8px;font-size:.92rem">As a ${p.chinese.birth.animal}, you're ${ANIMAL_TRAITS[p.chinese.birth.animal]||'your own distinct blend'}.</p><p class="muted" style="margin-top:10px;font-size:.9rem"><b style="color:var(--text)">${YEARNOW} is the ${p.chinese.forecast.animal} year</b> — for you that's ${animalYearRel(p.chinese.birth.animal,p.chinese.forecast.animal)}. ${elementSelfRel(p.chinese.birth.element,p.chinese.forecast.element)}</p><p class="muted" style="margin-top:10px;font-size:.82rem">Calculated using the actual Chinese New Year boundary. Year-sign astrology, kept separate from your numerology — not BaZi.</p></div></section>
+   <section class="blk" id="eastern"><p class="eyebrow">A separate system — Chinese astrology</p><h2 style="font-size:1.7rem;margin-top:8px">Eastern profile</h2><div class="card" style="margin-top:14px"><b style="font-family:var(--display);font-size:1.4rem">${p.chinese.birth.yinYang} ${p.chinese.birth.element} ${p.chinese.birth.animal}</b><p style="margin-top:8px;font-size:.92rem">As a ${p.chinese.birth.animal}, you're ${ANIMAL_TRAITS[p.chinese.birth.animal]||'your own distinct blend'}.</p><p class="muted" style="margin-top:10px;font-size:.9rem"><b style="color:var(--ink)">${YEARNOW} is the ${p.chinese.forecast.animal} year</b> — for you that's ${animalYearRel(p.chinese.birth.animal,p.chinese.forecast.animal)}. ${elementSelfRel(p.chinese.birth.element,p.chinese.forecast.element)}</p><p class="muted" style="margin-top:10px;font-size:.82rem">Calculated using the actual Chinese New Year boundary. Year-sign astrology, kept separate from your numerology — not BaZi.</p></div></section>
    ${oneThing}
    <section class="blk" id="big"><p class="eyebrow">Pulling it together</p><h2 style="font-size:1.7rem;margin-top:8px">The big picture</h2><div class="card beam" style="margin-top:14px"><h3 style="font-size:1.2rem"><span class="aurora">One number never explains a person.</span></h3><p class="muted" style="margin-top:10px;font-size:.92rem">${esc(I.corePattern)}</p></div>
      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px">${!rt.isMe?`<button class="btn btn-glow" data-act="fam-space">&larr; Back to family</button>`:S.journey==='fam'?`<button class="btn btn-glow" data-act="save-done">Continue → add your family</button>`:`<button class="btn btn-glow" data-act="save-done">Save my profile</button><button class="btn btn-ghost" data-act="start-fam">Add my family — £28</button>`}</div></section>
-   <p class="foot">Interpretation, not prediction. NumeraFlow · your living profile.</p>
+   <p class="foot">Interpretation, not prediction. NUMIO · the pattern behind your life.</p>
   </div></div>`;}
 
 /* ---------- dashboard ---------- */
 function vDashboard(){const p=meProfile();const arch=dailyArchitecture(p,todayStr());const gw=dailyGoodWatch(arch);
  return topbar()+`<div class="screen"><div class="wrap" style="padding:44px 20px 60px">
   <p class="eyebrow">Welcome back</p><h1 style="font-size:2.4rem;margin-top:10px">${esc(S.me.first)}</h1>
-  <div class="card beam" style="margin-top:20px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">Today's NumeraFlow</p><h2 style="font-size:1.5rem;margin-top:6px;text-transform:capitalize">${esc(todayHeadline(arch))}</h2>
+  <div class="card beam" style="margin-top:20px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">Today</p><h2 style="font-size:1.5rem;margin-top:6px;text-transform:capitalize">${esc(todayHeadline(arch))}</h2>
    <div class="keys" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
     <div class="key"><div class="l">Overall Day</div><div class="v" style="font-size:1.5rem">${arch.universalDay.display}</div></div>
     <div class="key"><div class="l">Calendar</div><div class="v" style="font-size:1.5rem">${arch.calendarDay.display}</div></div>
@@ -1189,8 +1418,8 @@ function vDashboard(){const p=meProfile();const arch=dailyArchitecture(p,todaySt
   </div>
   <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px"><button class="btn btn-glow" data-act="open-reading">Open my reading</button><button class="btn btn-ghost" data-act="start-fam">My family</button></div>
   <div style="margin-top:22px"><p class="eyebrow">Explore</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-ghost" data-act="compat">Who suits you</button><button class="btn btn-ghost" data-act="name-match">Name a child</button><button class="btn btn-ghost" data-act="glossary">Number meanings</button>${isStandaloneApp()?'':'<button class="btn btn-ghost" data-act="show-install">📲 Get the app</button>'}</div></div>
-  <div class="card" style="margin-top:22px"><p style="font-family:var(--heading);font-weight:700">Has anything important changed?</p><div class="opts" style="margin-top:10px">${['Relationship','Work','Family','Home','Money','Nothing major'].map(o=>`<span class="opt" data-changed="${o}">${o}</span>`).join('')}</div><p class="muted" style="font-size:.8rem;margin-top:10px">Your numbers never change — only the context around them.</p></div>
-  <p style="margin-top:26px"><span style="cursor:pointer;font-size:.85rem;color:#f9a8a8;text-decoration:underline" data-act="reset">Clear all my data &amp; start over</span></p>
+  <div class="card" style="margin-top:22px"><p style="font-family:var(--display);font-weight:500">Has anything important changed?</p><div class="opts" style="margin-top:10px">${['Relationship','Work','Family','Home','Money','Nothing major'].map(o=>`<span class="opt" data-changed="${o}">${o}</span>`).join('')}</div><p class="muted" style="font-size:.8rem;margin-top:10px">Your numbers never change — only the context around them.</p></div>
+  <p style="margin-top:26px"><span style="cursor:pointer;font-size:.85rem;color:#9B3520;text-decoration:underline" data-act="reset">Clear all my data &amp; start over</span></p>
 </div></div>`;}
 
 /* ---------- daily energy calendar ---------- */
@@ -1200,8 +1429,8 @@ function vToday(){const p=meProfile();const ds=todayStr();const arch=dailyArchit
  const intel=buildIntelligence(p);const res=dailyResonance(p,intel,arch);
  return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:600px">
   <p class="eyebrow">${fmtDate(ds)}</p><h1 style="font-size:2rem;margin-top:8px;text-transform:capitalize">${esc(todayHeadline(arch))}</h1>
-  ${DAY_DIRECTIVE[arch.personalDay]?`<div class="card beam" style="margin-top:16px;border-color:var(--mint);background:rgba(110,231,183,.06)"><p class="eyebrow" style="color:var(--mint)">Today, in one line</p><p style="margin-top:8px;font-size:1.05rem;font-weight:600;line-height:1.5">${esc(DAY_DIRECTIVE[arch.personalDay])}</p></div>`:''}
-  ${res?`<div class="card beam" style="margin-top:16px;border-color:var(--purple)"><p class="eyebrow" style="color:var(--purple)">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
+  ${DAY_DIRECTIVE[arch.personalDay]?`<div class="card beam" style="margin-top:16px;border-color:var(--accent-2);background:#FBF2EA"><p class="eyebrow" style="color:var(--accent-2)">Today, in one line</p><p style="margin-top:8px;font-size:1.05rem;font-weight:600;line-height:1.5">${esc(DAY_DIRECTIVE[arch.personalDay])}</p></div>`:''}
+  ${res?`<div class="card beam" style="margin-top:16px;border-color:var(--accent)"><p class="eyebrow" style="color:var(--accent)">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
   <div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:18px">
    <div class="key num-tap" data-info data-label="Current Year" data-value="${arch.universalDay.display}"><div class="l">Overall day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.universalDay.display}</div></div>
    <div class="key num-tap" data-info data-label="Calendar Day" data-value="${esc(arch.calendarDay.display)}"><div class="l">Calendar foundation <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.calendarDay.display}</div></div>
@@ -1209,10 +1438,10 @@ function vToday(){const p=meProfile();const ds=todayStr();const arch=dailyArchit
    <div class="key num-tap" data-info data-label="Personal Year" data-value="${arch.personalYear}"><div class="l">Your Personal Year <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.personalYear}</div></div>
   </div>
   <div class="card" style="margin-top:16px"><p class="eyebrow">Your day in plain English</p><p style="margin-top:8px;font-size:.95rem;line-height:1.6">${dailySynthesisText(arch,first)}</p></div>
-  <div class="card" style="margin-top:12px"><p class="eyebrow" style="color:var(--mint)">Today is good for</p><ul style="margin:8px 0 0;padding-left:18px">${gw.good.map(g=>`<li class="muted" style="font-size:.9rem;margin-top:4px">${esc(g)}</li>`).join('')}</ul></div>
-  <div class="card" style="margin-top:12px"><p class="eyebrow" style="color:var(--lilac)">Watch for</p><ul style="margin:8px 0 0;padding-left:18px">${gw.watch.map(g=>`<li class="muted" style="font-size:.9rem;margin-top:4px">You may notice ${esc(g)}</li>`).join('')}</ul></div>
-  <div class="card beam" style="margin-top:12px"><p class="eyebrow" style="color:var(--purple)">Today's question</p><p style="margin-top:8px;font-size:1rem;font-style:italic">${esc(gw.question)}</p></div>
-  <div class="card" style="margin-top:16px;border-color:${already?'var(--mint)':'var(--border)'}"><p style="font-family:var(--heading);font-weight:700">How did today feel?</p>
+  <div class="card" style="margin-top:12px"><p class="eyebrow" style="color:var(--accent-2)">Today is good for</p><ul style="margin:8px 0 0;padding-left:18px">${gw.good.map(g=>`<li class="muted" style="font-size:.9rem;margin-top:4px">${esc(g)}</li>`).join('')}</ul></div>
+  <div class="card" style="margin-top:12px"><p class="eyebrow" style="color:var(--stone-2)">Watch for</p><ul style="margin:8px 0 0;padding-left:18px">${gw.watch.map(g=>`<li class="muted" style="font-size:.9rem;margin-top:4px">You may notice ${esc(g)}</li>`).join('')}</ul></div>
+  <div class="card beam" style="margin-top:12px"><p class="eyebrow" style="color:var(--accent)">Today's question</p><p style="margin-top:8px;font-size:1rem;font-style:italic">${esc(gw.question)}</p></div>
+  <div class="card" style="margin-top:16px;border-color:${already?'var(--accent-2)':'var(--rule)'}"><p style="font-family:var(--display);font-weight:500">How did today feel?</p>
    ${already?`<p class="muted" style="margin-top:8px;font-size:.9rem">Logged: ${esc(already.rating)}${already.note?' — "'+esc(already.note)+'"':''}</p>`:`
    <div class="opts" style="margin-top:10px">${['Very accurate','Somewhat accurate','Didn\'t really match'].map(o=>`<span class="opt" data-logday="${o}">${o}</span>`).join('')}</div>
    <p class="muted" style="font-size:.78rem;margin-top:8px">This builds your own pattern history — it never changes how the numbers are calculated.</p>`}
@@ -1236,24 +1465,24 @@ function vCalendar(){const p=meProfile();const month=S.calMonth||todayStr().slic
   <div style="display:flex;justify-content:space-between;align-items:center"><span class="btn btn-ghost" style="padding:8px 12px" data-act="cal-prev">&larr;</span><h1 style="font-size:1.4rem">${monthLabel}</h1><span class="btn btn-ghost" style="padding:8px 12px" data-act="cal-next">&rarr;</span></div>
   <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:16px;text-align:center">${['S','M','T','W','T','F','S'].map(d=>`<div class="muted" style="font-size:.68rem;font-weight:700">${d}</div>`).join('')}
    ${cells.map(d=>{if(!d)return '<div></div>';const ds=`${cy}-${String(cm).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const arch=dailyArchitecture(p,ds);const isToday=ds===ds0;const mk=resonanceMarker(dailyResonance(p,intel,arch));const mkShort=mk?(CAL_MARKER_SHORT[mk.label]||mk.label):null;
-     return `<div style="border:1px solid var(--border);border-radius:14px;padding:5px 1px;min-width:0;text-align:center;cursor:pointer;${isToday?'border-color:var(--purple);background:var(--surface)':''}" data-caldate="${ds}"><div style="font-family:var(--heading);font-weight:800;font-size:.9rem">${d}</div><div class="muted" style="font-size:.58rem;margin-top:2px">${arch.universalDay.number}</div><div style="font-size:.56rem;color:var(--mint);margin-top:1px">You:${arch.personalDay}</div>${mkShort?`<div style="font-size:.5rem;margin-top:1px;color:${mk.color};overflow-wrap:break-word">${esc(mkShort)}</div>`:''}</div>`;}).join('')}
+     return `<div style="border:1px solid var(--rule);border-radius:3px;padding:5px 1px;min-width:0;text-align:center;cursor:pointer;${isToday?'border-color:var(--accent);background:var(--surface)':''}" data-caldate="${ds}"><div style="font-family:var(--display);font-weight:500;font-size:.9rem">${d}</div><div class="muted" style="font-size:.58rem;margin-top:2px">${arch.universalDay.number}</div><div style="font-size:.56rem;color:var(--accent-2);margin-top:1px">You:${arch.personalDay}</div>${mkShort?`<div style="font-size:.5rem;margin-top:1px;color:${mk.color};overflow-wrap:break-word">${esc(mkShort)}</div>`:''}</div>`;}).join('')}
   </div>
-  <p class="muted" style="font-size:.8rem;margin-top:14px;text-align:center">Small number = the day's overall energy · mint = your Personal Day · label = how today's energy relates to your own permanent numbers. Tap any date for the full picture.</p>
+  <p class="muted" style="font-size:.8rem;margin-top:14px;text-align:center">Small number = the day's overall energy · the rust line = your Personal Day · label = how today's energy relates to your own permanent numbers. Tap any date for the full picture.</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;justify-content:center"><button class="btn btn-ghost" data-act="plan-something">Plan something</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
  </div></div>`;}
 function vDateDetail(){const p=meProfile();const ds=S.calDate||todayStr();const arch=dailyArchitecture(p,ds);const gw=dailyGoodWatch(arch);const first=esc(S.me.first);
  const intel=buildIntelligence(p);const res=dailyResonance(p,intel,arch);
  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px;max-width:600px">
   <p class="eyebrow">Date detail</p><h1 style="font-size:1.8rem;margin-top:8px">${fmtDate(ds)}</h1>
-  ${DAY_DIRECTIVE[arch.personalDay]?`<div class="card beam" style="margin-top:14px;border-color:var(--mint);background:rgba(110,231,183,.06)"><p class="eyebrow" style="color:var(--mint)">That day, in one line</p><p style="margin-top:8px;font-size:1rem;font-weight:600;line-height:1.5">${esc(DAY_DIRECTIVE[arch.personalDay])}</p></div>`:''}
+  ${DAY_DIRECTIVE[arch.personalDay]?`<div class="card beam" style="margin-top:14px;border-color:var(--accent-2);background:#FBF2EA"><p class="eyebrow" style="color:var(--accent-2)">That day, in one line</p><p style="margin-top:8px;font-size:1rem;font-weight:600;line-height:1.5">${esc(DAY_DIRECTIVE[arch.personalDay])}</p></div>`:''}
   <div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:16px">
    <div class="key num-tap" data-info data-label="Calendar Day" data-value="${esc(arch.calendarDay.display)}"><div class="l">Calendar day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.calendarDay.display}</div></div>
    <div class="key num-tap" data-info data-label="Current Year" data-value="${arch.universalDay.display}"><div class="l">Full date <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.universalDay.display}</div></div>
    <div class="key num-tap" data-info data-label="Personal Day" data-value="${arch.personalDay}"><div class="l">Your Personal Day <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.personalDay}</div></div>
    <div class="key num-tap" data-info data-label="Personal Month" data-value="${arch.personalMonth}"><div class="l">Your Personal Month <span style="opacity:.5">&#9432;</span></div><div class="v">${arch.personalMonth}</div></div>
   </div>
-  <div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between"><span class="muted">Weekday</span><b style="font-family:var(--heading)">${arch.weekday.name} · ${arch.weekday.planet}</b></div><p class="muted" style="font-size:.85rem;margin-top:6px">A supporting symbolic layer — ${joinL(arch.weekday.t)}. Kept separate from the numerology above.</p></div>
-  ${res?`<div class="card" style="margin-top:12px;border-color:var(--purple)"><p class="eyebrow" style="color:var(--purple)">Your resonance</p><p style="margin-top:8px;font-size:1.05rem;font-family:var(--heading);font-weight:700">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.9rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
+  <div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between"><span class="muted">Weekday</span><b style="font-family:var(--display)">${arch.weekday.name} · ${arch.weekday.planet}</b></div><p class="muted" style="font-size:.85rem;margin-top:6px">A supporting symbolic layer — ${joinL(arch.weekday.t)}. Kept separate from the numerology above.</p></div>
+  ${res?`<div class="card" style="margin-top:12px;border-color:var(--accent)"><p class="eyebrow" style="color:var(--accent)">Your resonance</p><p style="margin-top:8px;font-size:1.05rem;font-family:var(--display);font-weight:500">${esc(res.headline)}</p><p style="margin-top:8px;font-size:.9rem;line-height:1.6">${esc(resonanceText(res,'you'))}</p></div>`:''}
   <div class="card" style="margin-top:12px"><p class="eyebrow">What this date looks like for you</p><p style="margin-top:8px;font-size:.95rem;line-height:1.6">${dailySynthesisText(arch,first)}</p></div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="view-calendar">&larr; Back to calendar</button><button class="btn btn-ghost" data-act="plan-something">Plan something</button></div>
  </div></div>`;}
@@ -1262,9 +1491,9 @@ function vPlan(){const p=meProfile();const taskId=S.planTaskId;const task=TASKS.
  const results=task?findDatesFor(p,intel,task,todayStr(),30):null;
  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px;max-width:600px">
   <p class="eyebrow">Plan something</p><h1 style="font-size:1.8rem;margin-top:8px">What are you planning?</h1>
-  <p class="muted" style="margin-top:8px;font-size:.9rem">NumeraFlow compares your Personal Day and the wider date against what you're planning — never certainty, just symbolic timing worth weighing up.</p>
+  <p class="muted" style="margin-top:8px;font-size:.9rem">NUMIO compares your Personal Day and the wider date against what you're planning — never certainty, just symbolic timing worth weighing up.</p>
   <div class="opts" style="margin-top:14px">${TASKS.map(t=>`<span class="opt ${t.id===taskId?'sel':''}" data-plantask="${t.id}">${esc(t.label)}</span>`).join('')}</div>
-  ${results?`<h3 style="font-size:1.2rem;margin-top:24px">Strongest matches — next 30 days</h3>${task.id==='money'?'<p class="muted" style="font-size:.8rem;margin-top:6px">The 8th and 28th of any month are traditionally significant money dates in this system — the 28th carries the Wealth Number 28/1 signature — so they\'re always weighted highly here alongside your own timing.</p>':''}<div style="display:grid;gap:10px;margin-top:12px">${results.map(r=>`<div class="pin" style="cursor:pointer" data-caldate="${r.dateStr}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em">${fmtDate(r.dateStr)}</div><div style="font-family:var(--heading);font-weight:800;font-size:1.1rem">${esc(r.label)}${r.isWealthDay?' <span class="kd" style="color:var(--mint);background:rgba(110,231,183,.12);border-color:rgba(110,231,183,.4)">💰 money date</span>':''}</div><div class="muted" style="font-size:.8rem;margin-top:2px">Universal ${r.arch.universalDay.display} · Your day ${r.arch.personalDay}${r.resonance&&r.resonance.type==='resonance'?' · resonates with your profile':''}</div></div></div>`).join('')}</div>
+  ${results?`<h3 style="font-size:1.2rem;margin-top:24px">Strongest matches — next 30 days</h3>${task.id==='money'?'<p class="muted" style="font-size:.8rem;margin-top:6px">The 8th and 28th of any month are traditionally significant money dates in this system — the 28th carries the Wealth Number 28/1 signature — so they\'re always weighted highly here alongside your own timing.</p>':''}<div style="display:grid;gap:10px;margin-top:12px">${results.map(r=>`<div class="pin" style="cursor:pointer" data-caldate="${r.dateStr}"><div><div class="muted" style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em">${fmtDate(r.dateStr)}</div><div style="font-family:var(--display);font-weight:500;font-size:1.1rem">${esc(r.label)}${r.isWealthDay?' <span class="kd" style="color:var(--accent-2);background:#F7E8DE;border-color:rgba(190,84,48,.4)">💰 money date</span>':''}</div><div class="muted" style="font-size:.8rem;margin-top:2px">Universal ${r.arch.universalDay.display} · Your day ${r.arch.personalDay}${r.resonance&&r.resonance.type==='resonance'?' · resonates with your profile':''}</div></div></div>`).join('')}</div>
    <p class="muted" style="font-size:.8rem;margin-top:12px">Ratings weigh your Personal Day and the wider date together against ${esc(task.label)} — a date can look attractive on the calendar and still be a weaker fit for your own timing. A resonant date only ever nudges the ranking; the task fit itself still decides the label.</p>`:''}
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="view-calendar">View calendar</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
  </div></div>`;}
@@ -1278,8 +1507,8 @@ function vFamAnchor(){const pre=hasMe()&&!S.anchorEditMode;return topbar()+`<div
 </div></div>`;}
 function vFamAdd(){const justFinished=S.journey==='fam'&&hasMe()&&!S.family.length;return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:560px">
   <p class="eyebrow">Your family so far · ${S.family.length}</p><h1 style="font-size:1.8rem;margin-top:8px">${justFinished?`That's your profile done, ${esc(S.me.first)}. Now let's add your family.`:'Who should we add next?'}</h1>
-  <div style="display:grid;gap:10px;margin-top:16px">${S.family.map((m,i)=>`<div class="fnode" style="cursor:default;display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b style="font-family:var(--heading)">${esc(m.name.split(' ')[0])}</b> <span class="muted" style="font-size:.85rem">· ${m.relationship} · Life Path ${buildProfile(m.dob,m.name,'',m.door||'',YEARNOW).lifePath.display}</span></div><div style="display:flex;align-items:center;gap:2px;flex-shrink:0"><span class="muted" data-famup="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===0?'opacity:.25;pointer-events:none':''}">↑</span><span class="muted" data-famdown="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===S.family.length-1?'opacity:.25;pointer-events:none':''}">↓</span><span style="cursor:pointer;padding:6px 8px;font-size:.78rem;text-decoration:underline;color:var(--purple)" data-famedit="${i}">Edit</span></div></div>`).join('')||'<p class="muted">No one added yet.</p>'}</div>
-  <div class="card" style="margin-top:18px"><p style="font-family:var(--heading);font-weight:700">Add a person</p>
+  <div style="display:grid;gap:10px;margin-top:16px">${S.family.map((m,i)=>`<div class="fnode" style="cursor:default;display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b style="font-family:var(--display)">${esc(m.name.split(' ')[0])}</b> <span class="muted" style="font-size:.85rem">· ${m.relationship} · Life Path ${buildProfile(m.dob,m.name,'',m.door||'',YEARNOW).lifePath.display}</span></div><div style="display:flex;align-items:center;gap:2px;flex-shrink:0"><span class="muted" data-famup="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===0?'opacity:.25;pointer-events:none':''}">↑</span><span class="muted" data-famdown="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===S.family.length-1?'opacity:.25;pointer-events:none':''}">↓</span><span style="cursor:pointer;padding:6px 8px;font-size:.78rem;text-decoration:underline;color:var(--accent)" data-famedit="${i}">Edit</span></div></div>`).join('')||'<p class="muted">No one added yet.</p>'}</div>
+  <div class="card" style="margin-top:18px"><p style="font-family:var(--display);font-weight:500">Add a person</p>
    <div style="display:grid;gap:12px;margin-top:12px"><input id="fm_name" placeholder="Full birth name"><input id="fm_dob" type="date" max="${YEARNOW}-12-31">
    <div class="opts" id="fm_rel">${['Partner','Child','Parent','Sibling','Other'].map((o,i)=>`<span class="opt ${i===0?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
    <button class="btn btn-ghost btn-block" style="margin-top:14px" data-act="fm-add">Add to family</button></div>
@@ -1311,39 +1540,41 @@ function closestPairs(M){if(M.length<2)return{pairs:[],topScore:0};
  const pairs=all.filter(p=>p.birthScore===topBirth).sort((a,b)=>b.score-a.score);
  return{pairs,topScore:topBirth};}
 function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M.length?familyYearSummary(M):null;const tab=S.readingTab||'overview';
+ /* the household bloom: every member's Life Path root, overprinted into one picture */
+ const famRoots=M.map(m=>{try{return m.p.lifePath.root;}catch(e){return null;}}).filter(Boolean);
   const{pairs:closest}=closestPairs(M);
-  const nodes=`<div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${M.map((m,i)=>`<div class="fnode ${(S.famSel||[]).includes(i)?'sel':''}" data-fsel="${i}"><b style="font-family:var(--heading)">${esc(m.first)}</b><div class="muted" style="font-size:.8rem">${m.relationship} · age ${m.intel.age} · LP ${m.profile.lifePath.display}</div><div class="muted" style="font-size:.75rem;margin-top:2px">${m.profile.chinese.birth.animal} · Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</div></div>`).join('')}</div>`;
+  const nodes=`<div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${M.map((m,i)=>`<div class="fnode ${(S.famSel||[]).includes(i)?'sel':''}" data-fsel="${i}"><b style="font-family:var(--display)">${esc(m.first)}</b><div class="muted" style="font-size:.8rem">${m.relationship} · age ${m.intel.age} · LP ${m.profile.lifePath.display}</div><div class="muted" style="font-size:.75rem;margin-top:2px">${m.profile.chinese.birth.animal} · Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</div></div>`).join('')}</div>`;
   let panel='';
   const sel=(S.famSel||[]);
   if(sel.length===2){const cmp=familyCompare(M[sel[0]],M[sel[1]]);
-    panel=`<div class="card" id="fam-compare-panel" style="margin-top:16px;border-color:var(--purple)">
-      <p class="eyebrow" style="color:var(--purple)">${esc(cmp.heading)}</p>
+    panel=`<div class="card" id="fam-compare-panel" style="margin-top:16px;border-color:var(--accent)">
+      <p class="eyebrow" style="color:var(--accent)">${esc(cmp.heading)}</p>
       <h3 style="font-size:1.4rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
       <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
-      <p class="eyebrow" style="margin-top:18px;color:var(--mint)">How to support each other right now</p>
+      <p class="eyebrow" style="margin-top:18px;color:var(--accent-2)">How to support each other right now</p>
       <div style="display:grid;gap:12px;margin-top:10px">
-      ${cmp.support.map(s=>`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.03)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div>
-        <p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--text)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p>
+      ${cmp.support.map(s=>`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;background:#F0EADE">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:2px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--display)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div>
+        <p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--ink)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p>
         <p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p>
       </div>`).join('')}
       </div>
-      <div class="card beam" style="margin-top:14px;background:rgba(124,58,237,.14)"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
-      <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px">
-        <p class="eyebrow" style="color:var(--lilac)">Chinese astrology</p>
-        <p style="margin-top:8px"><b style="font-family:var(--heading)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--heading)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p>
+      <div class="card beam" style="margin-top:14px;background:#E8DEDE"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
+      <div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px">
+        <p class="eyebrow" style="color:var(--stone-2)">Chinese astrology</p>
+        <p style="margin-top:8px"><b style="font-family:var(--display)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--display)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p>
         <p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p>
         <p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p>
       </div>
-      ${cmp.tension?`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--heading)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
+      ${cmp.tension?`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--display)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
       <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>
     </div>`;}
-  else if(sel.length===1){const m=M[sel[0]];panel=`<div class="card" style="margin-top:16px"><h3 style="font-size:1.3rem">${esc(m.first)}'s NumeraFlow</h3><div class="keys" style="margin-top:12px">${m.intel.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}" data-who="${esc(m.first)}"><div class="l">${k.label} ⓘ</div><div class="v">${k.value}</div></div>`).join('')}</div><p class="muted" style="margin-top:12px;font-size:.9rem">${esc(m.intel.corePattern)}</p><div style="margin-top:14px"><button class="btn btn-glow" data-act="fam-view-full" data-favidx="${sel[0]}">See ${esc(m.first)}'s full profile &rarr;</button></div><p class="muted" style="font-size:.82rem;margin-top:10px">Tap a number to learn it · tap a second person to compare.</p></div>`;}
+  else if(sel.length===1){const m=M[sel[0]];panel=`<div class="card" style="margin-top:16px"><h3 style="font-size:1.3rem">${esc(m.first)}'s pattern</h3><div class="keys" style="margin-top:12px">${m.intel.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}" data-who="${esc(m.first)}"><div class="l">${k.label} ⓘ</div><div class="v">${k.value}</div></div>`).join('')}</div><p class="muted" style="margin-top:12px;font-size:.9rem">${esc(m.intel.corePattern)}</p><div style="margin-top:14px"><button class="btn btn-glow" data-act="fam-view-full" data-favidx="${sel[0]}">See ${esc(m.first)}'s full profile &rarr;</button></div><p class="muted" style="font-size:.82rem;margin-top:10px">Tap a number to learn it · tap a second person to compare.</p></div>`;}
   return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px">
-   <section style="text-align:center"><p class="eyebrow">Your Family Blueprint</p><h1 style="font-size:2rem;margin-top:8px">Me · Us · <span class="aurora">All of us</span></h1></section>
+   <section style="text-align:center"><p class="eyebrow onart">Your Family Blueprint</p><h1 style="font-size:2rem;margin-top:8px">Me · Us · <span class="aurora">All of us</span></h1></section>
    ${bp?`<div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:20px"><div class="key"><div class="l">Shared pattern</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.sharedPattern?bp.sharedPattern.label:'—'}</div></div><div class="key"><div class="l">Collective strength</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.collectiveStrength?bp.collectiveStrength.label:'—'}</div></div><div class="key"><div class="l">Main tension</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.tension?bp.tension.title:'Balanced'}</div></div><div class="key"><div class="l">Household now</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.householdTheme||'Steady'}</div></div></div>`:'<p class="muted" style="text-align:center;margin-top:16px">Add at least two people to see the blueprint.</p>'}
    ${M.length?(()=>{const famDay=M.map(m=>{const arch=dailyArchitecture(m.profile,todayStr());const res=dailyResonance(m.profile,m.intel,arch);return{m,arch,res,mk:resonanceMarker(res)};});
-     return `<div class="card" style="margin-top:16px"><p style="font-family:var(--heading);font-weight:700">Family Day · today</p><div style="display:grid;gap:8px;margin-top:10px">${famDay.map(({m,arch,mk})=>`<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:8px"><b style="font-family:var(--heading)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem;text-align:right">Personal Day ${arch.personalDay} · ${esc(DAY_LABEL[arch.personalDay]||'')}${mk?`<br><span style="color:${mk.color};font-size:.78rem">${esc(mk.label)}</span>`:''}</span></div>`).join('')}</div>
+     return `<div class="card" style="margin-top:16px"><p style="font-family:var(--display);font-weight:500">Family Day · today</p><div style="display:grid;gap:8px;margin-top:10px">${famDay.map(({m,arch,mk})=>`<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);padding-top:8px"><b style="font-family:var(--display)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem;text-align:right">Personal Day ${arch.personalDay} · ${esc(DAY_LABEL[arch.personalDay]||'')}${mk?`<br><span style="color:${mk.color};font-size:.78rem">${esc(mk.label)}</span>`:''}</span></div>`).join('')}</div>
      ${M.length>=2?(()=>{const days=famDay.map(f=>f.arch.personalDay);const uniq=[...new Set(days)];const aligned=uniq.length<=Math.ceil(M.length/2);
        const stretched=famDay.filter(f=>f.res&&f.res.type==='stretch').map(f=>f.m.first);
        const resonant=famDay.filter(f=>f.res&&f.res.type==='resonance').map(f=>f.m.first);
@@ -1354,14 +1585,14 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
        return `<p class="muted" style="font-size:.85rem;margin-top:10px">${esc(dyn)}</p>`;})():''}
      <div style="margin-top:10px"><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="view-calendar">View calendar</span></div>
     </div>`;})():''}
-   ${ys&&M.length>=2?`<div class="card beam" style="margin-top:16px"><p class="eyebrow" style="color:var(--mint)">All of us · ${YEARNOW}</p><p style="margin-top:8px;font-size:.95rem">${esc(ys.synth)}</p><div style="margin-top:12px;display:grid;gap:8px">${ys.rows.map(r=>`<div style="border-top:1px solid var(--border);padding-top:8px"><b style="font-family:var(--heading)">${esc(r.name)}</b> <span class="muted" style="font-size:.8rem">· Year ${r.year} ${esc(r.title.toLowerCase())}</span><div class="muted" style="font-size:.85rem;margin-top:2px">${esc(capS(r.short))}</div></div>`).join('')}</div></div>
-   <div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Family timeline · everyone's year</p><div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;margin-top:12px">${[1,2,3,4,5,6,7,8,9].map(n=>{const who=M.filter(m=>m.profile.personalYear===n).map(m=>m.first);return `<div style="text-align:center;min-width:0"><div class="yr ${who.length?'on':''}" style="width:100%;height:38px;font-size:.95rem"><span>${n}</span><small style="overflow-wrap:break-word;word-break:break-word;padding:0 1px">${YEAR_SHORT[YEAR[n].t]||YEAR[n].t}</small></div><div class="muted" style="font-size:.6rem;margin-top:4px;line-height:1.2;overflow-wrap:break-word">${esc(who.join(', '))}</div></div>`;}).join('')}</div></div>`:''}
-   ${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--mint)"><p class="eyebrow" style="color:var(--mint)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--heading)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}
+   ${ys&&M.length>=2?`<div class="card beam" style="margin-top:16px"><p class="eyebrow" style="color:var(--accent-2)">All of us · ${YEARNOW}</p><p style="margin-top:8px;font-size:.95rem">${esc(ys.synth)}</p><div style="margin-top:12px;display:grid;gap:8px">${ys.rows.map(r=>`<div style="border-top:1px solid var(--rule);padding-top:8px"><b style="font-family:var(--display)">${esc(r.name)}</b> <span class="muted" style="font-size:.8rem">· Year ${r.year} ${esc(r.title.toLowerCase())}</span><div class="muted" style="font-size:.85rem;margin-top:2px">${esc(capS(r.short))}</div></div>`).join('')}</div></div>
+   <div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">Family timeline · everyone's year</p><div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;margin-top:12px">${[1,2,3,4,5,6,7,8,9].map(n=>{const who=M.filter(m=>m.profile.personalYear===n).map(m=>m.first);return `<div style="text-align:center;min-width:0"><div class="yr ${who.length?'on':''}" style="width:100%;height:38px;font-size:.95rem"><span>${n}</span><small style="overflow-wrap:break-word;word-break:break-word;padding:0 1px">${YEAR_SHORT[YEAR[n].t]||YEAR[n].t}</small></div><div class="muted" style="font-size:.6rem;margin-top:4px;line-height:1.2;overflow-wrap:break-word">${esc(who.join(', '))}</div></div>`;}).join('')}</div></div>`:''}
+   ${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--rule);border-radius:2px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--display)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}
    <h3 style="font-size:1.2rem;margin-top:26px">Tap a person — or two to compare</h3>
    <div style="margin-top:12px">${nodes}</div>
    ${panel}
-   ${bp?`<div class="card" style="margin-top:16px"><p style="font-family:var(--heading);font-weight:700">Your family in ${YEARNOW}</p>${M.map(m=>`<div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding:8px 0"><b style="font-family:var(--heading)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem">Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</span></div>`).join('')}</div>
-   ${bp.needs?`<div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">What each person needs</p><div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));margin-top:10px">${bp.needs.map(n=>`<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:8px"><b>${esc(n.name)}</b><div class="muted" style="font-size:.85rem">${n.need}</div></div>`).join('')}</div></div>`:''}`:''}
+   ${bp?`<div class="card" style="margin-top:16px"><p style="font-family:var(--display);font-weight:500">Your family in ${YEARNOW}</p>${M.map(m=>`<div style="display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding:8px 0"><b style="font-family:var(--display)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem">Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</span></div>`).join('')}</div>
+   ${bp.needs?`<div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">What each person needs</p><div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));margin-top:10px">${bp.needs.map(n=>`<div style="background:#F0EADE;border:1px solid var(--rule);border-radius:2px;padding:8px"><b>${esc(n.name)}</b><div class="muted" style="font-size:.85rem">${n.need}</div></div>`).join('')}</div></div>`:''}`:''}
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="fam-add-more">+ Add someone</button><button class="btn btn-ghost" data-act="name-match">Name a child</button><button class="btn btn-ghost" data-act="compat">Who suits you</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
   </div></div>`;}
 
@@ -1375,7 +1606,7 @@ function vNameMatch(){
  const bHead=mode==='number'?`Boys' names · Expression ${target}`:"Boys' names that match you";
  return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:640px">
    <p class="eyebrow">Naming a child</p><h1 style="font-size:2rem;margin-top:8px">A name that <span class="aurora">matches you</span></h1>
-   <p class="muted" style="margin-top:10px">Your dominant themes are <b style="color:var(--text)">${parent.domLabels.join(' & ')||'your own blend'}</b>, and your sign is the <b style="color:var(--text)">${parent.animal}</b>. A child whose name carries those will feel instantly familiar — or choose a complementary energy on purpose. A birth date fixes a child's Life Path &amp; animal; the name adds the expression layer on top.</p>
+   <p class="muted" style="margin-top:10px">Your dominant themes are <b style="color:var(--ink)">${parent.domLabels.join(' & ')||'your own blend'}</b>, and your sign is the <b style="color:var(--ink)">${parent.animal}</b>. A child whose name carries those will feel instantly familiar — or choose a complementary energy on purpose. A birth date fixes a child's Life Path &amp; animal; the name adds the expression layer on top.</p>
    <div class="opts" style="margin-top:14px"><span class="opt ${mode==='match'?'sel':''}" data-act="nm-mode-match">Match my energy</span><span class="opt ${mode==='complement'?'sel':''}" data-act="nm-mode-complement">Complement me</span><span class="opt ${mode==='number'?'sel':''}" data-act="nm-mode-number">By number</span></div>
    ${mode==='number'?`<div class="opts" style="margin-top:10px">${[1,2,3,4,5,6,7,8,9,11,22,33].map(n=>`<span class="opt ${target===n?'sel':''}" data-act="nm-num-${n}" style="min-width:44px;text-align:center">${n}</span>`).join('')}</div><p class="muted" style="font-size:.82rem;margin-top:8px">Names whose Expression totals ${target} — ${npFor(target).m}.</p>`:''}
    <div class="card" style="margin-top:16px"><label class="fl">Try any name</label><input id="nm_name" value="${esc(nm.name)}" placeholder="e.g. Georgia"><label class="fl" style="margin-top:12px">Their date of birth — optional (adds Life Path &amp; animal)</label><input id="nm_dob" type="date" value="${esc(nm.dob)}" max="${YEARNOW+1}-12-31"><button class="btn btn-glow btn-block" style="margin-top:14px" data-act="test-name">See the match</button></div>
@@ -1384,13 +1615,13 @@ function vNameMatch(){
    <h3 style="font-size:1.2rem;margin-top:20px">${bHead}</h3><div class="opts" style="margin-top:10px">${boy.map(r=>`<span class="opt" data-name="${esc(r.name)}">${r.name} <span class="muted" style="font-size:.72rem">· ${r.expr.display} ${r.themeLabel}</span></span>`).join('')}</div>
    <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="dashboard">Back</span></p>
  </div></div>`;}
-function nameResultCard(r){return `<div class="card beam" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3 style="font-size:1.4rem">${esc(r.name)}</h3><span style="background:var(--mint);color:var(--ink);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:999px">${r.verdict}</span></div>
+function nameResultCard(r){return `<div class="card beam" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3 style="font-size:1.4rem">${esc(r.name)}</h3><span style="background:var(--accent-2);color:var(--on-accent);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:2px">${r.verdict}</span></div>
  <p class="muted" style="margin-top:8px">${esc(r.why)}</p>
  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
-  ${[['Expression',r.expr],['Soul urge',r.soul],['Personality',r.pers]].map(([l,c])=>`<div style="text-align:center"><div class="muted" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em">${l}</div><div style="font-family:var(--heading);font-weight:800;font-size:1.5rem;color:var(--purple)">${c.display}</div></div>`).join('')}
+  ${[['Expression',r.expr],['Soul urge',r.soul],['Personality',r.pers]].map(([l,c])=>`<div style="text-align:center"><div class="muted" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em">${l}</div><div style="font-family:var(--display);font-weight:500;font-size:1.5rem;color:var(--accent)">${c.display}</div></div>`).join('')}
  </div>
  <p class="muted" style="font-size:.84rem;margin-top:12px">Expression ${r.expr.display} — ${npFor(r.expr.number).m}.</p>
- ${r.life?`<div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px"><p style="font-size:.9rem"><b style="font-family:var(--heading)">With that birth date:</b> Life Path <b style="color:var(--purple)">${r.life}</b> · ${r.animal}</p><p class="muted" style="font-size:.84rem;margin-top:6px">${esc(r.animalR)}</p></div>`:''}
+ ${r.life?`<div style="border-top:1px solid var(--rule);margin-top:12px;padding-top:12px"><p style="font-size:.9rem"><b style="font-family:var(--display)">With that birth date:</b> Life Path <b style="color:var(--accent)">${r.life}</b> · ${r.animal}</p><p class="muted" style="font-size:.84rem;margin-top:6px">${esc(r.animalR)}</p></div>`:''}
 </div>`;}
 
 /* ---------- number meanings glossary ---------- */
@@ -1399,37 +1630,41 @@ function nameResultCard(r){return `<div class="card beam" style="margin-top:16px
 // doesn't cover) rather than the short NP one-liner this page used to show -- no reason the standalone
 // glossary should be shallower than tapping the same number inside a reading.
 function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33,44];
- const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--border);padding:8px 0"><b style="color:${col};font-size:.78rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${txt}</div></div>`:'';
+ const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--rule);padding:8px 0"><b style="color:${col};font-size:.78rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${txt}</div></div>`:'';
  return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:680px">
-  <p class="eyebrow">Learn</p><h1 style="font-size:2rem;margin-top:8px">Every number &amp; theme, explained</h1>
+  
+  <p class="eyebrow onart">Learn</p><h1 class="onart" style="font-size:2rem;margin-top:8px">Every number &amp; theme, explained</h1>
+
   <p class="muted" style="margin-top:8px">Your place to learn it yourself. 1–9 are the core numbers; 11, 22, 33 and 44 are the master numbers. Full depth on every one — the same read you'd get tapping that number inside your own reading.</p>
   <div style="display:grid;gap:14px;margin-top:20px">${nums.map(n=>{const np=npFor(n);const deep=LIFEPATH_DEEP[n]||{};const arch=ARCHETYPE[n]||{};const isMaster=MM.includes(n);
-    return `<div class="card"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-family:var(--heading);font-weight:800;font-size:2.2rem;color:${isMaster?'var(--mint)':'var(--purple)'};min-width:52px">${n}</span><div><b style="font-family:var(--heading)">${(np.t.map(t=>LABEL[t]||t).join(' · '))||'—'}</b>${isMaster?' <span class="muted" style="font-size:.7rem">· master</span>':''}<div class="muted" style="font-size:.82rem">Needs: ${NEEDL[np.need]||np.need}</div></div></div>
-     <p style="margin-top:12px;font-size:.95rem;line-height:1.55">${toGeneric(deep.essence||arch.core||np.m+'.')}</p>
-     <div style="margin-top:8px">${row('STRENGTHS',toGeneric(deep.strengths||arch.strengths),'var(--mint)')}${row('THE CHALLENGE',toGeneric(deep.challenge||arch.shadow),'var(--lilac)')}${row('IN LOVE',toGeneric(deep.love),'var(--purple)')}${row('AT WORK',toGeneric(deep.work),'var(--purple)')}${row('THE MISSION',toGeneric(deep.mission||arch.lesson),'var(--mint)')}</div>
-     ${deep.pattern?`<p class="muted" style="font-size:.8rem;font-style:italic;margin-top:10px">${toGeneric(deep.pattern)}</p>`:''}
+    return `<div class="card"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-family:var(--display);font-weight:500;font-size:2.2rem;color:${isMaster?'var(--accent-2)':'var(--accent)'};min-width:52px">${n}</span><div><b style="font-family:var(--display)">${(np.t.map(t=>LABEL[t]||t).join(' · '))||'—'}</b>${isMaster?' <span class="muted" style="font-size:.7rem">· master</span>':''}<div class="muted" style="font-size:.82rem">Needs: ${NEEDL[np.need]||np.need}</div></div></div>
+     <details class="numdet"><summary><span class="sm-open">Read the full meaning</span><span class="sm-shut">Close</span></summary>
+      <p style="margin-top:12px;font-size:.95rem;line-height:1.55">${toGeneric(deep.essence||arch.core||np.m+'.')}</p>
+      <div style="margin-top:8px">${row('STRENGTHS',toGeneric(deep.strengths||arch.strengths),'var(--accent-2)')}${row('THE CHALLENGE',toGeneric(deep.challenge||arch.shadow),'var(--stone-2)')}${row('IN LOVE',toGeneric(deep.love),'var(--accent)')}${row('AT WORK',toGeneric(deep.work),'var(--accent)')}${row('THE MISSION',toGeneric(deep.mission||arch.lesson),'var(--accent-2)')}</div>
+      ${deep.pattern?`<p class="muted" style="font-size:.8rem;font-style:italic;margin-top:10px">${toGeneric(deep.pattern)}</p>`:''}
+     </details>
     </div>`;}).join('')}</div>
   <h2 style="font-size:1.5rem;margin-top:32px">Karmic Debt &amp; the Wealth Number</h2>
   <p class="muted" style="margin-top:6px">A handful of compound numbers carry a specific lesson of their own — never just flattened to their root.</p>
   <div style="display:grid;gap:10px;margin-top:16px">
-   <div class="card" style="border-color:var(--mint)"><b style="font-family:var(--heading);color:var(--mint)">💰 ${esc(WEALTH_NUMBER.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${toGeneric(WEALTH_NUMBER.lesson)}</p></div>
-   ${Object.values(KARMIC_DEBT).map(kd=>`<div class="card" style="border-color:#fbbf24"><b style="font-family:var(--heading);color:#fbbf24">⚡ ${esc(kd.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${toGeneric(kd.lesson)}</p></div>`).join('')}
+   <div class="card" style="border-color:var(--accent-2)"><b style="font-family:var(--display);color:var(--accent-2)">💰 ${esc(WEALTH_NUMBER.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${toGeneric(WEALTH_NUMBER.lesson)}</p></div>
+   ${Object.values(KARMIC_DEBT).map(kd=>`<div class="card" style="border-color:#8A5A08"><b style="font-family:var(--display);color:#8A5A08">⚡ ${esc(kd.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${toGeneric(kd.lesson)}</p></div>`).join('')}
   </div>
   <h2 style="font-size:1.5rem;margin-top:32px">The themes explained</h2>
   <p class="muted" style="margin-top:6px">The recurring patterns numbers point to — what each looks like at its best, its shadow, and how to grow with it.</p>
-  <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--heading);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--mint)">At its best:</b> <span class="muted">${toGeneric(ti.best)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--lilac)">Shadow:</b> <span class="muted">${toGeneric(ti.shadow)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--purple)">Grow:</b> <span class="muted">${toGeneric(ti.grow)}.</span></p></div>`).join('')}</div>
+  <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--display);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--accent-2)">At its best:</b> <span class="muted">${toGeneric(ti.best)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--stone-2)">Shadow:</b> <span class="muted">${toGeneric(ti.shadow)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--accent)">Grow:</b> <span class="muted">${toGeneric(ti.grow)}.</span></p></div>`).join('')}</div>
   <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="glossary-back">&larr; Back to where you were</span></p>
  </div></div>`;}
 
 function renderCompare(cmp){return `
- <p class="eyebrow" style="color:var(--purple)">${esc(cmp.heading)}</p>
+ <p class="eyebrow" style="color:var(--accent)">${esc(cmp.heading)}</p>
  <h3 style="font-size:1.3rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
  <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
- <p class="eyebrow" style="margin-top:16px;color:var(--mint)">How to support each other</p>
- <div style="display:grid;gap:12px;margin-top:10px">${cmp.support.map(s=>`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(255,255,255,.03)"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--mint);color:var(--ink);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--heading)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div><p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--text)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p><p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p></div>`).join('')}</div>
- <div class="card beam" style="margin-top:14px;background:rgba(124,58,237,.14)"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
- <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow" style="color:var(--lilac)">Chinese astrology</p><p style="margin-top:8px"><b style="font-family:var(--heading)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--heading)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p></div>
- ${cmp.tension?`<div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--heading)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
+ <p class="eyebrow" style="margin-top:16px;color:var(--accent-2)">How to support each other</p>
+ <div style="display:grid;gap:12px;margin-top:10px">${cmp.support.map(s=>`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;background:#F0EADE"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:2px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--display)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div><p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--ink)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p><p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p></div>`).join('')}</div>
+ <div class="card beam" style="margin-top:14px;background:#E8DEDE"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
+ <div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px"><p class="eyebrow" style="color:var(--stone-2)">Chinese astrology</p><p style="margin-top:8px"><b style="font-family:var(--display)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--display)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p></div>
+ ${cmp.tension?`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--display)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
  <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>`;}
 /* ---------- who suits you (numbers + chinese) ---------- */
 const LP_COMPAT={1:[3,5,9],2:[6,8,9],3:[1,5,9],4:[2,6,7],5:[1,3,7],6:[2,3,9],7:[4,5],8:[2,4,6],9:[1,3,6]};
@@ -1443,22 +1678,22 @@ function vCompat(){
  const opposite=ANIMALS[(ai+6)%12];const secret=SECRET[animal];
  const cw=S.compat||{name:'',dob:''};const saved=S.savedPairings||[];let pairing='';
  if(cw.name&&cw.dob&&/^\d{4}-\d{2}-\d{2}$/.test(cw.dob)){const meM={first:S.me.first||'You',relationship:'self',profile:p,intel:buildIntelligence(p)};const tp=buildProfile(cw.dob,cw.name,'','',YEARNOW);const tm={first:cw.name.split(' ')[0],relationship:'other',profile:tp,intel:buildIntelligence(tp)};pairing='<div class="card beam" style="margin-top:16px">'+renderCompare(familyCompare(meM,tm))+'<button class="btn btn-ghost btn-block" style="margin-top:14px" data-act="save-pairing">Save this pairing</button></div>';}
- const savedHtml=saved.length?`<div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Saved pairings</p><div class="opts" style="margin-top:10px">${saved.map((s,i)=>`<span class="opt" data-savedpair="${i}">${esc(s.name)}</span>`).join('')}</div></div>`:'';
+ const savedHtml=saved.length?`<div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">Saved pairings</p><div class="opts" style="margin-top:10px">${saved.map((s,i)=>`<span class="opt" data-savedpair="${i}">${esc(s.name)}</span>`).join('')}</div></div>`:'';
  return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:640px">
   <p class="eyebrow">Who suits you</p><h1 style="font-size:2rem;margin-top:8px">Your best matches</h1>
   <p class="muted" style="margin-top:8px">Based on your Life Path ${p.lifePath.display} and your ${animal} sign — across both systems.</p>
-  <div class="card" style="margin-top:18px"><p class="eyebrow" style="color:var(--purple)">By numbers · Life Path ${lp}</p>
-   <p style="margin-top:8px">Naturally harmonious Life Paths: <b style="font-family:var(--heading);color:var(--text)">${comp.join(', ')||'you blend widely'}</b></p>
-   <div style="margin-top:10px">${comp.map(n=>`<div style="border-top:1px solid var(--border);padding:8px 0"><b>Life Path ${n}</b> <span class="muted" style="font-size:.85rem">— shares ${LABEL[npFor(n).t[0]]||'common ground'}; ${npFor(n).m}.</span></div>`).join('')}</div>
+  <div class="card" style="margin-top:18px"><p class="eyebrow" style="color:var(--accent)">By numbers · Life Path ${lp}</p>
+   <p style="margin-top:8px">Naturally harmonious Life Paths: <b style="font-family:var(--display);color:var(--ink)">${comp.join(', ')||'you blend widely'}</b></p>
+   <div style="margin-top:10px">${comp.map(n=>`<div style="border-top:1px solid var(--rule);padding:8px 0"><b>Life Path ${n}</b> <span class="muted" style="font-size:.85rem">— shares ${LABEL[npFor(n).t[0]]||'common ground'}; ${npFor(n).m}.</span></div>`).join('')}</div>
    <p class="muted" style="font-size:.82rem;margin-top:8px">Harmony isn't everything — difference can be the making of a pairing. This is where things flow easiest.</p>
   </div>
-  <div class="card" style="margin-top:14px"><p class="eyebrow" style="color:var(--lilac)">By Chinese astrology · ${animal}</p>
-   <p style="margin-top:8px">Your trine allies: <b style="font-family:var(--heading);color:var(--text)">${trine.join(' & ')}</b> — natural allies who move at your rhythm.</p>
-   <p style="margin-top:8px">Your secret friend: <b style="font-family:var(--heading);color:var(--text)">${secret}</b> — a quietly steadying, protective match.</p>
-   <p style="margin-top:8px">Trickiest: <b style="font-family:var(--heading);color:var(--text)">${opposite}</b> — your opposite sign; real friction, but it keeps you honest.</p>
+  <div class="card" style="margin-top:14px"><p class="eyebrow" style="color:var(--stone-2)">By Chinese astrology · ${animal}</p>
+   <p style="margin-top:8px">Your trine allies: <b style="font-family:var(--display);color:var(--ink)">${trine.join(' & ')}</b> — natural allies who move at your rhythm.</p>
+   <p style="margin-top:8px">Your secret friend: <b style="font-family:var(--display);color:var(--ink)">${secret}</b> — a quietly steadying, protective match.</p>
+   <p style="margin-top:8px">Trickiest: <b style="font-family:var(--display);color:var(--ink)">${opposite}</b> — your opposite sign; real friction, but it keeps you honest.</p>
   </div>
   ${savedHtml}
-  <div class="card" style="margin-top:14px"><p style="font-family:var(--heading);font-weight:700">Check anyone</p><p class="muted" style="font-size:.85rem;margin-top:4px">Enter a name and birth date for a full pairing reading — numbers, timing and Chinese astrology together.</p><div style="display:grid;gap:10px;margin-top:12px"><input id="cw_name" value="${esc(cw.name)}" placeholder="Their name"><input id="cw_dob" type="date" value="${esc(cw.dob)}" max="${YEARNOW}-12-31"></div><button class="btn btn-glow btn-block" style="margin-top:12px" data-act="test-compat">See our compatibility</button></div>
+  <div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">Check anyone</p><p class="muted" style="font-size:.85rem;margin-top:4px">Enter a name and birth date for a full pairing reading — numbers, timing and Chinese astrology together.</p><div style="display:grid;gap:10px;margin-top:12px"><input id="cw_name" value="${esc(cw.name)}" placeholder="Their name"><input id="cw_dob" type="date" value="${esc(cw.dob)}" max="${YEARNOW}-12-31"></div><button class="btn btn-glow btn-block" style="margin-top:12px" data-act="test-compat">See our compatibility</button></div>
   ${pairing}
   <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="dashboard">Back</span></p>
  </div></div>`;}
@@ -1567,7 +1802,7 @@ function openFamEditModal(idx){const m=S.family[idx];if(!m)return;const sm=docum
    <div><label class="fl">Relationship</label><div class="opts" id="fe_rel">${['Partner','Child','Parent','Sibling','Other'].map(o=>`<span class="opt ${o.toLowerCase()===m.relationship?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
   </div>
   <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="fam-edit-save" data-famidx="${idx}">Save changes</button>
-  <button class="btn btn-ghost btn-block" style="margin-top:10px;color:#f9a8a8" data-act="fam-edit-remove" data-famidx="${idx}">Remove from family</button>
+  <button class="btn btn-ghost btn-block" style="margin-top:10px;color:#9B3520" data-act="fam-edit-remove" data-famidx="${idx}">Remove from family</button>
  </div>`;
  sm.classList.add('on');}
 function famEditSave(idx){const n=val('fe_name'),d=val('fe_dob');const rel=document.querySelector('#fe_rel .opt.sel')?.dataset.rel||S.family[idx].relationship;
@@ -1585,12 +1820,28 @@ const _origRender=render;
 render=function(){_origRender();if(S.screen==='me_reveal'){document.querySelectorAll('[data-count]').forEach(el=>{if(el.dataset.count)countTo(el,+el.dataset.count,el.dataset.final);});}};
 
 /* particles */
-(function(){const c=document.getElementById('stars'),x=c.getContext('2d');let ps=[];const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;const dpr=devicePixelRatio||1;
- function rs(){c.width=innerWidth*dpr;c.height=innerHeight*dpr;x.setTransform(dpr,0,0,dpr,0,0);ps=Array.from({length:110},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*2.2+.6,a:Math.random()*.55+.35,tw:(Math.random()*.012+.005)*(Math.random()>.5?1:-1),c:Math.random()<.22?'110,231,183':(Math.random()<.5?'216,180,254':'167,139,250')}));}
- function draw(an){x.clearRect(0,0,innerWidth,innerHeight);ps.forEach(p=>{if(an){p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=innerWidth;if(p.x>innerWidth)p.x=0;if(p.y<0)p.y=innerHeight;if(p.y>innerHeight)p.y=0;p.a+=p.tw;if(p.a>.95||p.a<.15)p.tw*=-1;}x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fillStyle='rgba('+p.c+','+p.a+')';x.fill();});}
- function loop(){draw(true);requestAnimationFrame(loop);}rs();addEventListener('resize',rs);reduce?draw(false):loop();})();
+/* The ambient field. Was a drifting starfield — floating particles and cosmic imagery,
+   both of which this brand explicitly rejects. Replaced with the identity's own device:
+   the registration grid of positions NOT taken. Deliberately static — NUMIO only moves
+   when something has actually been calculated. */
+(function(){
+ const c=document.getElementById('stars'),x=c.getContext('2d');
+ const dpr=devicePixelRatio||1, GAP=34;
+ function draw(){
+  c.width=innerWidth*dpr;c.height=innerHeight*dpr;
+  x.setTransform(dpr,0,0,dpr,0,0);
+  x.clearRect(0,0,innerWidth,innerHeight);
+  for(let gx=GAP/2; gx<innerWidth; gx+=GAP){
+   for(let gy=GAP/2; gy<innerHeight; gy+=GAP){
+    x.beginPath();x.arc(gx,gy,1,0,7);
+    x.fillStyle='rgba(120,119,106,.16)';x.fill();
+   }
+  }
+ }
+ draw();addEventListener('resize',draw);
+})();
 
-/* Install prompt popup — offers to add NumeraFlow to the home screen. Chrome/Edge/Android support a real
+/* Install prompt popup — offers to add NUMIO to the home screen. Chrome/Edge/Android support a real
    one-tap native install via beforeinstallprompt; iOS Safari blocks any app from triggering install
    programmatically at all (an Apple platform restriction with no code workaround), so there the same
    button shows the Share -> Add to Home Screen steps instead. Never shown once already installed
@@ -1623,22 +1874,22 @@ function showInstallPopup(){
  const androidFallback=!ios&&!__deferredInstall;
  m.innerHTML=`<div class="mbox" style="text-align:center"><button class="mclose" data-act="install-dismiss" aria-label="Close">✕</button>
   <div class="instmk">✦</div>
-  <p style="margin-top:14px;font-family:var(--heading);font-weight:800;font-size:1.4rem">Get NumeraFlow</p>
+  <p style="margin-top:14px;font-family:var(--display);font-weight:500;font-size:1.4rem">Get NUMIO</p>
   <p class="muted" style="margin-top:6px;font-size:.9rem">Add it to your home screen for one-tap access to your reading and Today's numbers — no app store, nothing to download and manage, just a tap.</p>
   ${ios?`<div style="margin-top:16px">
-   <div class="inststep"><span class="n">1</span><span class="muted" style="font-size:.88rem">Tap the <b style="color:var(--text)">Share</b> icon in Safari's toolbar (the square with an arrow).</span></div>
-   <div class="inststep"><span class="n">2</span><span class="muted" style="font-size:.88rem">Scroll down and tap <b style="color:var(--text)">Add to Home Screen</b>.</span></div>
-   <div class="inststep"><span class="n">3</span><span class="muted" style="font-size:.88rem">Tap <b style="color:var(--text)">Add</b> — that's it.</span></div>
+   <div class="inststep"><span class="n">1</span><span class="muted" style="font-size:.88rem">Tap the <b style="color:var(--ink)">Share</b> icon in Safari's toolbar (the square with an arrow).</span></div>
+   <div class="inststep"><span class="n">2</span><span class="muted" style="font-size:.88rem">Scroll down and tap <b style="color:var(--ink)">Add to Home Screen</b>.</span></div>
+   <div class="inststep"><span class="n">3</span><span class="muted" style="font-size:.88rem">Tap <b style="color:var(--ink)">Add</b> — that's it.</span></div>
   </div>
   <p class="muted" style="font-size:.76rem;margin-top:12px">iPhone requires this manual step — Apple doesn't let any web app trigger install automatically.</p>
   <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="install-dismiss">Got it</button>`:
   androidFallback?`<div style="margin-top:16px">
-   <div class="inststep"><span class="n">1</span><span class="muted" style="font-size:.88rem">Tap your browser's menu button (usually <b style="color:var(--text)">⋮</b> in the top-right corner).</span></div>
-   <div class="inststep"><span class="n">2</span><span class="muted" style="font-size:.88rem">Look for <b style="color:var(--text)">Install app</b> or <b style="color:var(--text)">Add to Home Screen</b> and tap it.</span></div>
+   <div class="inststep"><span class="n">1</span><span class="muted" style="font-size:.88rem">Tap your browser's menu button (usually <b style="color:var(--ink)">⋮</b> in the top-right corner).</span></div>
+   <div class="inststep"><span class="n">2</span><span class="muted" style="font-size:.88rem">Look for <b style="color:var(--ink)">Install app</b> or <b style="color:var(--ink)">Add to Home Screen</b> and tap it.</span></div>
   </div>
   <p class="muted" style="font-size:.76rem;margin-top:12px">Your browser didn't offer a one-tap install here, so this is the manual route — the exact wording varies by browser.</p>
   <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="install-dismiss">Got it</button>`:
-  `<button class="btn btn-glow btn-block" style="margin-top:20px" data-act="install-go">⬇ Download NumeraFlow</button>
+  `<button class="btn btn-glow btn-block" style="margin-top:20px" data-act="install-go">⬇ Download NUMIO</button>
   <p class="muted" style="font-size:.78rem;margin-top:12px;cursor:pointer;text-decoration:underline" data-act="install-dismiss">Not now</p>`}
  </div>`;
  m.classList.add('on');
