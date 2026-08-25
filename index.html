@@ -297,25 +297,42 @@
   /* The story, told by scrolling, on the landing page itself rather than behind a button.
      Below 900px each beat carries its own screen inline; above it the screens stack in a sticky
      frame and cross-fade as the beat beside them becomes the one you are reading. */
+  /* Phones get the sticky frame too — they are most of the traffic, and a flat stack of pictures
+     is not a story being told. The screen holds still at the top of the viewport while the words
+     scroll underneath it and it cross-fades from beat to beat; on a wide screen the same frame
+     moves to the right-hand column instead. */
   .story{position:relative;margin-top:26px;}
-  .sbeat{padding:30px 0;border-top:1px solid var(--rule);max-width:520px;}
-  .sbeat:first-child{border-top:0;}
+  /* On a phone the frame holds the top of the viewport, so each beat's words have to live in the
+     band underneath it — aligned to the bottom of a tall box rather than centred in one, which
+     would put them behind the picture at exactly the moment you are meant to be reading them. */
+  .sbeat{padding:30px 0 4vh;max-width:520px;min-height:80vh;
+    display:flex;flex-direction:column;justify-content:flex-end;}
   .sidx{font-family:var(--ui);font-size:.68rem;font-weight:800;letter-spacing:.16em;color:var(--accent-2);}
   .sbeat h3{font-family:var(--display);font-weight:600;font-size:1.55rem;margin:8px 0 0;line-height:1.15;}
   .sbeat p{color:var(--ink-2);margin-top:10px;font-size:1rem;line-height:1.6;}
-  .shot{display:block;width:100%;max-width:270px;height:auto;margin:18px 0 0;border-radius:20px;
-    border:1px solid var(--rule);background:var(--surface);box-shadow:0 10px 26px rgba(35,26,21,.09);}
-  .stage{display:none;}
+  .shot{display:none;}   /* the sticky frame carries the pictures at every width now */
+  /* z-index 3 and an opaque ground, both load-bearing. .bfade applies a filter, and any filter
+     makes a stacking context, so without this the beats paint over the sticky frame instead of
+     sliding behind it — the words and the picture ended up on top of each other. The negative
+     margins let the ground reach the full width of the page inside a padded wrap. */
+  .stage{display:block;position:sticky;top:calc(10px + env(safe-area-inset-top));height:38vh;
+    margin:0 -20px 6px;padding:0 20px;z-index:3;pointer-events:none;background:var(--paper);}
+  .stage img{position:absolute;top:0;left:50%;height:100%;width:auto;max-width:100%;
+    border-radius:20px;border:1px solid var(--rule);background:var(--surface);
+    box-shadow:0 14px 34px rgba(35,26,21,.11);opacity:0;
+    transform:translateX(-50%) scale(.97);
+    transition:opacity .45s cubic-bezier(.16,1,.3,1),transform .45s cubic-bezier(.16,1,.3,1);}
+  .stage img.on{opacity:1;transform:translateX(-50%);}
+  /* The frame is sticky, so the first beat has to start level with it rather than above it. */
+  .story>.beats{margin-top:-2px;}
   @media(min-width:900px){
     .story{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:52px;align-items:start;}
-    .sbeat{padding:56px 0;}
-    .shot{display:none;}
-    .stage{display:block;position:sticky;top:96px;height:640px;}
-    .stage img{position:absolute;top:0;left:0;width:100%;height:auto;border-radius:22px;
-      border:1px solid var(--rule);background:var(--surface);box-shadow:0 14px 34px rgba(35,26,21,.11);
-      opacity:0;transform:scale(.985) translateY(6px);
-      transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1);}
-    .stage img.on{opacity:1;transform:none;}
+    .story>.beats{order:1;margin-top:0;}
+    /* Two columns, so nothing can overlap and the ground is not needed. */
+    .stage{order:2;top:96px;height:640px;margin:0;padding:0;background:none;}
+    .stage img{left:0;width:100%;height:auto;transform:scale(.985) translateY(6px);}
+    .stage img.on{transform:none;}
+    .sbeat{padding:56px 0;min-height:0;display:block;}
   }
   @media(prefers-reduced-motion:reduce){.stage img{transition:none;}}
 
@@ -1752,10 +1769,14 @@ function muStory(root){
   const show=function(key){
     root.querySelectorAll('.stage img').forEach(function(im){
       im.classList.toggle('on',im.id==='stage-'+key);});};
+  /* Watch the words, not the block they sit in. On a phone a beat is 80vh tall with its text at the
+     bottom, so observing the block put the picture a whole beat ahead of what you were reading —
+     the frame had moved on to 02 while 01's paragraph was still the only thing on screen. */
   muStoryIO=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){ if(en.isIntersecting) show(en.target.dataset.shot); });
-  },{rootMargin:'-35% 0px -35% 0px',threshold:0});
-  beats.forEach(function(b){muStoryIO.observe(b);});
+    entries.forEach(function(en){
+      if(en.isIntersecting) show(en.target.closest('.sbeat').dataset.shot); });
+  },{rootMargin:'-30% 0px -20% 0px',threshold:0});
+  beats.forEach(function(b){ const words=b.querySelector('h3')||b; muStoryIO.observe(words); });
   show(beats[0].dataset.shot);   /* something is always showing, including before the first scroll */
 }
 
@@ -1845,7 +1866,15 @@ function vLanding(){return topbar()+`<div class="screen">
       <p class="muted" style="margin-top:10px;font-size:.95rem">Real screens. Keep scrolling.</p>
     </div>
     <div class="story">
-      <div>
+      <div class="stage" aria-hidden="true">
+        <img id="stage-reveal" src="shot-reveal.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-reading" src="shot-reading.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-today" src="shot-today.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-calendar" src="shot-calendar.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-family" src="shot-family.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-working" src="shot-working.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+      </div>
+      <div class="beats">
       <article class="sbeat bfade" data-shot="reveal">
         <span class="sidx">01</span>
         <h3>Nine numbers, not one</h3>
@@ -1882,14 +1911,6 @@ function vLanding(){return topbar()+`<div class="screen">
         <p>Every number explained in plain English, with the arithmetic on the page. Month, day and year each reduced on their own, then added once. No mysticism you have to take on faith.</p>
         <img class="shot" src="shot-working.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="The calculation panel, showing each component reduced and then summed.">
       </article>
-      </div>
-      <div class="stage" aria-hidden="true">
-        <img id="stage-reveal" src="shot-reveal.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
-        <img id="stage-reading" src="shot-reading.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
-        <img id="stage-today" src="shot-today.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
-        <img id="stage-calendar" src="shot-calendar.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
-        <img id="stage-family" src="shot-family.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
-        <img id="stage-working" src="shot-working.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
       </div>
     </div>
   </div>
