@@ -2,10 +2,10 @@
 // even without a network round-trip. The HTML shell itself is network-first (always prefer the freshest
 // deploy when online); only truly static sub-assets (icons, manifest) are cache-first. This avoids the
 // classic PWA trap of a service worker permanently serving a stale app after a new version ships.
-const CACHE = 'numeraflow-shell-v2';
+const CACHE = 'numeraflow-shell-v3';
 // The background field and the animated mark are brand, not decoration — precache them
 // so a cold or flaky start still opens as NUMIO rather than as bare paper.
-const STATIC = ['manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-180.png',
+const STATIC = ['manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-180.png',
   'art/field.jpg', 'art/numio-mark.webm', 'art/numio-mark.mp4', 'art/numio-mark.jpg'];
 
 self.addEventListener('install', e => {

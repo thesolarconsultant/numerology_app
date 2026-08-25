@@ -10,9 +10,9 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://numerology.lifestyle/">
 <link rel="canonical" href="https://numerology.lifestyle/">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="NUMIO">
@@ -296,18 +296,23 @@
      what makes it read as a brand instead of a decorated homepage. The four
      source pieces are composited into it, so there is nothing left to line up
      and nothing to split. */
+  /* No blend mode and no opacity here on purpose. The strength is baked into
+     field.jpg itself, because mix-blend-mode on a position:fixed layer is the
+     one thing Safari cannot be relied on to composite — it hands such a layer
+     to the compositor and can blend it against nothing, which shows up as the
+     background simply not appearing. An image that is already the finished
+     result cannot fail that way. */
   #artfield{position:fixed;inset:0;z-index:0;pointer-events:none;
     background-image:url('art/field.jpg');background-repeat:no-repeat;
-    background-size:cover;background-position:center top;
-    mix-blend-mode:multiply;opacity:.26;}
+    background-size:cover;background-position:center top;}
   .hero .wrap{position:relative;z-index:1;}
   .bloomcap{font-size:.78rem;color:var(--stone);margin-top:9px;font-weight:600;}
 </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
 <div id="artfield" aria-hidden="true"></div>
+<canvas id="stars"></canvas>
 <div id="app"></div>
 <div id="nummodal" class="modal"></div>
 <div id="sysmodal" class="modal"></div>
