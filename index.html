@@ -303,7 +303,7 @@
      background simply not appearing. An image that is already the finished
      result cannot fail that way. */
   #artfield{position:fixed;inset:0;z-index:0;pointer-events:none;
-    background-image:url('art/field.jpg');background-repeat:no-repeat;
+    background-image:url('field.jpg');background-repeat:no-repeat;
     background-size:cover;background-position:center top;}
   .hero .wrap{position:relative;z-index:1;}
   .bloomcap{font-size:.78rem;color:var(--stone);margin-top:9px;font-weight:600;}
@@ -1147,7 +1147,7 @@ function render(){
 // The wordmark shrinks to icon-only on those screens to make room without squeezing the topbar on mobile.
 function topbar(){const returning=hasMe();const acct=S.account;const label=acct?esc(acct.name.split(' ')[0]||'Account'):(returning?'My profile':'Log in');const act=returning?'dashboard':'auth';
  const showBack=!ROOT_SCREENS.includes(S.screen);
- return `<div class="top"><div class="left"><span class="backbtn" data-act="nav-back" aria-label="Back" title="Back" style="${showBack?'':'display:none'}">‹</span><div class="logo" data-act="home" aria-label="NUMIO"><span class="lgtext">NUMI<span class="mk"></span></span><video class="logovid" poster="art/numio-mark.jpg" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"><source src="art/numio-mark.webm" type="video/webm"><source src="art/numio-mark.mp4" type="video/mp4"></video></div></div><div class="r"><span class="btn btn-ghost" data-act="glossary" style="padding:7px 10px;font-size:.78rem" title="What every number means">Numbers</span><span class="btn btn-ghost" data-act="${act}" style="padding:7px 12px;font-size:.82rem">${label}</span></div></div>`;}
+ return `<div class="top"><div class="left"><span class="backbtn" data-act="nav-back" aria-label="Back" title="Back" style="${showBack?'':'display:none'}">‹</span><div class="logo" data-act="home" aria-label="NUMIO"><span class="lgtext">NUMI<span class="mk"></span></span><video class="logovid" poster="numio-mark.jpg" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"><source src="numio-mark.webm" type="video/webm"><source src="numio-mark.mp4" type="video/mp4"></video></div></div><div class="r"><span class="btn btn-ghost" data-act="glossary" style="padding:7px 10px;font-size:.78rem" title="What every number means">Numbers</span><span class="btn btn-ghost" data-act="${act}" style="padding:7px 12px;font-size:.82rem">${label}</span></div></div>`;}
 
 /* ---------- landing ---------- */
 function vLanding(){return topbar()+`<div class="screen">
