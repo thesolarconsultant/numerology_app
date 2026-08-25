@@ -30,7 +30,8 @@ export default async function handler(req, res) {
     return res.status(ready ? 200 : 500).json({
       ok: ready,
       database: ready ? 'ready' : 'incomplete',
-      tables,
+      tables: { profiles: tables.profiles, events: tables.events },
+      columns: tables.columns,
       created: !before.profiles || !before.events,
     });
   } catch (e) {

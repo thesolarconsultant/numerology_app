@@ -243,11 +243,17 @@ export async function withSchema(run) {
   }
 }
 
-// Does the schema exist right now? to_regclass answers without throwing on a missing table.
+// What this database actually has right now. Column names as well as tables, because a schema
+// change that only adds a column is invisible if you only ask whether the tables exist — and that
+// is precisely the change most likely to be sitting un-applied on a database that predates it.
+// Names only; no rows, no counts, nothing about anybody.
 export async function schemaState() {
   const { rows } = await sql`
-    SELECT to_regclass('public.profiles') IS NOT NULL AS profiles,
-           to_regclass('public.events')   IS NOT NULL AS events
+    SELECT table_name, column_name FROM information_schema.columns
+    WHERE table_schema = current_schema() AND table_name IN ('profiles', 'events')
+    ORDER BY table_name, ordinal_position
   `;
-  return { profiles: !!rows[0].profiles, events: !!rows[0].events };
+  const columns = { profiles: [], events: [] };
+  for (const r of rows) columns[r.table_name].push(r.column_name);
+  return { profiles: columns.profiles.length > 0, events: columns.events.length > 0, columns };
 }
