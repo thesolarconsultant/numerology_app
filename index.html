@@ -233,19 +233,24 @@
      an empty gap. The clip is graded so its own ground is the paper colour:
      blend modes are unreliable on video, which a compositor hands to its own
      layer, so the ground has to match rather than be blended away. */
+  /* The still and the clip are the same artwork at the same size, stacked. The
+     worst case is therefore this logo standing still, not a different logo
+     appearing — there is no drawn stand-in left in the nav at all. */
   .logo{position:relative;}
-  .logo .logovid{position:absolute;left:-.30em;top:50%;transform:translateY(-50%);
-    height:1.95em;width:auto;opacity:0;pointer-events:none;
+  .logo .markbox{position:relative;display:block;height:1.95em;margin-left:-.30em;}
+  .logo .logostill,.logo .logovid{
+    height:1.95em;width:auto;display:block;pointer-events:none;
     filter:brightness(1.015);
     -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),
       linear-gradient(180deg,transparent 0,#000 13%,#000 87%,transparent 100%);
     -webkit-mask-composite:source-in;
     mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%),
       linear-gradient(180deg,transparent 0,#000 13%,#000 87%,transparent 100%);
-    mask-composite:intersect;
-    transition:opacity .3s ease;}
+    mask-composite:intersect;}
+  .logo .logovid{position:absolute;left:0;top:0;height:100%;width:100%;opacity:0;
+    transition:opacity .25s ease;}
   .logo.vid-on .logovid{opacity:1;}
-  .logo.vid-on .lgtext{visibility:hidden;}
+  .logo.vid-on .logostill{visibility:hidden;}
 
   /* Install-prompt mark, same language at 64px */
   .instmk{
@@ -1197,49 +1202,84 @@ function meBloom(opts){
    =================================================================== */
 
 const app=()=>document.getElementById('app');
-/* One video element for the whole session, moved from topbar to topbar.
+/* One clip for the whole session, moved from top bar to top bar, and kept alive.
 
    render() replaces the entire top bar on every screen change, so the clip used
    to be destroyed and rebuilt each time — visible even in Chromium as the
-   playhead snapping back to zero on every navigation. iOS is stricter about it:
-   a scripted <video> only gets its autoplay grace on the initial page load, so
-   the mark animated on the landing screen and sat frozen everywhere after it.
-   Moving the same live element sidesteps the whole thing — nothing reloads,
-   nothing re-requests autoplay, and the loop simply continues across screens.
+   playhead snapping back to zero on every navigation, and fatal on iOS, where a
+   scripted <video> only gets its autoplay grace on the initial page load.
 
-   The drawn mark stays underneath and is what you see until the clip reports it
-   can play, so a slow connection, a blocked autoplay or a missing file all land
-   on the static wordmark rather than an empty gap. Anyone who has asked for less
-   motion keeps the drawn mark for good. */
-let _logoVid=null;
+   Staying alive is the second problem. iOS reclaims media memory after a long
+   idle or a spell in the background, which fires error or empties the element.
+   That is not a reason to retire the clip: reload it and carry on. A watchdog
+   catches the quiet case, where playback simply stops without firing anything.
+
+   There is no drawn stand-in in the nav any more. The still underneath is the
+   same wordmark at the same size, so the worst case is this logo not moving,
+   rather than a different logo appearing in its place. */
+let _logoVid=null, _logoReloads=0;
+function logoReduce(){
+  try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; }
+}
+function logoPlay(){
+  const v=_logoVid; if(!v||logoReduce()) return;
+  const host=v.closest('.logo');
+  if(v.readyState>=2){
+    if(host) host.classList.add('vid-on');
+    _logoReloads=0;
+  }else if(host&&host.classList.contains('vid-on')){
+    /* Cannot render right now — show the still rather than a gap. */
+    host.classList.remove('vid-on');
+  }
+  if(v.readyState<2&&_logoReloads<8){
+    /* Lost its buffer, most likely reclaimed while backgrounded. Fetch it again
+       rather than give up: the file is small and already cached. Put the sources
+       back first — a reclaimed element can come back with nothing to load from,
+       and load() on an empty element recovers nothing. */
+    _logoReloads++;
+    try{
+      if(!v.getAttribute('src') && !v.querySelector('source')){
+        v.innerHTML='<source src="numio-mark.webm" type="video/webm">'+
+                    '<source src="numio-mark.mp4" type="video/mp4">';
+      }
+      v.load();
+    }catch(e){}
+  }
+  const pl=v.play&&v.play();
+  if(pl&&pl.catch) pl.catch(function(){});
+}
 function wireLogoMark(){
   const host=document.querySelector('.logo');
   if(!host) return;
-  let reduce=false;
-  try{ reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
   const fresh=host.querySelector('.logovid');
-  if(reduce){ if(fresh) fresh.remove(); return; }
+  if(logoReduce()){ if(fresh) fresh.remove(); return; }
 
   if(!_logoVid){
     if(!fresh) return;
     _logoVid=fresh;
-    /* muted has to be set as a property, not just an attribute: iOS checks the
-       property when deciding whether autoplay is allowed. */
+    /* muted has to be a property, not only an attribute: that is what iOS reads
+       when deciding whether autoplay is allowed. */
     _logoVid.muted=true;
-    _logoVid.addEventListener('loadeddata',function(){
-      const l=_logoVid.closest('.logo'); if(l) l.classList.add('vid-on');
+    ['loadeddata','canplay','playing'].forEach(function(ev){
+      _logoVid.addEventListener(ev,function(){
+        const l=_logoVid.closest('.logo'); if(l) l.classList.add('vid-on');
+        _logoReloads=0;
+      });
     });
-    _logoVid.addEventListener('error',function(){
-      const l=_logoVid.closest('.logo'); if(l) l.classList.remove('vid-on');
-    },{once:true});
+    /* Recover rather than retire. */
+    ['error','emptied','stalled','suspend','pause'].forEach(function(ev){
+      _logoVid.addEventListener(ev,function(){ setTimeout(logoPlay,400); });
+    });
+    document.addEventListener('visibilitychange',function(){ if(!document.hidden) logoPlay(); });
+    window.addEventListener('pageshow',logoPlay);
+    window.addEventListener('focus',logoPlay);
+    /* The quiet failure: playback stops with no event at all. */
+    setInterval(function(){ if(_logoVid&&(_logoVid.paused||_logoVid.readyState<2)) logoPlay(); },5000);
   }else if(fresh!==_logoVid){
     if(fresh) fresh.remove();
     host.appendChild(_logoVid);   /* moves the live element; does not reload it */
   }
-
-  if(_logoVid.readyState>=2) host.classList.add('vid-on');
-  const pl=_logoVid.play&&_logoVid.play();
-  if(pl&&pl.catch) pl.catch(function(){});
+  logoPlay();
 }
 
 const PANEL_SKIP='.card,.pin,.key,.fnode,.trio,.mbox,.jcard,.numdet,.top,.stickyfoot,.rail,.opt,.badge,.paperpanel';
@@ -1287,7 +1327,7 @@ function render(){
 // The wordmark shrinks to icon-only on those screens to make room without squeezing the topbar on mobile.
 function topbar(){const returning=hasMe();const acct=S.account;const label=acct?esc(acct.name.split(' ')[0]||'Account'):(returning?'My profile':'Log in');const act=returning?'dashboard':'auth';
  const showBack=!ROOT_SCREENS.includes(S.screen);
- return `<div class="top"><div class="left"><span class="backbtn" data-act="nav-back" aria-label="Back" title="Back" style="${showBack?'':'display:none'}">‹</span><div class="logo" data-act="home" aria-label="NUMIO"><span class="lgtext">NUMI<span class="mk"></span></span><video class="logovid" poster="numio-mark.jpg" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"><source src="numio-mark.webm" type="video/webm"><source src="numio-mark.mp4" type="video/mp4"></video></div></div><div class="r"><span class="btn btn-ghost" data-act="glossary" style="padding:7px 10px;font-size:.78rem" title="What every number means">Numbers</span><span class="btn btn-ghost" data-act="${act}" style="padding:7px 12px;font-size:.82rem">${label}</span></div></div>`;}
+ return `<div class="top"><div class="left"><span class="backbtn" data-act="nav-back" aria-label="Back" title="Back" style="${showBack?'':'display:none'}">‹</span><div class="logo" data-act="home" aria-label="NUMIO"><span class="markbox"><img class="logostill" src="numio-mark.jpg" alt="NUMIO" width="520" height="174"><video class="logovid" muted loop playsinline autoplay preload="auto" aria-hidden="true" tabindex="-1"><source src="numio-mark.webm" type="video/webm"><source src="numio-mark.mp4" type="video/mp4"></video></span></div></div><div class="r"><span class="btn btn-ghost" data-act="glossary" style="padding:7px 10px;font-size:.78rem" title="What every number means">Numbers</span><span class="btn btn-ghost" data-act="${act}" style="padding:7px 12px;font-size:.82rem">${label}</span></div></div>`;}
 
 /* ---------- landing ---------- */
 function vLanding(){return topbar()+`<div class="screen">
