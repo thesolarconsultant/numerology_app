@@ -40,6 +40,11 @@
     --ochre:#D9982B; --plum-fill:#5C2A4F; --rust-fill:#BE5430;
     --olive-fill:#BE5430; --olive-wash:#F4DED2;   /* legacy names, overprint values */
     --on-accent:#F6F0E4;
+    /* Chart marks for comparing up to three people. Not the UI accents: these are picked to stay
+       apart from each other under protanopia and deuteranopia as well as normal vision, which the
+       text-safe plum does not (it sits below the lightness band for a mark). Validated for the
+       lightness band, the chroma floor, all-pairs CVD separation and contrast against the card. */
+    --mk1:#7A3A69; --mk2:#C05A2C; --mk3:#00907E;
     --display:"Fraunces",ui-serif,Georgia,serif;
     --ui:"Figtree",ui-sans-serif,system-ui,sans-serif;
     --mono:"Figtree",ui-sans-serif,system-ui,sans-serif;
@@ -171,6 +176,113 @@
   .fnode:hover{border-color:var(--accent);}
   .fnode:active{transform:scale(.97);}
   .fnode.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+
+  /* ── Ported from Magic UI (MIT, github.com/magicuidesign/magicui) ──────────────
+     Magic UI ships React + Tailwind + Framer Motion components. This app is one
+     vanilla HTML file with no build step, so adopting the library wholesale would
+     mean rewriting the app to get an animation. The three effects that earn their
+     place were rebuilt by hand in plain CSS and DOM instead, and recoloured onto
+     NUMIO's paper — the library's own palette is neon on near-black, which is the
+     look this brand is defined against.
+     Every one of them is off under prefers-reduced-motion. ─────────────────── */
+
+  /* blur-fade — enters with blur, rise and fade, once, when scrolled into view.
+     Scoped under .mu, which the script adds to <html> only once it has an observer running. The
+     hidden state is what an entrance animation costs, and content that is paid for must never be
+     left invisible because a script died or a browser lacks IntersectionObserver. No .mu, no
+     hiding — the page is simply there. */
+  html.mu .bfade{opacity:0;filter:blur(6px);transform:translateY(8px);
+    transition:opacity .45s cubic-bezier(.16,1,.3,1),filter .45s cubic-bezier(.16,1,.3,1),transform .45s cubic-bezier(.16,1,.3,1);}
+  html.mu .bfade.in{opacity:1;filter:blur(0);transform:none;}
+
+  /* border-beam — a light travelling the edge of the selected card. Magic UI uses
+     offset-path:rect(), which older iOS Safari does not have; a rotating conic
+     behind a surface-coloured inlay gets the same read everywhere. */
+  .bbeam{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:0;pointer-events:none;}
+  .bbeam i{position:absolute;left:50%;top:50%;width:220%;aspect-ratio:1;transform-origin:0 0;
+    background:conic-gradient(from 0deg,transparent 0 62%,var(--accent-2) 78%,var(--accent) 88%,transparent 96%);
+    animation:beamspin 4.5s linear infinite;}
+  .bbeam u{position:absolute;inset:1.5px;border-radius:inherit;background:var(--surface);}
+  @keyframes beamspin{to{transform:translate(-50%,-50%) rotate(360deg);}}
+  .bbeam i{transform:translate(-50%,-50%) rotate(0);}
+
+  /* The picker: one row per person, tappable, multi-select. */
+  .picker{position:relative;display:grid;gap:10px;}
+  .pnode{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:13px;
+    position:relative;overflow:hidden;border-radius:18px;padding:14px 16px;}
+  .pnode>*{position:relative;z-index:1;}
+  /* Beaten by .pnode>* on specificity otherwise — and an in-flow beam eats a grid column. */
+  .pnode>.bbeam{position:absolute;z-index:0;}
+  .pmark{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;
+    position:relative;overflow:hidden;background:var(--surface-2);}
+  /* Until the printed marks are in place the disc is drawn here, from the same inks. */
+  .pmark::before{content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 32% 30%,color-mix(in srgb,var(--accent) 42%,transparent) 0 42%,transparent 43%),
+               radial-gradient(circle at 68% 66%,color-mix(in srgb,var(--accent-2) 38%,transparent) 0 46%,transparent 47%);}
+  .pmark img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .pmark b{position:relative;font-family:var(--display);font-size:1.05rem;color:var(--ink);}
+  .pmark img+b{color:var(--ink);text-shadow:0 0 6px var(--surface);}
+  .pcheck{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--rule);flex-shrink:0;
+    display:grid;place-items:center;transition:background .15s,border-color .15s;}
+  .pnode.sel .pcheck{background:var(--accent);border-color:var(--accent);}
+  .pnode.sel .pcheck::after{content:'';width:9px;height:5px;border-left:2px solid var(--on-accent);
+    border-bottom:2px solid var(--on-accent);transform:rotate(-45deg) translate(1px,-1px);}
+  #beamlayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:visible;}
+  #beamlayer .bpath{fill:none;stroke:var(--rule);stroke-width:1.5;stroke-linecap:round;}
+  #beamlayer .brun{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;
+    stroke-dasharray:26 999;animation:beamrun 2.6s cubic-bezier(.16,1,.3,1) infinite;}
+  @keyframes beamrun{from{stroke-dashoffset:26;}to{stroke-dashoffset:-999;}}
+
+  .cmpbar{position:sticky;bottom:10px;z-index:5;display:flex;align-items:center;justify-content:space-between;
+    gap:12px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border-radius:999px;
+    border:1px solid var(--rule);background:var(--surface);box-shadow:0 6px 20px rgba(35,26,21,.08);}
+
+  /* The resonance matrix — every pair in the household at once. */
+  .rmx{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:12px;}
+  .rmx th{font-size:.6rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--stone-2);
+    padding:6px 4px;font-family:var(--ui);}
+  .rmx td{padding:3px;text-align:center;}
+  .rmx .rname{text-align:left;font-family:var(--display);font-size:.85rem;white-space:nowrap;padding-right:8px;}
+  .rcell{display:block;border-radius:8px;padding:8px 4px;font-variant-numeric:tabular-nums;cursor:pointer;
+    border:1px solid transparent;transition:border-color .15s,transform .12s;}
+  .rcell:hover{border-color:var(--accent);transform:scale(1.06);}
+  .rcell.dead{cursor:default;color:var(--rule);background:transparent;}
+  .rcell.dead:hover{border-color:transparent;transform:none;}
+  .rkey{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.7rem;color:var(--stone-2);}
+  .rkey span{width:22px;height:10px;border-radius:3px;}
+
+  /* Desktop: the mockup's three columns. Below this it stays the single column it already was.
+     The base rule has to come FIRST — a media query adds no specificity, so a later `display:block`
+     would beat the grid at every width and silently stack the three columns on top of each other. */
+  .famgrid{display:block;}
+  @media(min-width:900px){
+    /* The reading column is 760px by design; three columns need the room, so this one screen is
+       allowed to be wider than the rest of the app. */
+    .famwrap{max-width:1180px!important;}
+    .famgrid{display:grid;grid-template-columns:270px minmax(0,1fr) 290px;gap:22px;align-items:start;}
+    .famgrid>.famside{position:sticky;top:86px;}
+    .cmpbar{position:static;box-shadow:none;}
+  }
+  .radar{width:100%;height:auto;display:block;}
+  .radar .web{fill:none;stroke:var(--rule);stroke-width:1;}
+  .radar .spoke{stroke:var(--rule);stroke-width:1;}
+  .radar .axis{font-size:8px;font-weight:800;letter-spacing:.09em;fill:var(--stone-2);font-family:var(--ui);}
+  .radar .shape{stroke-width:2;stroke-linejoin:round;fill-opacity:.1;}
+  .lgnd{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.82rem;}
+  .lgnd b{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-family:var(--ui);}
+  .lgnd i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .pystrip{display:flex;align-items:flex-end;gap:5px;height:52px;margin-top:10px;
+    border-bottom:1px solid var(--rule);padding-bottom:0;}
+  .pystrip i{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:3px;
+    transition:height .5s cubic-bezier(.16,1,.3,1);}
+  .pyax{display:flex;gap:5px;margin-top:5px;font-size:.62rem;color:var(--stone-2);}
+  .pyax b{flex:1;text-align:center;font-weight:500;font-variant-numeric:tabular-nums;}
+
+  @media(prefers-reduced-motion:reduce){
+    html.mu .bfade{opacity:1;filter:none;transform:none;transition:none;}
+    .bbeam i{animation:none;}
+    #beamlayer .brun{animation:none;stroke-dasharray:none;}
+  }
   .foot{text-align:center;color:var(--stone);font-size:.76rem;padding:26px 20px 60px;}
   /* staggered pop-in for repeated grid/list items */
   .jcard{animation:fade .5s ease backwards;transition:transform .12s ease;}
@@ -1355,6 +1467,156 @@ function wireLogoMark(){
 }
 
 const PANEL_SKIP='.card,.pin,.key,.fnode,.trio,.mbox,.jcard,.numdet,.top,.stickyfoot,.rail,.opt,.badge,.paperpanel';
+/* ── Magic UI ports, runtime half. See the CSS block for why these are hand-built. ── */
+function muReduce(){try{return matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}}
+
+/* number-ticker — counts up on first sight. Magic UI drives it with a Framer spring;
+   easeOutExpo lands in the same place without the dependency. */
+function muTick(el){
+  const to=+el.dataset.to; if(!Number.isFinite(to)) return;
+  if(muReduce()){el.textContent=to;return;}
+  const t0=performance.now(),ms=900;
+  (function step(now){
+    const k=Math.min(1,(now-t0)/ms), e=k===1?1:1-Math.pow(2,-10*k);
+    el.textContent=Math.round(to*e);
+    if(k<1) requestAnimationFrame(step);
+  })(t0);
+}
+
+/* blur-fade — one observer for the screen, each element fires once. */
+let muIO=null;
+const muCanFade=typeof IntersectionObserver!=='undefined';
+if(muCanFade){try{document.documentElement.classList.add('mu');}catch(e){}}
+function muObserve(root){
+  if(muIO) muIO.disconnect();
+  const els=root.querySelectorAll('.bfade,.tick');
+  if(!els.length) return;
+  if(!muCanFade){els.forEach(function(el){
+    if(el.classList.contains('tick')) el.textContent=el.dataset.to; else el.classList.add('in');});return;}
+  muIO=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      const el=en.target;
+      if(el.classList.contains('tick')) muTick(el); else el.classList.add('in');
+      muIO.unobserve(el);
+    });
+  },{rootMargin:'0px 0px -40px 0px'});
+  els.forEach(function(el){muIO.observe(el);});
+}
+
+/* animated-beam — a curve between each pair of selected people, with a short bright
+   segment running along it. Magic UI animates a linearGradient's coordinates; a
+   travelling dash is crisper on paper and needs no JS per frame. */
+function muBeams(){
+  const wrap=document.getElementById('picker'); if(!wrap) return;
+  const svg=document.getElementById('beamlayer'); if(!svg) return;
+  const on=[].slice.call(wrap.querySelectorAll('.pnode.sel'));
+  svg.innerHTML='';
+  if(on.length<2) return;
+  const box=wrap.getBoundingClientRect();
+  svg.setAttribute('viewBox','0 0 '+box.width+' '+box.height);
+  const at=function(el){const r=el.getBoundingClientRect();
+    return{x:r.left-box.left+22,y:r.top-box.top+r.height/2};};
+  for(let i=0;i<on.length-1;i++){
+    const a=at(on[i]),b=at(on[i+1]);
+    /* Bow the curve out to the left of the marks so it reads as a connection between
+       them rather than a line struck through the rows. */
+    const d='M '+a.x+','+a.y+' Q '+(Math.min(a.x,b.x)-26)+','+((a.y+b.y)/2)+' '+b.x+','+b.y;
+    ['bpath','brun'].forEach(function(cls,n){
+      const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d',d); p.setAttribute('class',cls);
+      if(cls==='brun') p.style.animationDelay=(i*0.35)+'s';
+      svg.appendChild(p);
+    });
+  }
+}
+let muBeamPending=false;
+function muBeamsSoon(){
+  if(muBeamPending) return; muBeamPending=true;
+  requestAnimationFrame(function(){muBeamPending=false;muBeams();});
+}
+addEventListener('resize',muBeamsSoon);
+
+const MK=['var(--mk1)','var(--mk2)','var(--mk3)'];
+
+/* A radar of each person's theme profile. Axes are chosen from the people actually being compared —
+   the union of their themes, strongest combined first — so the chart never wastes a spoke on
+   something none of them carry. Each person is normalised against their own strongest theme, because
+   the question is the SHAPE of a person, not who scores higher in the abstract. */
+function muRadar(list){
+  const tot={};
+  list.forEach(function(m){(m.intel.themes||[]).forEach(function(t){tot[t.theme]=(tot[t.theme]||0)+t.pct;});});
+  const axes=Object.keys(tot).sort(function(a,b){return tot[b]-tot[a];}).slice(0,Math.min(8,Math.max(5,Object.keys(tot).length)));
+  if(axes.length<3) return '';
+  /* The box is deliberately wider than it is tall: the axis labels sit outside the web, and a square
+     viewBox clipped the long ones ("RESPONSIBILITY", "SENSITIVITY") at the left and right edges. */
+  const W=400,H=300,CX=W/2,CY=H/2,R=98,N=axes.length;
+  const pt=function(i,r){const a=-Math.PI/2+i*2*Math.PI/N;return[CX+Math.cos(a)*r,CY+Math.sin(a)*r];};
+  const ring=function(f){return axes.map(function(_,i){return pt(i,R*f).join(',');}).join(' ');};
+  let g='';
+  [0.25,0.5,0.75,1].forEach(function(f){g+='<polygon class="web" points="'+ring(f)+'"/>';});
+  axes.forEach(function(k,i){const e=pt(i,R);g+='<line class="spoke" x1="'+CX+'" y1="'+CY+'" x2="'+e[0]+'" y2="'+e[1]+'"/>';});
+  axes.forEach(function(k,i){
+    const e=pt(i,R+15),full=(LABEL[k]||k),lab=full.toUpperCase();
+    const anc=Math.abs(e[0]-CX)<6?'middle':(e[0]>CX?'start':'end');
+    g+='<text class="axis" x="'+e[0]+'" y="'+(e[1]+3)+'" text-anchor="'+anc+'"><title>'+esc(full)+'</title>'+esc(lab)+'</text>';});
+  list.forEach(function(m,n){
+    const by={};(m.intel.themes||[]).forEach(function(t){by[t.theme]=t.pct;});
+    const pts=axes.map(function(k,i){return pt(i,R*Math.max(0.06,(by[k]||0)/100)).join(',');}).join(' ');
+    g+='<polygon class="shape" points="'+pts+'" stroke="'+MK[n%3]+'" fill="'+MK[n%3]+'"/>';});
+  return '<svg class="radar" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Theme profile comparison">'+g+'</svg>';
+}
+function muLegend(list){
+  return '<div class="lgnd">'+list.map(function(m,n){
+    return '<b><i style="background:'+MK[n%3]+'"></i>'+esc(m.first)+' &middot; '+m.profile.lifePath.display+'</b>';
+  }).join('')+'</div>';
+}
+
+/* The resonance matrix — every pair in the household at once, so "who is closest" is answered
+   without having to pick anyone first. Tapping a cell selects that pair. */
+function muMatrix(M){
+  if(M.length<3) return '';
+  const sc={};let max=0;
+  for(let i=0;i<M.length;i++)for(let j=i+1;j<M.length;j++){
+    const v=pairCloseness(M[i],M[j]).score;sc[i+'-'+j]=v;if(v>max)max=v;}
+  if(!max) return '';
+  const at=function(i,j){return i===j?null:sc[Math.min(i,j)+'-'+Math.max(i,j)];};
+  const STEP=['#F0E4EC','#D9BACE','#B183A2','#7A3A69'];
+  const cell=function(v){return STEP[Math.min(3,Math.floor(v/max*4-1e-9))];};
+  let h='<div style="overflow-x:auto"><table class="rmx"><thead><tr><th></th>'+
+    M.map(function(m){return '<th>'+esc(m.first)+'</th>';}).join('')+'</tr></thead><tbody>';
+  M.forEach(function(a,i){
+    h+='<tr><td class="rname">'+esc(a.first)+'</td>';
+    M.forEach(function(b,j){
+      const v=at(i,j);
+      h+='<td>'+(v==null
+        ? '<span class="rcell dead">&middot;</span>'
+        : '<span class="rcell" data-rpair="'+i+','+j+'" role="button" tabindex="0" title="'+esc(a.first)+' &amp; '+esc(b.first)+'" style="background:'+cell(v)+';color:'+(v/max>0.5?'var(--on-accent)':'var(--ink)')+'"><b class="tick" data-to="'+v+'">0</b></span>')+'</td>';});
+    h+='</tr>';});
+  h+='</tbody></table></div><div class="rkey">'+STEP.map(function(c){return '<span style="background:'+c+'"></span>';}).join('')+
+     '<span style="width:auto;background:none">distant &rarr; closest &middot; tap any square to compare that pair</span></div>';
+  return h;
+}
+
+/* Personal Year across the household, from the mockup: where everyone currently sits, 1 to 9. */
+function muPyStrip(M){
+  if(M.length<2) return '';
+  const c={};M.forEach(function(m){const y=m.profile.personalYear;c[y]=(c[y]||0)+1;});
+  const max=Math.max.apply(null,Object.values(c));
+  let bars='',ax='';
+  for(let y=1;y<=9;y++){const n=c[y]||0;
+    bars+='<i style="height:'+(n?Math.round(n/max*100):3)+'%;opacity:'+(n?1:.22)+'" title="'+n+' in Personal Year '+y+'"></i>';
+    ax+='<b>'+y+'</b>';}
+  return '<p class="muted" style="font-size:.8rem;margin-top:14px">Personal Year across your people</p>'+
+         '<div class="pystrip">'+bars+'</div><div class="pyax">'+ax+'</div>';
+}
+
+function muWire(){
+  const root=app(); if(!root) return;
+  muObserve(root);
+  muBeamsSoon();
+}
+
 function panelBareCopy(){
   const root=app(); if(!root) return;
   root.querySelectorAll('p.sub,p.muted,p.foot,p.lede').forEach(el=>{
@@ -1392,6 +1654,7 @@ function render(){
   app().innerHTML=html;
   wireLogoMark();
   panelBareCopy();
+  muWire();
   if(s==='me_reading')wireRail();
 }
 // Screens outside ROOT_SCREENS get a visible back button (tapping it just calls history.back(), so it
@@ -1846,14 +2109,61 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
  /* the household bloom: every member's Life Path root, overprinted into one picture */
  const famRoots=M.map(m=>{try{return m.p.lifePath.root;}catch(e){return null;}}).filter(Boolean);
   const{pairs:closest}=closestPairs(M);
-  const nodes=`<div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${M.map((m,i)=>`<div class="fnode ${(S.famSel||[]).includes(i)?'sel':''}" data-fsel="${i}"><b style="font-family:var(--display)">${esc(m.first)}</b><div class="muted" style="font-size:.8rem">${m.relationship} · age ${m.intel.age} · LP ${m.profile.lifePath.display}</div><div class="muted" style="font-size:.75rem;margin-top:2px">${m.profile.chinese.birth.animal} · Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</div></div>`).join('')}</div>`;
+  const selNow=(S.famSel||[]);
+  /* Selecting people used to be an undiscoverable gesture: tap two cards and a panel appeared, with
+     nothing on screen saying so and a hard cap of two hidden in the handler. It is a checkbox list
+     now — a visible count, a real Compare button, and up to three at once. */
+  const nodes=`<div class="picker" id="picker"><svg id="beamlayer" aria-hidden="true"></svg>${M.map((m,i)=>{
+    const on=selNow.includes(i);
+    return `<div class="fnode pnode bfade ${on?'sel':''}" data-fsel="${i}" role="checkbox" aria-checked="${on}" tabindex="0" aria-label="${esc(m.first)}, Life Path ${m.profile.lifePath.display}">
+      ${on?`<span class="bbeam" aria-hidden="true"><i></i><u></u></span>`:''}
+      <span class="pmark"><img src="mark-${m.profile.lifePath.root}.png" alt="" onerror="this.remove()"><b>${m.profile.lifePath.root}</b></span>
+      <span class="pbody"><b style="font-family:var(--display);font-size:1.05rem">${esc(m.first)}</b>
+        <span class="muted" style="font-size:.78rem;display:block">Life Path ${m.profile.lifePath.display} &middot; ${esc(m.relationship)}</span>
+        <span class="muted" style="font-size:.74rem;display:block">age ${m.intel.age} &middot; Personal Year ${m.profile.personalYear}</span></span>
+      <span class="pcheck" aria-hidden="true"></span>
+    </div>`;}).join('')}</div>
+    ${muPyStrip(M)}
+    ${M.length>=2?`<div class="cmpbar">
+      <span class="muted" style="font-size:.85rem">${selNow.length} of ${M.length} selected${selNow.length<2?' &middot; pick at least two':''}</span>
+      <span style="display:flex;gap:8px;align-items:center">
+        ${selNow.length?`<span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.82rem" data-act="cmp-clear">Clear</span>`:''}
+        <button class="btn btn-glow" style="padding:11px 22px" data-act="cmp-go" ${selNow.length<2?'disabled style="opacity:.45;padding:11px 22px"':''}>Compare${selNow.length>=2?' '+selNow.length:''}</button>
+      </span></div>`:''}`;
   let panel='';
-  const sel=(S.famSel||[]);
-  if(sel.length===2){const cmp=familyCompare(M[sel[0]],M[sel[1]]);
-    panel=`<div class="card" id="fam-compare-panel" style="margin-top:16px;border-color:var(--accent)">
+  const sel=(S.famShow?(S.famSel||[]):[]);
+  if(sel.length>=3){
+    /* Three people have three relationships, not one. The radar carries the shape comparison and each
+       pair gets its own heading and its own closeness, rather than being averaged into one number
+       that would describe nobody. */
+    const trio=sel.map(i=>M[i]);
+    const pairs=[];
+    for(let a=0;a<trio.length;a++)for(let b=a+1;b<trio.length;b++)
+      pairs.push({a,b,cmp:familyCompare(trio[a],trio[b]),score:pairCloseness(trio[a],trio[b])});
+    pairs.sort((x,y)=>y.score.score-x.score.score);
+    panel=`<div class="card bfade" style="margin-top:16px;border-color:var(--accent)">
+      <p class="eyebrow" style="color:var(--accent-2)">Comparing</p>
+      <h3 style="font-size:1.4rem;margin-top:2px">${trio.map(m=>esc(m.first)).join(', ').replace(/, ([^,]*)$/,' &amp; $1')}</h3>
+      ${muRadar(trio)}${muLegend(trio)}
+      <p class="muted" style="font-size:.82rem;margin-top:10px">Each outline is that person's own theme profile, measured against their own strongest theme — so this compares shape, not size.</p>
+      <p class="eyebrow" style="margin-top:20px">Pair by pair, closest first</p>
+      ${pairs.map(pr=>`<div style="border:1px solid var(--rule);border-radius:14px;padding:14px;margin-top:10px;background:var(--surface-2)">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <i style="width:9px;height:9px;border-radius:50%;background:${MK[pr.a%3]};display:inline-block"></i>
+          <i style="width:9px;height:9px;border-radius:50%;background:${MK[pr.b%3]};display:inline-block;margin-left:-4px"></i>
+          <b style="font-family:var(--display)">${esc(trio[pr.a].first)} &amp; ${esc(trio[pr.b].first)}</b>
+          <span class="muted" style="font-size:.75rem">&middot; ${esc(pr.cmp.heading)}</span></div>
+        <p class="muted" style="margin-top:8px;font-size:.9rem">${esc(pr.cmp.core)}</p>
+        ${pr.score.why.length?`<p class="muted" style="margin-top:6px;font-size:.82rem">They share ${esc(joinL(pr.score.why.slice(0,2)))}.</p>`:''}
+      </div>`).join('')}
+      <p class="muted" style="font-size:.82rem;margin-top:12px">Pick just two to read the full comparison — the timing, the tension and the Chinese astrology layer.</p>
+    </div>`;}
+  else if(sel.length===2){const cmp=familyCompare(M[sel[0]],M[sel[1]]);
+    panel=`<div class="card bfade" id="fam-compare-panel" style="margin-top:16px;border-color:var(--accent)">
       <p class="eyebrow" style="color:var(--accent)">${esc(cmp.heading)}</p>
       <h3 style="font-size:1.4rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
       <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
+      ${muRadar([M[sel[0]],M[sel[1]]])}${muLegend([M[sel[0]],M[sel[1]]])}
       <p class="eyebrow" style="margin-top:18px;color:var(--accent-2)">How to support each other right now</p>
       <div style="display:grid;gap:12px;margin-top:10px">
       ${cmp.support.map(s=>`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;background:#F0EADE">
@@ -1873,7 +2183,7 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
       <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>
     </div>`;}
   else if(sel.length===1){const m=M[sel[0]];panel=`<div class="card" style="margin-top:16px"><h3 style="font-size:1.3rem">${esc(m.first)}'s pattern</h3><div class="keys" style="margin-top:12px">${m.intel.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}" data-who="${esc(m.first)}"><div class="l">${k.label} ⓘ</div><div class="v">${k.value}</div></div>`).join('')}</div><p class="muted" style="margin-top:12px;font-size:.9rem">${esc(m.intel.corePattern)}</p><div style="margin-top:14px"><button class="btn btn-glow" data-act="fam-view-full" data-favidx="${sel[0]}">See ${esc(m.first)}'s full profile &rarr;</button></div><p class="muted" style="font-size:.82rem;margin-top:10px">Tap a number to learn it · tap a second person to compare.</p></div>`;}
-  return topbar()+`<div class="screen"><div class="wrap" style="padding:24px 20px 60px">
+  return topbar()+`<div class="screen"><div class="wrap famwrap" style="padding:24px 20px 60px">
    <section style="text-align:center"><p class="eyebrow onart">Your Family Blueprint</p><h1 style="font-size:2rem;margin-top:8px">Me · Us · <span class="aurora">All of us</span></h1></section>
    ${bp?`<div class="keys" style="grid-template-columns:repeat(2,1fr);margin-top:20px"><div class="key"><div class="l">Shared pattern</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.sharedPattern?bp.sharedPattern.label:'—'}</div></div><div class="key"><div class="l">Collective strength</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.collectiveStrength?bp.collectiveStrength.label:'—'}</div></div><div class="key"><div class="l">Main tension</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.tension?bp.tension.title:'Balanced'}</div></div><div class="key"><div class="l">Household now</div><div class="v" style="font-size:1.05rem;padding-top:8px">${bp.householdTheme||'Steady'}</div></div></div>`:'<p class="muted" style="text-align:center;margin-top:16px">Add at least two people to see the blueprint.</p>'}
    ${M.length?(()=>{const famDay=M.map(m=>{const arch=dailyArchitecture(m.profile,todayStr());const res=dailyResonance(m.profile,m.intel,arch);return{m,arch,res,mk:resonanceMarker(res)};});
@@ -1890,10 +2200,17 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
     </div>`;})():''}
    ${ys&&M.length>=2?`<div class="card beam" style="margin-top:16px"><p class="eyebrow" style="color:var(--accent-2)">All of us · ${YEARNOW}</p><p style="margin-top:8px;font-size:.95rem">${esc(ys.synth)}</p><div style="margin-top:12px;display:grid;gap:8px">${ys.rows.map(r=>`<div style="border-top:1px solid var(--rule);padding-top:8px"><b style="font-family:var(--display)">${esc(r.name)}</b> <span class="muted" style="font-size:.8rem">· Year ${r.year} ${esc(r.title.toLowerCase())}</span><div class="muted" style="font-size:.85rem;margin-top:2px">${esc(capS(r.short))}</div></div>`).join('')}</div></div>
    <div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">Family timeline · everyone's year</p><div style="display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;margin-top:12px">${[1,2,3,4,5,6,7,8,9].map(n=>{const who=M.filter(m=>m.profile.personalYear===n).map(m=>m.first);return `<div style="text-align:center;min-width:0"><div class="yr ${who.length?'on':''}" style="width:100%;height:38px;font-size:.95rem"><span>${n}</span><small style="overflow-wrap:break-word;word-break:break-word;padding:0 1px">${YEAR_SHORT[YEAR[n].t]||YEAR[n].t}</small></div><div class="muted" style="font-size:.6rem;margin-top:4px;line-height:1.2;overflow-wrap:break-word">${esc(who.join(', '))}</div></div>`;}).join('')}</div></div>`:''}
-   ${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--rule);border-radius:2px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--display)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}
-   <h3 style="font-size:1.2rem;margin-top:26px">Tap a person — or two to compare</h3>
-   <div style="margin-top:12px">${nodes}</div>
-   ${panel}
+   <h3 style="font-size:1.2rem;margin-top:26px">Who do you want to compare?</h3>
+   <p class="muted" style="font-size:.86rem;margin-top:6px">Pick two for the full reading, or three to see the shapes side by side.</p>
+   <div class="famgrid" style="margin-top:12px">
+     <div class="famrail">${nodes}</div>
+     <div>${panel}${M.length>=3?`<div class="card bfade" style="margin-top:16px">
+       <p class="eyebrow">How you all fit</p>
+       <p style="font-family:var(--display);font-weight:500;margin-top:4px;font-size:1.15rem">Every pair at once</p>
+       <p class="muted" style="font-size:.84rem;margin-top:6px">The whole household compared to itself, so the closest connection is visible without choosing anyone first.</p>
+       ${muMatrix(M)}</div>`:''}</div>
+     <div class="famside">${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--rule);border-radius:2px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--display)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}</div>
+   </div>
    ${bp?`<div class="card" style="margin-top:16px"><p style="font-family:var(--display);font-weight:500">Your family in ${YEARNOW}</p>${M.map(m=>`<div style="display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding:8px 0"><b style="font-family:var(--display)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem">Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</span></div>`).join('')}</div>
    ${bp.needs?`<div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">What each person needs</p><div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));margin-top:10px">${bp.needs.map(n=>`<div style="background:#F0EADE;border:1px solid var(--rule);border-radius:2px;padding:8px"><b>${esc(n.name)}</b><div class="muted" style="font-size:.85rem">${n.need}</div></div>`).join('')}</div></div>`:''}`:''}
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="fam-add-more">+ Add someone</button><button class="btn btn-ghost" data-act="name-match">Name a child</button><button class="btn btn-ghost" data-act="compat">Who suits you</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
@@ -2010,6 +2327,13 @@ function vCompat(){
 
 /* ============================ EVENTS ============================ */
 function readMe(){}
+/* The picker rows and matrix cells are real controls, so they answer to the keyboard too. */
+document.addEventListener('keydown',e=>{
+  if(e.key!==' '&&e.key!=='Enter')return;
+  const t=e.target.closest('[data-fsel],[data-rpair]');
+  if(!t)return;
+  e.preventDefault();t.click();
+});
 document.addEventListener('click',e=>{
   const a=e.target.closest('[data-act]');
   const opt=e.target.closest('[data-opt]');
@@ -2048,7 +2372,17 @@ document.addEventListener('click',e=>{
   if(opt){toggleOpt(opt.dataset.opt);return;}
   if(rel){rel.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));rel.classList.add('sel');return;}
   if(rail){document.getElementById(rail.dataset.rail)?.scrollIntoView({behavior:'smooth',block:'start'});return;}
-  if(fsel){const i=+fsel.dataset.fsel;let s=S.famSel||[];s=s.includes(i)?s.filter(x=>x!==i):[...s.slice(-1),i];S.famSel=s;save();render();return;}
+  if(fsel){
+    const i=+fsel.dataset.fsel;let s=S.famSel||[];
+    /* Three is the cap: a fourth outline on the radar stops being readable, and the pair-by-pair
+       list would grow to six. Adding a fourth drops the oldest rather than silently doing nothing. */
+    s=s.includes(i)?s.filter(x=>x!==i):[...s,i].slice(-3);
+    S.famSel=s;S.famShow=false;save();render();return;}
+  const rp=e.target.closest('[data-rpair]');
+  if(rp){const[a,b]=rp.dataset.rpair.split(',').map(Number);
+    S.famSel=[a,b];S.famShow=true;save();render();
+    setTimeout(function(){document.getElementById('fam-compare-panel')?.scrollIntoView({behavior:'smooth',block:'center'});},60);
+    return;}
   if(changed){notify('Noted: '+changed.dataset.changed+'. In the full build we\'d update your context here — never your core numbers.');return;}
   if(!a)return;const act=a.dataset.act;
   if(act==='num-close')closeNumModal();
@@ -2113,6 +2447,9 @@ document.addEventListener('click',e=>{
   else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){notify('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;S.anchorEditMode=false;save();go('fam_add');}
   else if(act==='fm-add')fmAdd();
   else if(act==='fam-space')go('fam_space');
+  else if(act==='cmp-go'){if((S.famSel||[]).length>=2){S.famShow=true;save();render();
+    setTimeout(function(){document.getElementById('fam-compare-panel')?.scrollIntoView({behavior:'smooth',block:'start'});},60);}}
+  else if(act==='cmp-clear'){S.famSel=[];S.famShow=false;save();render();}
   else if(act==='fam-explore'||act==='fam-add-more'){
     if(act==='fam-explore'&&hasMe()&&!S.family.some(m=>m.relationship==='self')){S.family.unshift({name:fullName()||S.me.first,dob:S.me.dob,relationship:'self',door:S.me.door});save();}
     /* The family route's completion point. Someone who already had a profile goes straight from
