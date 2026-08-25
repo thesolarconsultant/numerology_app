@@ -1120,6 +1120,18 @@ function beacon(name,extra){
     fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},body:json,keepalive:true}).catch(function(){});
   }catch(e){}
 }
+/* The four milestones are read as a funnel of people — started checkout, paid, finished, opened —
+   so a revisited screen must not inflate them. There is no identity to key on and none is wanted,
+   so the device's own state is the proxy: a milestone is marked here the first time it is sent.
+   Keyed by tier as well as name, because buying the personal reading and later the family one is
+   two genuine journeys through the same funnel, not one person counted twice. */
+function tierNow(){return S.paidFam?'family':'personal';}
+function countedOnce(name,tier){
+  const key=name+':'+tier;
+  S.counted=S.counted||{};
+  if(S.counted[key]) return false;
+  S.counted[key]=true; save(); return true;
+}
 function beaconProfile(name){
   const f=meFacts();
   beacon(name, f?{tier:S.paidFam?'family':'personal',lifePathRoot:f.root,ageBand:f.band,gender:f.gender}:{tier:S.paidFam?'family':'personal'});
@@ -2040,10 +2052,10 @@ document.addEventListener('click',e=>{
   else if(act==='dashboard')go('dashboard');
   else if(act==='teaser')teaser();
   else if(act==='choose'){document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});}
-  else if(act==='start-me'){S.journey='me';track('begin_checkout',{plan:'single',value:8.88});beacon('checkout_started',{tier:'personal'});go('me_unlock');}
-  else if(act==='start-fam'){S.journey='fam';track('begin_checkout',{plan:'family',value:28});go('fam_unlock');}
-  else if(act==='unlocked-me'){S.paidMe=true;save();beacon('purchase',{tier:'personal'});track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
-  else if(act==='unlocked-fam'){S.paidFam=true;save();beacon('purchase',{tier:'family'});track('purchase',{plan:'family',value:28,currency:'GBP'});go(hasMe()?'fam_anchor':'me_dob');}
+  else if(act==='start-me'){S.journey='me';track('begin_checkout',{plan:'single',value:8.88});if(countedOnce('checkout_started','personal'))beacon('checkout_started',{tier:'personal'});go('me_unlock');}
+  else if(act==='start-fam'){S.journey='fam';track('begin_checkout',{plan:'family',value:28});if(countedOnce('checkout_started','family'))beacon('checkout_started',{tier:'family'});go('fam_unlock');}
+  else if(act==='unlocked-me'){S.paidMe=true;save();if(countedOnce('purchase','personal'))beacon('purchase',{tier:'personal'});track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
+  else if(act==='unlocked-fam'){S.paidFam=true;save();if(countedOnce('purchase','family'))beacon('purchase',{tier:'family'});track('purchase',{plan:'family',value:28,currency:'GBP'});go(hasMe()?'fam_anchor':'me_dob');}
   else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){notify('Please choose your date of birth to continue — tap the date field above.');document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
   else if(act==='name-next'){S.me.first=val('n_first');S.me.middle=val('n_middle');S.me.last=val('n_last');S.me.currentName=val('n_current');if(!S.me.first||!S.me.last){notify('First name and surname help build your name profile.');return;}save();go('me_reveal');}
   else if(act==='go-deeper'){S.me.iStep=0;save();go('me_interview');}
@@ -2051,16 +2063,16 @@ document.addEventListener('click',e=>{
   else if(act==='iq-next')iqNext(false);
   else if(act==='iq-skip')iqNext(true);
   else if(act==='build-reading'){
-    /* The completion point. The count goes for everyone; the profile itself only
+    /* The personal route's completion point. The count goes for everyone; the profile itself only
        if the box on this screen was actually ticked. */
-    beaconProfile('profile_completed');
+    if(countedOnce('profile_completed',tierNow())) beaconProfile('profile_completed');
     const box=document.getElementById('shareOptIn');
     if(box&&box.checked&&!S.share) shareProfile();
     S.famReadingIdx=null;go('me_reading');}
   else if(act==='save-done'){if(S.journey==='fam'){save();go('fam_add');}else if(!S.upsellShown&&!(S.family&&S.family.length)){S.upsellShown=true;save();go('me_upsell');}else{save();go('dashboard');}}
   else if(act==='upsell-yes'){track('upsell_click',{plan:'family'});S.journey='fam';go('fam_unlock');}
   else if(act==='upsell-no')go('dashboard');
-  else if(act==='open-reading'){S.famReadingIdx=null;beaconProfile('reading_opened');go('me_reading');}
+  else if(act==='open-reading'){S.famReadingIdx=null;if(countedOnce('reading_opened',tierNow()))beaconProfile('reading_opened');go('me_reading');}
   else if(act==='fam-view-full'){S.famReadingIdx=+a.dataset.favidx;save();go('me_reading');}
   else if(act==='fam-compare-pair'){S.famSel=[+a.dataset.i,+a.dataset.j];save();render();document.getElementById('fam-compare-panel')?.scrollIntoView({behavior:'smooth',block:'start'});}
   else if(act==='go-today')go('today');
@@ -2086,7 +2098,17 @@ document.addEventListener('click',e=>{
   else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){notify('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;S.anchorEditMode=false;save();go('fam_add');}
   else if(act==='fm-add')fmAdd();
   else if(act==='fam-space')go('fam_space');
-  else if(act==='fam-explore'||act==='fam-add-more'){if(act==='fam-explore'&&hasMe()&&!S.family.some(m=>m.relationship==='self')){S.family.unshift({name:fullName()||S.me.first,dob:S.me.dob,relationship:'self',door:S.me.door});save();}go('fam_space');}
+  else if(act==='fam-explore'||act==='fam-add-more'){
+    if(act==='fam-explore'&&hasMe()&&!S.family.some(m=>m.relationship==='self')){S.family.unshift({name:fullName()||S.me.first,dob:S.me.dob,relationship:'self',door:S.me.door});save();}
+    /* The family route's completion point. Someone who already had a profile goes straight from
+       checkout to the anchor form and never passes build-reading, so without this every family
+       customer finished and opened a reading without either being counted. Both fire here because
+       this button both completes the build and opens the space that is the family's reading. */
+    if(act==='fam-explore'){
+      if(countedOnce('profile_completed','family')) beaconProfile('profile_completed');
+      if(countedOnce('reading_opened','family')) beaconProfile('reading_opened');
+    }
+    go('fam_space');}
 });
 function val(id){const el=document.getElementById(id);return el?el.value.trim():'';}
 function toggleOpt(o){const q=currentIQ();if(!q)return;const c=S.me.context;if(q.multi){let arr=c[q.id]||[];if(arr.includes(o))arr=arr.filter(x=>x!==o);else{if(q.max&&arr.length>=q.max)arr=arr.slice(1);arr=[...arr,o];}c[q.id]=arr;}else{c[q.id]=o;}save();render();}
