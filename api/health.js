@@ -26,11 +26,11 @@ export default async function handler(req, res) {
     const before = await schemaState();
     await ensureSchema();
     const tables = await schemaState();
-    const ready = tables.profiles && tables.events;
+    const ready = tables.profiles && tables.events && tables.purchases;
     return res.status(ready ? 200 : 500).json({
       ok: ready,
       database: ready ? 'ready' : 'incomplete',
-      tables: { profiles: tables.profiles, events: tables.events },
+      tables: { profiles: tables.profiles, events: tables.events, purchases: tables.purchases },
       columns: tables.columns,
       created: !before.profiles || !before.events,
     });

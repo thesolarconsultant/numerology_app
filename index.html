@@ -1290,6 +1290,67 @@ function countedOnce(name,tier){
   if(S.counted[key]) return false;
   S.counted[key]=true; save(); return true;
 }
+/* ============ PAYMENT ==================================================
+   The app has no accounts, so "has this person paid" cannot be answered by a login. What it can do
+   is hold a receipt the server signed after asking Stripe directly. A flag in localStorage can be
+   flipped by anybody; a receipt cannot be minted without the server's secret.
+
+   Worth being straight about the limit: the reading is rendered on the device, so someone
+   determined enough to read the bundle can still read the content. This stops casual flag-flipping
+   and gives every sale a real record — it is not DRM and does not pretend to be.
+   ====================================================================== */
+function payProbe(){
+  /* One quiet question on boot: are payments switched on yet? Until a Stripe key exists on the
+     deployment this stays false and the app keeps the prototype checkout, so shipping this cannot
+     break the live site. */
+  fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},
+                         body:JSON.stringify({probe:true})})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){ const live=!!(j&&j.configured);
+      if(live!==S.payLive){S.payLive=live;save();if(S.screen==='me_unlock'||S.screen==='fam_unlock')render();} })
+    .catch(function(){});
+}
+function payStart(tier){
+  const btn=document.getElementById('paybtn'), err=document.getElementById('payerr');
+  if(btn){btn.disabled=true;btn.textContent='Taking you to Stripe…';}
+  if(err)err.textContent='';
+  fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({tier:tier,promo:S.promo||undefined})})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j&&j.url){location.href=j.url;return;}
+      /* If payments turned out not to be on after all, fall back rather than dead-end them. */
+      if(j&&j.configured===false){S.payLive=false;save();render();return;}
+      throw new Error('no url');
+    })
+    .catch(function(){
+      if(btn){btn.disabled=false;btn.textContent='Try again';}
+      if(err)err.textContent='Could not reach the payment page. Nothing has been charged — please try again.';
+    });
+}
+function payReturn(){
+  /* Back from Stripe. The session id is in a query string, and a query string is a suggestion, so
+     the server asks Stripe itself before anything unlocks. */
+  let q; try{ q=new URLSearchParams(location.search); }catch(e){ return; }
+  const promo=q.get('promo'); if(promo){S.promo=promo.trim().toUpperCase().slice(0,40);save();}
+  const sid=q.get('paid');
+  const clean=function(){ try{history.replaceState({},'',location.pathname+location.hash);}catch(e){} };
+  if(q.get('checkout')==='cancelled'){ clean(); return; }
+  if(!sid) return;
+  fetch('/api/confirm?session_id='+encodeURIComponent(sid))
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(!j||!j.paid) return;
+      S.receipt={tier:j.tier,token:j.receipt};
+      if(j.tier==='family')S.paidFam=true; else S.paidMe=true;
+      save();
+      if(countedOnce('purchase',j.tier))beacon('purchase',{tier:j.tier});
+      track('purchase',{plan:j.tier==='family'?'family':'single',value:j.tier==='family'?28:8.88,currency:'GBP'});
+      clean();
+      go(j.tier==='family'?(hasMe()?'fam_anchor':'me_dob'):'me_dob');
+    })
+    .catch(function(){});
+}
 function beaconProfile(name){
   const f=meFacts();
   beacon(name, f?{tier:S.paidFam?'family':'personal',lifePathRoot:f.root,ageBand:f.band,gender:f.gender}:{tier:S.paidFam?'family':'personal'});
@@ -1798,19 +1859,33 @@ function vLanding(){return topbar()+`<div class="screen">
     </div>
   </div>
   <div style="text-align:center;padding:6px 20px 0"><button class="btn btn-ghost" data-act="glossary">${unlocked()?`Browse what every number means →`:`See all thirteen numbers →`}</button></div>
-  <p class="foot">NUMIO is an interpretive tool for reflection — not scientifically validated prediction. Prototype: checkout &amp; login are represented, not live. <a href="privacy.html" style="color:var(--stone);text-underline-offset:2px">Privacy</a></p>
+  <p class="foot">NUMIO is an interpretive tool for reflection — not scientifically validated prediction. ${S.payLive===true?'Payments are handled by Stripe; your card details never reach us.':'Prototype: checkout &amp; login are represented, not live.'} <a href="privacy.html" style="color:var(--stone);text-underline-offset:2px">Privacy</a></p>
 </div>`;}
 
 /* ---------- unlock (pay up front) ---------- */
-function vUnlock(kind){const me=kind==='me';const price=me?'£8.88':'£28.00';const acct=S.account||{email:''};return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:460px">
+function vUnlock(kind){const me=kind==='me';const price=me?'£8.88':'£28.00';
+  /* A card form is drawn only while Stripe is unconfigured, because until a key exists this is
+     still the prototype and pretending otherwise would be worse than saying so. Once the key is
+     there, nobody types a card number into this app — they go to Stripe and come back. */
+  const live=S.payLive===true;
+  return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:460px">
   <p class="eyebrow">Checkout</p><h1 style="font-size:2rem;margin-top:8px">${me?'Personal Reading':'Family Reading'}</h1>
-  <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="muted">${me?'One complete personal profile, yours to keep':'Your whole family, unlimited profiles &amp; comparisons'}</span><b style="font-family:var(--display);font-size:1.3rem">${price}</b></div><div style="border-top:1px solid var(--rule);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between"><b>Total</b><b style="font-family:var(--display)">${price}</b></div></div>
-  <div class="card" style="margin-top:14px"><label class="fl">Email for your receipt</label><input id="co_email" value="${esc(acct.email)}" placeholder="you@email.com">
-   <label class="fl" style="margin-top:12px">Card details</label><input value="4242 4242 4242 4242" disabled style="opacity:.55"><div style="display:flex;gap:10px;margin-top:10px"><input value="MM / YY" disabled style="opacity:.55"><input value="CVC" disabled style="opacity:.55"></div>
-   <p class="muted" style="font-size:.72rem;margin-top:10px">🔒 Prototype checkout — no real charge is taken. A live build drops Stripe in right here.</p>
+  <div class="card" style="margin-top:18px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="muted">${me?'One complete personal profile, yours to keep':'Your whole family, unlimited profiles &amp; comparisons'}</span><b style="font-family:var(--display);font-size:1.4rem">${price}</b></div>
+    <p class="muted" style="font-size:.8rem;margin-top:10px">One payment. No subscription, nothing to cancel.</p>
+    ${S.promo?`<p class="muted" style="font-size:.8rem;margin-top:8px">Code <b style="color:var(--ink)">${esc(S.promo)}</b> will be applied at checkout.</p>`:''}
   </div>
-  <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="${me?'unlocked-me':'unlocked-fam'}">Pay ${price} &amp; begin →</button>
-  <p style="margin-top:16px;text-align:center"><span class="muted" style="cursor:pointer;font-size:.85rem;text-decoration:underline" data-act="home">Cancel</span></p>
+  ${live?`
+  <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="${me?'pay-me':'pay-fam'}" id="paybtn">Pay ${price} &amp; begin &rarr;</button>
+  <p class="muted" style="font-size:.74rem;margin-top:12px;text-align:center">Card details are entered on Stripe, never here. Got a code? There is a box for it on the next screen.</p>`
+  :`
+  <div class="card" style="margin-top:14px">
+    <label class="fl">Card details</label><input value="4242 4242 4242 4242" disabled style="opacity:.55">
+    <div style="display:flex;gap:10px;margin-top:10px"><input value="MM / YY" disabled style="opacity:.55"><input value="CVC" disabled style="opacity:.55"></div>
+    <p class="muted" style="font-size:.72rem;margin-top:10px">&#128274; Prototype checkout — no real charge is taken.</p>
+  </div>
+  <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="${me?'unlocked-me':'unlocked-fam'}">Pay ${price} &amp; begin &rarr;</button>`}
+  <p id="payerr" class="muted" style="margin-top:12px;text-align:center;font-size:.85rem;color:var(--accent-2)"></p>
+  <p style="margin-top:10px;text-align:center"><span class="muted" style="cursor:pointer;font-size:.85rem;text-decoration:underline" data-act="home">Cancel</span></p>
 </div></div>`;}
 function vAuth(){const a=S.account||{name:'',email:''};return topbar()+`<div class="screen"><div class="wrap" style="padding:44px 20px 60px;max-width:420px">
   <p class="eyebrow">Your account</p><h1 style="font-size:2rem;margin-top:8px">${a.name?'Welcome back':'Create your NUMIO'}</h1>
@@ -2555,6 +2630,8 @@ document.addEventListener('click',e=>{
   else if(act==='anchor-new'){const n=val('fa_name'),d=val('fa_dob');if(!n||!d){notify('Add your name and date of birth.');return;}S.me.first=n.split(' ')[0];S.me.last=n.split(' ').slice(1).join(' ')||n.split(' ')[0];S.me.dob=d;S.anchorEditMode=false;save();go('fam_add');}
   else if(act==='fm-add')fmAdd();
   else if(act==='fam-space')go('fam_space');
+  else if(act==='pay-me'){payStart('personal');}
+  else if(act==='pay-fam'){payStart('family');}
   else if(act==='cmp-go'){if((S.famSel||[]).length>=2){S.famShow=true;save();render();
     setTimeout(function(){document.getElementById('fam-compare-panel')?.scrollIntoView({behavior:'smooth',block:'start'});},60);}}
   else if(act==='cmp-clear'){S.famSel=[];S.famShow=false;save();render();}
@@ -2689,6 +2766,12 @@ if(hasMe()&&(S.screen==='landing'||!S.screen))S.screen='dashboard';
 try{history.replaceState({navScreen:S.screen},'','#'+S.screen);}catch(e){}
 addEventListener('popstate',e=>{const ns=e.state&&e.state.navScreen;if(ns){S.screen=ns;save();render();window.scrollTo(0,0);}});
 render();
+
+/* Payments. payReturn() first, because somebody arriving back from Stripe should land on their
+   reading rather than watch the home screen for a beat; payProbe() then quietly settles whether the
+   real checkout or the prototype is the one to draw. */
+payReturn();
+payProbe();
 
 /* PWA install support — offline app-shell caching via a same-origin service worker. Registration
    is best-effort: file:// pages and sandboxed preview origins don't support service workers at all,

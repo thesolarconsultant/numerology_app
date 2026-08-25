@@ -156,6 +156,26 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE INDEX IF NOT EXISTS idx_events_name ON events(name);
 CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
 
+-- Sales. Written by the Stripe webhook, which is the only thing that actually knows whether money
+-- moved, and again by the return-from-Stripe confirmation for the ordinary case where somebody does
+-- come back. session_id is unique so those two can never count the same sale twice.
+--
+-- Deliberately holds no name, no email and no card detail: Stripe has all of that, and there is no
+-- reason for a second copy to exist here. This is a ledger for reconciliation, not a customer list.
+CREATE TABLE IF NOT EXISTS purchases (
+  id BIGSERIAL PRIMARY KEY,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  session_id TEXT NOT NULL UNIQUE,
+  tier TEXT NOT NULL,
+  amount_total INTEGER,      -- in pence, after any discount
+  currency TEXT,
+  promo_code TEXT,           -- 'discounted' when a promo was used; the code itself lives in Stripe
+  livemode BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE INDEX IF NOT EXISTS idx_purchases_created_at ON purchases(created_at);
+CREATE INDEX IF NOT EXISTS idx_purchases_tier ON purchases(tier);
+
 -- Columns added after the tables were first created. CREATE TABLE IF NOT EXISTS does nothing to a
 -- table that already exists, so anything added later has to say so here as well. ADD COLUMN IF NOT
 -- EXISTS is idempotent, so this stays correct for a brand new database and an old one alike, and
@@ -250,10 +270,11 @@ export async function withSchema(run) {
 export async function schemaState() {
   const { rows } = await sql`
     SELECT table_name, column_name FROM information_schema.columns
-    WHERE table_schema = current_schema() AND table_name IN ('profiles', 'events')
+    WHERE table_schema = current_schema() AND table_name IN ('profiles', 'events', 'purchases')
     ORDER BY table_name, ordinal_position
   `;
-  const columns = { profiles: [], events: [] };
+  const columns = { profiles: [], events: [], purchases: [] };
   for (const r of rows) columns[r.table_name].push(r.column_name);
-  return { profiles: columns.profiles.length > 0, events: columns.events.length > 0, columns };
+  return { profiles: columns.profiles.length > 0, events: columns.events.length > 0,
+           purchases: columns.purchases.length > 0, columns };
 }

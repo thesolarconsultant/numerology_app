@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "NUMIO — a self-contained static app plus a small serverless backend for anonymised archetype insight.",
   "dependencies": {
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "stripe": "^22.5.0"
   }
 }
