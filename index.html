@@ -251,6 +251,17 @@
   .rkey{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.7rem;color:var(--stone-2);}
   .rkey span{width:22px;height:10px;border-radius:3px;}
 
+  /* The landing gallery. Real screens of the running app — captured from it, not drawn — so it
+     swipes on a phone and sits in a row on a desktop. */
+  .gal{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+    padding:20px 4px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .gal::-webkit-scrollbar{display:none;}
+  .gal figure{flex:0 0 200px;scroll-snap-align:center;margin:0;}
+  .gal img{width:100%;height:auto;display:block;border-radius:20px;border:1px solid var(--rule);
+    background:var(--surface);box-shadow:0 10px 26px rgba(35,26,21,.09);}
+  .gal figcaption{font-size:.78rem;color:var(--stone);margin-top:10px;text-align:center;line-height:1.45;}
+  @media(min-width:820px){.gal{overflow:visible;justify-content:center;}.gal figure{flex:0 0 208px;}}
+
   /* Desktop: the mockup's three columns. Below this it stays the single column it already was.
      The base rule has to come FIRST — a media query adds no specificity, so a later `display:block`
      would beat the grid at every width and silently stack the three columns on top of each other. */
@@ -1677,11 +1688,33 @@ function vLanding(){return topbar()+`<div class="screen">
     </div>
     <div style="margin-top:26px;display:flex;gap:16px 24px;flex-wrap:wrap;justify-content:center;font-size:.76rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stone)"><span>⚡ Instant</span><span>◆ One-off payment</span><span>∞ Yours to keep</span><span>✎ We show our working</span></div>
   </div></div>
+  <div class="wrap" style="padding:6px 20px 0">
+    <div style="text-align:center;max-width:580px;margin:30px auto 0">
+      <p class="eyebrow">Inside</p>
+      <h2 style="font-size:2rem;margin-top:8px">What you actually get</h2>
+      <p class="muted" style="margin-top:10px;font-size:.95rem">Real screens from the running app.</p>
+    </div>
+    <div class="gal">
+      <figure class="bfade"><img src="shot-reveal.jpg" width="585" height="1266" loading="lazy" decoding="async"
+        alt="The reveal screen: Life Path 24/6, Birthday 8, Inner Drive 44/8, Expression 91/10/1, and the layers beneath.">
+        <figcaption>Every number in your date of birth, not just the headline one.</figcaption></figure>
+      <figure class="bfade"><img src="shot-family.jpg" width="585" height="1266" loading="lazy" decoding="async"
+        alt="The family space: a list of people with their Life Paths, two selected, and their comparison opening below.">
+        <figcaption>Pick any two — or three — and read them against each other.</figcaption></figure>
+      <figure class="bfade"><img src="shot-calendar.jpg" width="585" height="1266" loading="lazy" decoding="async"
+        alt="A printed month sheet with every day coloured by how it meets your own numbers.">
+        <figcaption>A month scored against you, so you can time the hard conversation.</figcaption></figure>
+      <figure class="bfade"><img src="shot-reading.jpg" width="585" height="1266" loading="lazy" decoding="async"
+        alt="The reading: a written synthesis of the profile with the key numbers underneath it.">
+        <figcaption>Written out in plain English, with the arithmetic shown.</figcaption></figure>
+    </div>
+    <p style="text-align:center;margin-top:6px"><a class="btn btn-ghost" href="story.html" style="text-decoration:none">See the whole story &rarr;</a></p>
+  </div>
   <div class="wrap" id="pricing" style="padding-bottom:20px">
     <div style="text-align:center;max-width:560px;margin:20px auto 0"><p class="eyebrow">Two ways in</p><h2 style="font-size:2rem;margin-top:8px">Just you, or your whole family</h2></div>
     <div class="journeys">
       <div class="jcard fam" style="box-shadow:0 0 0 1px var(--accent-2)"><span style="position:absolute;top:16px;right:16px;background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:2px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--accent-2)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family Reading</h3><div class="price">£28</div>
-        <ul><li><b>✦</b> The full profile for everyone you love</li><li><b>✦</b> How to support each person through their year</li><li><b>✦</b> Partners, parents, kids &amp; siblings compared</li><li><b>✦</b> Your whole family's timing in one place</li></ul>
+        <ul><li><b>✦</b> The full profile for everyone you love</li><li><b>✦</b> How to support each person through their year</li><li><b>✦</b> Partners, parents, kids, siblings &amp; friends — any two or three compared side by side</li><li><b>✦</b> Your whole family's timing in one place</li></ul>
         <p class="muted" style="font-size:.8rem;margin:-4px 0 14px">Cheaper than 4 single readings — and it's unlimited.</p>
         <button class="btn btn-glow btn-block" data-act="start-fam">Map my family — £28</button></div>
       <div class="jcard me"><p class="eyebrow">Just me</p><h3 style="font-size:1.4rem;margin-top:4px">Personal Reading</h3><div class="price">£8.88</div>
