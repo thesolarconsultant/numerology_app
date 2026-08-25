@@ -27,15 +27,20 @@ export function connectionString() {
       || '';
 }
 
-// libpq's sslmode, honoured properly: "require" means encrypt but do not verify the certificate,
-// "verify-ca"/"verify-full" mean verify it. Anything remote with no sslmode at all gets encrypted
-// without verification, because every managed provider requires TLS and none of them would work
-// otherwise. A local database gets none.
+// TLS. Worth being precise about, because two things decide it and only one of them is this
+// function: node-postgres merges the connection string's own parsed options *over* the ones passed
+// in, so whenever the URL carries an sslmode that is what actually applies. In pg 8 an sslmode of
+// require, prefer or verify-ca is treated as verify-full — the certificate is properly verified —
+// which is what the live database does today, and pg warns that a future major version will
+// downgrade those to unverified. The dependency is pinned to ^8 so that cannot arrive unnoticed.
+//
+// This function therefore decides the case the URL leaves open: no sslmode at all. Remote gets
+// encryption without verification, because managed providers all require TLS and many present
+// certificates that will not verify against the public roots; local gets none.
 function sslFor(cs) {
   const mode = (/[?&]sslmode=([^&]+)/i.exec(cs) || [])[1];
   if (mode === 'disable') return false;
-  if (mode === 'verify-ca' || mode === 'verify-full') return { rejectUnauthorized: true };
-  if (mode) return { rejectUnauthorized: false };
+  if (mode) return { rejectUnauthorized: true };
   return /@(localhost|127\.0\.0\.1|\[::1\])/i.test(cs) ? false : { rejectUnauthorized: false };
 }
 
