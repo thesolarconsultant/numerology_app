@@ -525,7 +525,20 @@ function findDatesFor(profile,intel,task,fromDate,days){
  return out.slice(0,5);
 }
 // Birth Architecture: Birthday -> Month -> Day+Month -> Birth Year -> Life Path. Every layer is kept, none discarded.
-function birthArchitecture(dob){const[y,m,d]=dob.split('-').map(Number);const birthMonth=reduce(m,MM),birthday=reduce(d,MM),dayMonth=reduce(birthMonth.number+birthday.number,MM),birthYear=reduce(digitSum(y),MM),lifePath=reduce(dayMonth.number+birthYear.number,MM);return{birthMonth,birthday,dayMonth,birthYear,lifePath};}
+/* The Life Path is Month + Day + Year, with each component reduced separately FIRST and then added
+   once. It is never the full date summed in one continuous line, and — the trap this used to fall
+   into — it is never routed through Day + Month.
+   Day + Month is its own layer of the birth architecture and is interpreted as one, but folding it
+   into the Life Path reduces month+day a second time and destroys what the sum was carrying.
+   9 September 1999 is the clearest case: 9 + 9 + 1 = 19/1, a Karmic Debt. Reducing 9+9 to 18→9
+   first gives 10/1 and the debt disappears. It cuts the other way too — 29 February 1980 is
+   2 + 11 + 9 = 22/4, the master number, which the old route flattened into 13/4 and then flagged as
+   a Karmic Debt that was never there. */
+function birthArchitecture(dob){const[y,m,d]=dob.split('-').map(Number);
+ const birthMonth=reduce(m,MM),birthday=reduce(d,MM),birthYear=reduce(digitSum(y),MM);
+ const dayMonth=reduce(birthMonth.number+birthday.number,MM);
+ const lifePath=reduce(birthMonth.number+birthday.number+birthYear.number,MM);
+ return{birthMonth,birthday,dayMonth,birthYear,lifePath};}
 function lifePathFromDob(dob){return birthArchitecture(dob).lifePath;}
 // Challenge Numbers: the obstacle-side counterpart to Pinnacles, same four age periods, built from
 // subtraction (not addition) between fully single-digit month/day/year — masters are never preserved here.
@@ -826,7 +839,7 @@ const NUM_WHAT={
  'Birthday':'a specific natural talent you were born with',
  'Birth Month':'a foundation running underneath your birthday, from the calendar month you were born into',
  'Day + Month':'the energy created when your birthday and birth month meet — not either number alone',
- 'Birth Year':'the deeper, more structural layer beneath your day and month — the foundation your Life Path is finally built on',
+ 'Birth Year':'the deeper, more structural layer beneath your day and month — one of the three that add up to your Life Path',
  'First Challenge':'an obstacle running through your early years, active until your first Pinnacle period ends',
  'Second Challenge':'an obstacle running through your second life period, alongside your second Pinnacle',
  'Third Challenge':'the Main Challenge — active across your whole life, underneath the other three',
@@ -1571,7 +1584,7 @@ function birthArchNarrative(p,first){
   amp=` Worth naming: ${rootN} shows up ${count===2?'twice':count+' times'} here — across ${joinL(names)} — so this isn't a light touch in ${first}'s birth architecture, it's a genuinely repeating, foundational pattern.`;
  }
  const lp=ARCHETYPE[p.lifePath.number]||{};
- return parts.join(' ')+amp+` Every one of those layers builds toward the Life Path of ${p.lifePath.display} — ${lp.core?lp.core.charAt(0).toLowerCase()+lp.core.slice(1):''} That final number isn't ${first} reduced to a single digit; it's ${first} as the sum of everything above, with the Birthday, Birth Month, Day + Month and Birth Year all still fully present underneath it, not replaced by it.`;
+ return parts.join(' ')+amp+` Every one of those layers builds toward the Life Path of ${p.lifePath.display} — ${lp.core?lp.core.charAt(0).toLowerCase()+lp.core.slice(1):''} That final number isn't ${first} reduced to a single digit: it is the Birth Month, the Birthday and the Birth Year, each reduced on its own and then added once. Day + Month sits alongside it rather than inside it — a layer of its own, not a step on the way. All of them stay fully present underneath the Life Path, not replaced by it.`;
 }
 function readingTarget(){const idx=S.famReadingIdx;const m=idx!=null?S.family[idx]:null;
  if(m){const p=buildProfile(m.dob,m.name,'',m.door||'',YEARNOW);return{p,name:m.name.split(' ')[0],c:{},isMe:false,relationship:m.relationship};}
@@ -1617,7 +1630,9 @@ function vReading(){const rt=readingTarget();const p=rt.p;const I=buildIntellige
 Birth Month     ${calcPre(p.birthMonth)}
 Day + Month     ${p.birthMonth.number} + ${p.birthday.number} = ${p.birthMonth.number+p.birthday.number} → ${calcPre(p.dayMonth)}
 Birth Year      digits of birth year sum to ${digitSum(p.dob.slice(0,4))} → ${calcPre(p.birthYear)}
-Life Path       ${p.dayMonth.number} + ${p.birthYear.number} = ${p.dayMonth.number+p.birthYear.number} → ${calcPre(p.lifePath)}</pre></details>
+Life Path       ${p.birthMonth.number} + ${p.birthday.number} + ${p.birthYear.number} = ${p.birthMonth.number+p.birthday.number+p.birthYear.number} → ${calcPre(p.lifePath)}
+                (month, day and year each reduced first, then added once — Day + Month is
+                 a layer in its own right, not a step on the way to this)</pre></details>
    </section>
    <section class="blk" id="you"><p class="eyebrow">What the numbers agree on</p><h2 style="font-size:1.7rem;margin-top:8px">Who you are</h2>${I.themes.filter(t=>t.band!=='Background').map(themeRow).join('')}${I.reinforcements[0]?`<div class="card beam" style="margin-top:12px"><p class="eyebrow" style="color:var(--accent-2)">Strong recurring pattern · ${I.reinforcements[0].label}</p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(I.reinforcements[0].explanation)}</p></div>`:''}</section>
    <section class="blk" id="drives"><p class="eyebrow">Underneath</p><h2 style="font-size:1.7rem;margin-top:8px">What drives you</h2><div class="card" style="margin-top:14px"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span class="bignum num-tap" data-info data-label="Inner Drive" data-value="${p.pyth.soulUrge.display}" style="font-size:3rem;color:var(--accent)">${p.pyth.soulUrge.display}</span><div><div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.12em">Inner drive ⓘ</div><b style="font-family:var(--display)">A need for ${I.need}</b></div></div>
