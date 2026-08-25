@@ -5,41 +5,82 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>NUMIO — Archetypes</title>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192-v3.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Figtree:wght@400;500;600;700;800&display=swap">
 <style>
- :root{--ground:#0b0713;--surface:#160f24;--surface2:#1d1533;--border:#2c2145;--text:#f4f1fa;--muted:#a99fc0;--purple:#a78bfa;--lilac:#d8b4fe;--mint:#6ee7b7;--indigo:#818cf8;--ink:#17111f;--heading:"Manrope",ui-sans-serif,system-ui,sans-serif;--body:"DM Sans",ui-sans-serif,system-ui,sans-serif;}
+ /* Same paper the app is printed on. The dashboard is the back office of NUMIO, not a
+    different product, so it uses the brand's surfaces and type rather than a stock dark theme. */
+ :root{
+   --paper:#F6F0E4; --surface:#FFFCF6; --surface-2:#EFE7D6; --rule:#E0D5C0;
+   --ink:#231A15; --ink-2:#4A3B31; --stone:#6B5B4F;
+   --plum:#5C2A4F; --rust:#BE5430;
+   /* One hue for every mark. Every chart here plots a single series, so colour is carrying
+      magnitude, never identity — a second hue would imply a distinction that isn't in the data. */
+   --mark:#5C2A4F;
+   /* Sequential ramp for the one chart that encodes magnitude by fill: light→dark, single hue,
+      validated for monotone lightness, step separation and contrast against this surface. */
+   --seq-1:#CDA3BC; --seq-2:#AC7A9B; --seq-3:#8A5378; --seq-4:#5C2A4F;
+   --display:'Fraunces',ui-serif,Georgia,serif;
+   --ui:'Figtree',ui-sans-serif,system-ui,-apple-system,sans-serif;
+ }
  *{box-sizing:border-box;}
- body{margin:0;background:var(--ground);color:var(--text);font-family:var(--body);line-height:1.5;}
- .wrap{max-width:900px;margin:0 auto;padding:32px 20px 80px;}
- h1{font-family:var(--heading);font-weight:800;font-size:1.8rem;margin:0;display:flex;align-items:center;gap:10px;}
- .mk{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--mint));display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:1.1rem;}
- .muted{color:var(--muted);}
- .card{border:1px solid var(--border);background:rgba(22,15,36,.6);border-radius:16px;padding:20px;margin-top:16px;}
- .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--purple);}
- .row{display:flex;align-items:center;gap:10px;margin-top:10px;}
- .rowlabel{width:150px;flex-shrink:0;font-size:.85rem;}
- .track{flex:1;height:10px;border-radius:999px;background:var(--border);overflow:hidden;}
- .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--purple),var(--mint));}
- .rowval{width:70px;flex-shrink:0;text-align:right;font-size:.82rem;color:var(--muted);}
- .stat{font-family:var(--heading);font-weight:800;font-size:2.4rem;}
- .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;}
- input,button{font-family:var(--body);font-size:1rem;}
- input{width:100%;background:rgba(11,7,19,.6);border:1px solid var(--border);border-radius:12px;color:var(--text);padding:14px;}
- button{background:linear-gradient(120deg,#8b5cf6,#7c3aed);color:#fff;border:0;border-radius:999px;padding:14px 26px;font-weight:700;cursor:pointer;}
- .gate{max-width:360px;margin:80px auto;text-align:center;}
- .err{color:#f9a8a8;font-size:.85rem;margin-top:10px;}
- .takeaway{border-left:3px solid var(--mint);padding-left:12px;margin-top:10px;font-size:.9rem;}
+ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);
+   font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;}
+ .wrap{max-width:920px;margin:0 auto;padding:36px 20px 90px;}
+ h1{font-family:var(--display);font-weight:600;font-size:1.9rem;margin:0;letter-spacing:-.012em;}
+ .mk{height:26px;width:auto;display:block;}
+ .muted{color:var(--stone);}
+ .card{border:1px solid var(--rule);background:var(--surface);border-radius:22px;padding:22px;margin-top:16px;}
+ .eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--rust);margin:0;}
+ .note{font-size:.85rem;color:var(--ink-2);margin:8px 0 0;}
+ .foot{font-size:.8rem;color:var(--stone);margin:14px 0 0;}
+
+ /* Bars: one baseline, square where they start, 4px round at the data end, thin enough
+    that the leftover space in each row stays air rather than track. */
+ .row{display:grid;grid-template-columns:132px 1fr auto;align-items:center;gap:12px;margin-top:9px;}
+ .rowlabel{font-size:.85rem;color:var(--ink-2);}
+ .track{position:relative;height:14px;}
+ .fill{position:absolute;left:0;top:0;height:100%;background:var(--mark);border-radius:0 4px 4px 0;min-width:3px;}
+ .rowval{font-size:.8rem;color:var(--stone);font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+ .stat{font-family:var(--ui);font-weight:700;font-size:2.2rem;line-height:1.1;letter-spacing:-.02em;}
+ .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:16px;}
+ .statlabel{font-size:.8rem;color:var(--stone);margin:2px 0 0;}
+
+ table.grid{width:100%;border-collapse:collapse;margin-top:14px;font-size:.85rem;
+   font-variant-numeric:tabular-nums;}
+ table.grid th{text-align:right;padding:7px 10px;font-size:.66rem;font-weight:800;letter-spacing:.1em;
+   text-transform:uppercase;color:var(--stone);border-bottom:1px solid var(--rule);}
+ table.grid th:first-child{text-align:left;}
+ table.grid td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--rule);}
+ table.grid td:first-child{text-align:left;color:var(--ink-2);}
+ table.grid tr:last-child td{border-bottom:0;}
+ .cell{display:inline-block;min-width:34px;padding:3px 8px;border-radius:6px;}
+
+ input,button{font-family:var(--ui);font-size:1rem;}
+ input{width:100%;background:var(--surface);border:1px solid var(--rule);border-radius:14px;
+   color:var(--ink);padding:14px 16px;}
+ input::placeholder{color:var(--stone);}
+ button{background:var(--plum);color:#FBF6EC;border:0;border-radius:999px;padding:14px 28px;
+   font-weight:700;cursor:pointer;}
+ button:disabled{opacity:.5;cursor:default;}
+ :focus-visible{outline:3px solid var(--plum);outline-offset:3px;}
+ .gate{max-width:380px;margin:15vh auto;text-align:center;}
+ .err{color:var(--rust);font-size:.85rem;margin-top:12px;}
+ .takeaway{border-left:2px solid var(--rust);padding-left:14px;margin-top:12px;font-size:.9rem;color:var(--ink-2);}
+ .head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 </style>
 </head>
 <body>
 <div id="app"><div class="gate">
- <div class="mk" style="margin:0 auto 14px;width:44px;height:44px;font-size:1.5rem">✦</div>
- <h1 style="justify-content:center">Archetypes</h1>
- <p class="muted" style="margin-top:6px;font-size:.9rem">Internal view — aggregated, anonymised NUMIO user patterns. Not linked to names or contact details.</p>
- <div style="margin-top:20px"><input id="tok" type="password" placeholder="Admin token"></div>
- <div style="margin-top:12px"><button id="go">View archetypes</button></div>
+ <img class="mk" src="numio-mark.jpg" alt="NUMIO" style="height:30px;margin:0 auto 18px">
+ <p class="eyebrow">Archetypes</p>
+ <h1 style="margin-top:8px">Who NUMIO is reaching</h1>
+ <p class="muted" style="margin-top:8px;font-size:.9rem">Internal. Aggregated patterns only — no names, no dates of birth, no contact details.</p>
+ <div style="margin-top:22px"><input id="tok" type="password" placeholder="Admin token"></div>
+ <div style="margin-top:12px"><button id="go">Open</button></div>
  <p id="err" class="err"></p>
 </div></div>
 <script>
@@ -51,22 +92,29 @@ const genderName = g => GENDER_LABEL[g] || g || '—';
 
 /* Age band against gender. Rows come back one cell at a time, so they are pivoted here rather than
    in SQL — a crosstab in Postgres would have to name the columns up front, and this way an answer
-   added later shows up on its own. */
+   added later shows up on its own.
+
+   Fill encodes magnitude on a single-hue light→dark ramp; the count is printed in every cell as
+   well, so the colour is reinforcement and nobody has to read a shade to get a number. */
+const SEQ = ['var(--seq-1)', 'var(--seq-2)', 'var(--seq-3)', 'var(--seq-4)'];
+function seqCell(n, max) {
+  if (!n) return '<span class="cell" style="color:var(--stone)">0</span>';
+  const step = Math.min(SEQ.length - 1, Math.floor((n / max) * SEQ.length - 1e-9));
+  // Ink on the two light steps, paper on the two dark ones, so the number always clears its fill.
+  return `<span class="cell" style="background:${SEQ[step]};color:${step >= 2 ? '#FBF6EC' : 'var(--ink)'}">${n}</span>`;
+}
 function grid(rows) {
-  if (!rows.length) return '<p class="muted" style="margin-top:8px;font-size:.85rem">Nothing yet.</p>';
+  if (!rows.length) return '<p class="muted" style="margin-top:10px;font-size:.85rem">Nothing yet.</p>';
   const bands = [...new Set(rows.map(r => r.age_band))].sort();
   const genders = [...new Set(rows.map(r => r.gender))];
   const at = (b, g) => (rows.find(r => r.age_band === b && r.gender === g) || {}).n || 0;
   const max = Math.max(1, ...rows.map(r => r.n));
-  return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem">
-    <thead><tr><th style="text-align:left;padding:6px 8px;color:var(--muted);font-weight:600">Age</th>
-    ${genders.map(g => `<th style="text-align:right;padding:6px 8px;color:var(--muted);font-weight:600">${esc(genderName(g))}</th>`).join('')}
-    <th style="text-align:right;padding:6px 8px;color:var(--muted);font-weight:600">All</th></tr></thead>
+  return `<div style="overflow-x:auto"><table class="grid">
+    <thead><tr><th>Age</th>${genders.map(g => `<th>${esc(genderName(g))}</th>`).join('')}<th>All</th></tr></thead>
     <tbody>${bands.map(b => {
       const cells = genders.map(g => at(b, g));
-      return `<tr><td style="padding:6px 8px;border-top:1px solid var(--border)">${esc(b)}</td>
-        ${cells.map(n => `<td style="text-align:right;padding:6px 8px;border-top:1px solid var(--border);background:rgba(167,139,250,${(n / max * .35).toFixed(3)})">${n}</td>`).join('')}
-        <td style="text-align:right;padding:6px 8px;border-top:1px solid var(--border);color:var(--muted)">${cells.reduce((a, n) => a + n, 0)}</td></tr>`;
+      return `<tr><td>${esc(b)}</td>${cells.map(n => `<td>${seqCell(n, max)}</td>`).join('')}
+        <td class="muted">${cells.reduce((a, n) => a + n, 0)}</td></tr>`;
     }).join('')}</tbody></table></div>`;
 }
 
@@ -96,7 +144,7 @@ async function offerSetup(token, err) {
     : 'The database could not be reached.';
   const btn = document.createElement('button');
   btn.textContent = 'Create the tables anyway';
-  btn.style.cssText = 'margin-top:14px;padding:12px 20px;cursor:pointer;font:inherit;';
+  btn.style.cssText = 'margin-top:16px;';
   const out = document.createElement('p');
   out.style.cssText = 'margin-top:12px;font-size:.9rem;';
   btn.onclick = async function () {
@@ -155,42 +203,43 @@ async function load(token) {
 
   $('#app').innerHTML = `
    <div class="wrap">
-    <h1><span class="mk">✦</span> Archetypes</h1>
-    <p class="muted" style="margin-top:4px">Aggregated, anonymised patterns across everyone who opted in to sharing their profile. No names, no contact details — see SETUP.md for exactly what this is and isn't.</p>
+    <div class="head"><img class="mk" src="numio-mark.jpg" alt="NUMIO"><span class="eyebrow">Archetypes</span></div>
+    <h1 style="margin-top:14px">Who NUMIO is reaching</h1>
+    <p class="note">Aggregated and anonymised. Counts only — never a name, a date of birth or a way to contact anyone. <a href="/privacy.html" style="color:var(--plum)">What the app tells people it collects</a>.</p>
 
     <div class="card">
      <p class="eyebrow">Everyone — not just opt-ins</p>
-     <p class="muted" style="font-size:.82rem;margin-top:6px">Anonymous counts, recorded for every person who reaches each step. No names, no dates of birth, no contact details, no cookies.</p>
+     <p class="note">Anonymous counts, recorded for every person who reaches each step. No names, no dates of birth, no contact details, no cookies.</p>
      <div class="stats" style="margin-top:12px">
       ${['checkout_started','purchase','profile_completed','reading_opened'].map(k=>{
         const row=(data.funnel||[]).find(r=>r.name===k)||{n:0};
         const LAB={checkout_started:'Started checkout',purchase:'Paid',profile_completed:'Finished profile',reading_opened:'Opened reading'};
-        return `<div><div class="stat" style="font-size:1.6rem">${row.n}</div><p class="muted" style="font-size:.8rem">${LAB[k]}</p></div>`;
+        return `<div><div class="stat">${row.n}</div><p class="statlabel">${LAB[k]}</p></div>`;
       }).join('')}
      </div>
-     ${data.optInRate==null?'':`<p class="muted" style="font-size:.82rem;margin-top:14px">Of the <b>${data.completed}</b> people who finished a profile, <b>${data.optInRate}%</b> opted in to sharing it — so every chart below describes that share of the whole, not all of it.</p>`}
+     ${data.optInRate==null?'':`<p class="foot">Of the <b>${data.completed}</b> people who finished a profile, <b>${data.optInRate}%</b> opted in to sharing it — so every chart below describes that share of the whole, not all of it.</p>`}
     </div>
 
     <div class="card">
      <p class="eyebrow">Who is using NUMIO</p>
-     <p class="muted" style="font-size:.82rem;margin-top:6px">Asked once, optional, and counted for everyone who finishes a profile — not only the people who opt in to sharing one. "Prefer not to say" is an answer, and is counted as one.</p>
+     <p class="note">Asked once, optional, and counted for everyone who finishes a profile — not only the people who opt in to sharing one. "Prefer not to say" is an answer, and is counted as one.</p>
      ${data.completionsByGender && data.completionsByGender.length
         ? bar(data.completionsByGender, 'gender', data.genderKnown) +
-          `<p class="muted" style="font-size:.78rem;margin-top:12px">${data.genderKnown} of ${data.completed} finished profiles answered — ${data.completed ? Math.round(data.genderKnown / data.completed * 100) : 0}% coverage. Anyone who skipped it is not in these bars.</p>`
-        : '<p class="muted" style="margin-top:8px;font-size:.85rem">Nobody has answered this yet. It appears on the identity step, so it will start filling up with the next profile built.</p>'}
+          `<p class="foot">${data.genderKnown} of ${data.completed} finished profiles answered — ${data.completed ? Math.round(data.genderKnown / data.completed * 100) : 0}% coverage. Anyone who skipped it is not in these bars.</p>`
+        : '<p class="foot">Nobody has answered this yet. It appears on the identity step, so it will start filling up with the next profile built.</p>'}
     </div>
 
     <div class="card">
      <p class="eyebrow">Age against gender</p>
-     <p class="muted" style="font-size:.82rem;margin-top:6px">The pair every ad platform targets on. Everyone who finished a profile and answered both.</p>
+     <p class="note">The pair every ad platform targets on. Everyone who finished a profile and answered both.</p>
      ${grid(data.genderByAge || [])}
     </div>
 
     <div class="card">
      <p class="eyebrow">Opted-in profiles</p>
      <div class="stats" style="margin-top:12px">
-      <div><div class="stat">${data.total}</div><p class="muted" style="font-size:.8rem">total</p></div>
-      ${data.byTier.map(t => `<div><div class="stat" style="font-size:1.6rem">${t.n}</div><p class="muted" style="font-size:.8rem;text-transform:capitalize">${esc(t.tier)}</p></div>`).join('')}
+      <div><div class="stat">${data.total}</div><p class="statlabel">Shared a profile</p></div>
+      ${data.byTier.map(t => `<div><div class="stat">${t.n}</div><p class="statlabel" style="text-transform:capitalize">${esc(t.tier)}</p></div>`).join('')}
      </div>
     </div>
 
@@ -216,14 +265,14 @@ async function load(token) {
 
     <div class="card">
      <p class="eyebrow">Dominant theme, by gender</p>
-     <p class="muted" style="font-size:.82rem;margin-top:6px">What each group's profile is actually built around — the copy angle that will land with each of them.</p>
+     <p class="note">What each group's profile is actually built around — the copy angle that will land with each of them.</p>
      ${(data.themeByGender && data.themeByGender.length)
         ? [...new Set(data.themeByGender.map(r => r.gender))].map(g => {
             const rows = data.themeByGender.filter(r => r.gender === g);
             const n = rows.reduce((a, r) => a + r.n, 0);
-            return `<p class="eyebrow" style="margin-top:16px;color:var(--lilac)">${esc(genderName(g))} · ${n}</p>` + bar(rows.slice(0, 6), 'theme', n);
+            return `<p class="eyebrow" style="margin-top:18px;color:var(--plum)">${esc(genderName(g))} · ${n}</p>` + bar(rows.slice(0, 6), 'theme', n);
           }).join('')
-        : '<p class="muted" style="margin-top:8px;font-size:.85rem">Needs opted-in profiles that answered the question. Nothing yet.</p>'}
+        : '<p class="foot">Needs opted-in profiles that answered the question. Nothing yet.</p>'}
     </div>
 
     <div class="card">
@@ -238,12 +287,12 @@ async function load(token) {
 
     <div class="card">
      <p class="eyebrow">Age band</p>
-     ${data.byAgeBand.length ? bar(data.byAgeBand, 'age_band', data.total) : '<p class="muted" style="margin-top:8px;font-size:.85rem">No age data yet.</p>'}
+     ${data.byAgeBand.length ? bar(data.byAgeBand, 'age_band', data.total) : '<p class="foot">No age data yet.</p>'}
     </div>
 
     <div class="card">
      <p class="eyebrow">Opt-ins, last 30 days</p>
-     ${data.recentDaily.length ? data.recentDaily.map(d => `<div class="row"><span class="rowlabel">${esc(d.day)}</span><div class="track"><div class="fill" style="width:${Math.min(100, d.n * 20)}%"></div></div><span class="rowval">${d.n}</span></div>`).join('') : '<p class="muted" style="margin-top:8px;font-size:.85rem">No signups in the last 30 days.</p>'}
+     ${data.recentDaily.length ? data.recentDaily.map(d => `<div class="row"><span class="rowlabel">${esc(d.day)}</span><div class="track"><div class="fill" style="width:${Math.min(100, d.n * 20)}%"></div></div><span class="rowval">${d.n}</span></div>`).join('') : '<p class="foot">No signups in the last 30 days.</p>'}
     </div>
    </div>`;
 }
