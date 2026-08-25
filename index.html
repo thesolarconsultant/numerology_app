@@ -76,7 +76,7 @@
   input,textarea{width:100%;background:var(--surface-2);border:1px solid var(--rule);border-radius:2px;color:var(--ink);padding:14px;font-family:var(--ui);font-size:1rem;color-scheme:light;}
   input:focus,textarea:focus{outline:none;border-color:var(--accent);}
   label.fl{display:block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin:0 0 7px;}
-  .card{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:20px;}
+  .card,.paperpanel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:20px;}
   /* topbar */
   .top{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 20px calc(13px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--rule);}
   @media(max-width:420px){.top{padding:11px 12px calc(11px + env(safe-area-inset-bottom));}.logo{font-size:.98rem;gap:6px;}.top .r{gap:5px;}}
@@ -194,7 +194,7 @@
   .btn-primary{background:var(--ink);color:var(--paper);}
   .btn-ghost{background:transparent;color:var(--ink);border:2px solid rgba(35,26,21,.22);}
   .badge,.echo,.kd,.stg,.here,.opt.sel{border-radius:999px;}
-  .card,.jcard,.mbox,.key,.fnode,.pin,.trio .t,.teaser,.opt{border-radius:22px;}
+  .card,.paperpanel,.jcard,.mbox,.key,.fnode,.pin,.trio .t,.teaser,.opt{border-radius:22px;}
   .jcard,.mbox{border-radius:28px;}
   input,textarea{border-radius:999px;padding:14px 20px;border:2px solid rgba(35,26,21,.14);background:var(--surface-2);}
   textarea{border-radius:22px;}
@@ -269,8 +269,7 @@
   .onart{position:relative;z-index:1;}
   /* Same surface as .card, so a panelled paragraph and a real card read as one
      material rather than two. */
-  .paperpanel{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
-    padding:14px 16px;position:relative;z-index:1;}
+  .paperpanel{position:relative;z-index:1;}
   /* Thirteen numbers with the full read open at once is a wall. Collapsed, the
      page becomes a list you can scan; the depth is one tap away and unchanged. */
   .numdet{margin-top:12px;}
@@ -283,6 +282,15 @@
   .numdet>summary::after{content:"+";font-size:1rem;line-height:1;font-weight:700;}
   .numdet[open]>summary::after{content:"–";}
   .numdet>summary .sm-shut{display:none;}
+  /* Sits where the disclosure would, so a locked card and an open one have the
+     same shape — the difference is what it does, not how much room it takes. */
+  .numlock{margin-top:12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+    font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--stone-2);border:1px solid var(--rule);border-radius:999px;padding:8px 15px;
+    background:var(--surface-2);transition:border-color .15s ease,color .15s ease;
+    touch-action:manipulation;user-select:none;}
+  .numlock:hover{border-color:var(--accent);color:var(--accent);}
+  .numlock .lk{font-size:.9rem;}
   .numdet[open]>summary .sm-open{display:none;}
   .numdet[open]>summary .sm-shut{display:inline;}
   .screen>.wrap{position:relative;}
@@ -1005,6 +1013,11 @@ const listNames=a=>a.length<=1?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.l
 const fullName=()=>[S.me.first,S.me.middle,S.me.last].filter(Boolean).join(' ').trim();
 const meProfile=()=>buildProfile(S.me.dob,fullName(),S.me.currentName,S.me.door,YEARNOW);
 const hasMe=()=>S.me.dob&&S.me.first&&S.me.last;
+/* The meanings are the product, so the glossary opens only once somebody has
+   bought. A completed profile counts as bought: the only route to one runs
+   through checkout, so anyone holding a profile has already paid, and locking
+   them out of a page they already had would be a regression, not a gate. */
+const unlocked=()=>!!(S.paidMe||S.paidFam||hasMe());
 
 // Every navigation goes through go(), so this is the one place we need to also push browser history --
 // that's what makes the phone's native back gesture/button (and a desktop back button) step back through
@@ -1217,7 +1230,7 @@ function vLanding(){return topbar()+`<div class="screen">
         <button class="btn btn-primary btn-block" data-act="start-me">Just do mine — £8.88</button></div>
     </div>
   </div>
-  <div style="text-align:center;padding:6px 20px 0"><button class="btn btn-ghost" data-act="glossary">Browse what every number means →</button></div>
+  <div style="text-align:center;padding:6px 20px 0"><button class="btn btn-ghost" data-act="glossary">${unlocked()?`Browse what every number means →`:`See all thirteen numbers →`}</button></div>
   <p class="foot">NUMIO is an interpretive tool for reflection — not scientifically validated prediction. Prototype: checkout &amp; login are represented, not live.</p>
 </div>`;}
 
@@ -1677,22 +1690,22 @@ function nameResultCard(r){return `<div class="card beam" style="margin-top:16px
 // full essence/strengths/challenge/love/work/mission read, ARCHETYPE as a fallback for anything LIFEPATH_DEEP
 // doesn't cover) rather than the short NP one-liner this page used to show -- no reason the standalone
 // glossary should be shallower than tapping the same number inside a reading.
-function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33,44];
+function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33,44];const open=unlocked();
  const row=(lab,txt,col)=>txt?`<div style="border-top:1px solid var(--rule);padding:8px 0"><b style="color:${col};font-size:.78rem;letter-spacing:.02em">${lab}</b><div class="muted" style="font-size:.88rem;margin-top:2px">${txt}</div></div>`:'';
  return topbar()+`<div class="screen"><div class="wrap" style="padding:28px 20px 60px;max-width:680px">
   
   <p class="eyebrow onart">Learn</p><h1 class="onart" style="font-size:2rem;margin-top:8px">Every number &amp; theme, explained</h1>
 
-  <p class="muted" style="margin-top:8px">Your place to learn it yourself. 1–9 are the core numbers; 11, 22, 33 and 44 are the master numbers. Full depth on every one — the same read you'd get tapping that number inside your own reading.</p>
+  <p class="muted" style="margin-top:8px">${open?`Your place to learn it yourself. 1–9 are the core numbers; 11, 22, 33 and 44 are the master numbers. Full depth on every one — the same read you'd get tapping that number inside your own reading.`:`1–9 are the core numbers; 11, 22, 33 and 44 are the master numbers. Here is what each one is called and what it needs. What each one <em>means</em> comes with your profile — that reading is the thing itself.`}</p>
   <div style="display:grid;gap:14px;margin-top:20px">${nums.map(n=>{const np=npFor(n);const deep=LIFEPATH_DEEP[n]||{};const arch=ARCHETYPE[n]||{};const isMaster=MM.includes(n);
     return `<div class="card"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><span style="font-family:var(--display);font-weight:500;font-size:2.2rem;color:${isMaster?'var(--accent-2)':'var(--accent)'};min-width:52px">${n}</span><div><b style="font-family:var(--display)">${(np.t.map(t=>LABEL[t]||t).join(' · '))||'—'}</b>${isMaster?' <span class="muted" style="font-size:.7rem">· master</span>':''}<div class="muted" style="font-size:.82rem">Needs: ${NEEDL[np.need]||np.need}</div></div></div>
-     <details class="numdet"><summary><span class="sm-open">Read the full meaning</span><span class="sm-shut">Close</span></summary>
+     ${open?`<details class="numdet"><summary><span class="sm-open">Read the full meaning</span><span class="sm-shut">Close</span></summary>
       <p style="margin-top:12px;font-size:.95rem;line-height:1.55">${toGeneric(deep.essence||arch.core||np.m+'.')}</p>
       <div style="margin-top:8px">${row('STRENGTHS',toGeneric(deep.strengths||arch.strengths),'var(--accent-2)')}${row('THE CHALLENGE',toGeneric(deep.challenge||arch.shadow),'var(--stone-2)')}${row('IN LOVE',toGeneric(deep.love),'var(--accent)')}${row('AT WORK',toGeneric(deep.work),'var(--accent)')}${row('THE MISSION',toGeneric(deep.mission||arch.lesson),'var(--accent-2)')}</div>
       ${deep.pattern?`<p class="muted" style="font-size:.8rem;font-style:italic;margin-top:10px">${toGeneric(deep.pattern)}</p>`:''}
-     </details>
+     </details>`:`<div class="numlock" data-act="start-me" role="button" tabindex="0"><span class="lk">🔒</span><span>Unlock to read</span></div>`}
     </div>`;}).join('')}</div>
-  <h2 style="font-size:1.5rem;margin-top:32px">Karmic Debt &amp; the Wealth Number</h2>
+  ${open?`<h2 style="font-size:1.5rem;margin-top:32px">Karmic Debt &amp; the Wealth Number</h2>
   <p class="muted" style="margin-top:6px">A handful of compound numbers carry a specific lesson of their own — never just flattened to their root.</p>
   <div style="display:grid;gap:10px;margin-top:16px">
    <div class="card" style="border-color:var(--accent-2)"><b style="font-family:var(--display);color:var(--accent-2)">💰 ${esc(WEALTH_NUMBER.title)}</b><p class="muted" style="margin-top:6px;font-size:.88rem">${toGeneric(WEALTH_NUMBER.lesson)}</p></div>
@@ -1700,7 +1713,14 @@ function vGlossary(){const nums=[1,2,3,4,5,6,7,8,9,11,22,33,44];
   </div>
   <h2 style="font-size:1.5rem;margin-top:32px">The themes explained</h2>
   <p class="muted" style="margin-top:6px">The recurring patterns numbers point to — what each looks like at its best, its shadow, and how to grow with it.</p>
-  <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--display);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--accent-2)">At its best:</b> <span class="muted">${toGeneric(ti.best)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--stone-2)">Shadow:</b> <span class="muted">${toGeneric(ti.shadow)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--accent)">Grow:</b> <span class="muted">${toGeneric(ti.grow)}.</span></p></div>`).join('')}</div>
+  <div style="display:grid;gap:10px;margin-top:16px">${Object.entries(THEME_INFO).map(([k,ti])=>`<div class="card"><b style="font-family:var(--display);font-size:1.05rem">${LABEL[k]||k}</b><p style="margin-top:6px;font-size:.88rem"><b style="color:var(--accent-2)">At its best:</b> <span class="muted">${toGeneric(ti.best)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--stone-2)">Shadow:</b> <span class="muted">${toGeneric(ti.shadow)}.</span></p><p style="font-size:.86rem;margin-top:4px"><b style="color:var(--accent)">Grow:</b> <span class="muted">${toGeneric(ti.grow)}.</span></p></div>`).join('')}</div>`:`<div class="card" style="margin-top:28px;border-color:var(--accent)">
+   <p class="eyebrow" style="color:var(--accent)">What the reading adds</p>
+   <h2 style="font-size:1.45rem;margin-top:8px">A meaning is not a reading</h2>
+   <p class="muted" style="margin-top:10px;font-size:.95rem">Anyone can learn that 8 is called Ambition. What it is doing in <em>your</em> chart — which of your numbers carry it, where it tips into strain, what the year ahead asks of it — is the part worth paying for.</p>
+   <p class="muted" style="margin-top:10px;font-size:.95rem">Your profile opens all thirteen numbers in full, plus the Karmic Debt numbers, the Wealth Number and every theme, and reads them against your own date rather than in the abstract.</p>
+   <button class="btn btn-glow btn-block" style="margin-top:18px" data-act="start-me">Build my profile — £8.88 &rarr;</button>
+   <p class="muted" style="font-size:.78rem;margin-top:10px;text-align:center">One payment. Yours to keep. No subscription.</p>
+  </div>`}
   <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="glossary-back">&larr; Back to where you were</span></p>
  </div></div>`;}
 
@@ -1799,8 +1819,8 @@ document.addEventListener('click',e=>{
   else if(act==='choose'){document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});}
   else if(act==='start-me'){S.journey='me';track('begin_checkout',{plan:'single',value:8.88});go('me_unlock');}
   else if(act==='start-fam'){S.journey='fam';track('begin_checkout',{plan:'family',value:28});go('fam_unlock');}
-  else if(act==='unlocked-me'){track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
-  else if(act==='unlocked-fam'){track('purchase',{plan:'family',value:28,currency:'GBP'});go(hasMe()?'fam_anchor':'me_dob');}
+  else if(act==='unlocked-me'){S.paidMe=true;save();track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
+  else if(act==='unlocked-fam'){S.paidFam=true;save();track('purchase',{plan:'family',value:28,currency:'GBP'});go(hasMe()?'fam_anchor':'me_dob');}
   else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){notify('Please choose your date of birth to continue — tap the date field above.');document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
   else if(act==='name-next'){S.me.first=val('n_first');S.me.middle=val('n_middle');S.me.last=val('n_last');S.me.currentName=val('n_current');if(!S.me.first||!S.me.last){notify('First name and surname help build your name profile.');return;}save();go('me_reveal');}
   else if(act==='go-deeper'){S.me.iStep=0;save();go('me_interview');}
