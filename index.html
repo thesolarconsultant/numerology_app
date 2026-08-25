@@ -66,19 +66,19 @@
   .mbox{position:relative;max-width:400px;width:100%;max-height:calc(100dvh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:24px;box-shadow:0 24px 60px -22px rgba(35,26,21,.28);}
   .mclose{position:absolute;top:12px;right:12px;background:none;border:0;color:var(--stone);font-size:1.05rem;cursor:pointer;padding:6px;}
   .num-tap{cursor:pointer;}
-  .echo{display:inline-block;font-size:.62em;font-weight:700;color:var(--accent-2);background:#F7E8DE;border:1px solid rgba(190,84,48,.35);border-radius:2px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
-  .kd{display:inline-block;font-size:.62em;font-weight:700;color:#8A5A08;background:#FAF0DE;border:1px solid rgba(217,152,43,.4);border-radius:2px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
+  .echo{display:inline-block;font-size:.62em;font-weight:700;color:var(--accent-2);background:#F7E8DE;border:1px solid rgba(190,84,48,.35);border-radius:14px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
+  .kd{display:inline-block;font-size:.62em;font-weight:700;color:#8A5A08;background:#FAF0DE;border:1px solid rgba(217,152,43,.4);border-radius:14px;padding:1px 7px;vertical-align:middle;letter-spacing:.02em;}
   .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
   .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);}
   .muted{color:var(--stone);}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:500;border-radius:2px;padding:14px 26px;cursor:pointer;border:1px solid transparent;font-size:.98rem;transition:transform .12s ease,background .2s,box-shadow .2s;user-select:none;touch-action:manipulation;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:500;border-radius:14px;padding:14px 26px;cursor:pointer;border:1px solid transparent;font-size:.98rem;transition:transform .12s ease,background .2s,box-shadow .2s;user-select:none;touch-action:manipulation;}
   .btn:hover{transform:translateY(-1px);}
   .btn:active{transform:scale(.95);}
   .btn-primary{background:var(--ink);color:var(--paper);}
   .btn-glow{background:var(--ink);color:var(--paper);box-shadow:0 8px 30px -8px rgba(92,42,79,.7);}
   .btn-ghost{background:transparent;border:1px solid var(--ink);color:var(--ink);}
   .btn-block{width:100%;}
-  input,textarea{width:100%;background:var(--surface-2);border:1px solid var(--rule);border-radius:2px;color:var(--ink);padding:14px;font-family:var(--ui);font-size:1rem;color-scheme:light;}
+  input,textarea{width:100%;background:var(--surface-2);border:1px solid var(--rule);border-radius:14px;color:var(--ink);padding:14px;font-family:var(--ui);font-size:1rem;color-scheme:light;}
   input:focus,textarea:focus{outline:none;border-color:var(--accent);}
   label.fl{display:block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin:0 0 7px;}
   .card,.paperpanel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:20px;}
@@ -102,7 +102,7 @@
   .halo{position:absolute;inset:0;background:radial-gradient(80% 55% at 50% -10%,rgba(190,84,48,.10),transparent 62%);pointer-events:none;}
   .hero h1{font-size:clamp(2.5rem,8vw,4.6rem);margin-top:18px;}
   .hero .sub{max-width:560px;margin:18px auto 0;color:var(--stone);font-size:1.1rem;}
-  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(35,26,21,.14);background:#EEE7DC;border-radius:2px;padding:7px 15px;font-size:.72rem;font-weight:700;color:var(--stone-2);}
+  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(35,26,21,.14);background:#EEE7DC;border-radius:14px;padding:7px 15px;font-size:.72rem;font-weight:700;color:var(--stone-2);}
   /* teaser */
   .teaser{max-width:500px;margin:30px auto 0;text-align:left;}
   .reveal{display:none;margin-top:18px;border-top:1px solid var(--rule);padding-top:16px;text-align:center;}
@@ -120,7 +120,7 @@
   .jcard li b{color:var(--accent-2);}
   /* progress stages */
   .stages{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:0 auto 4px;padding:14px 20px 0;}
-  .stg{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);border:1px solid var(--rule);border-radius:2px;padding:4px 10px;}
+  .stg{font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);border:1px solid var(--rule);border-radius:999px;padding:4px 10px;}
   .stg.done{background:color-mix(in srgb,var(--accent-2) 16%,transparent);color:var(--accent-2);border-color:transparent;}
   .stg.now{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
   /* option chips */
@@ -140,13 +140,13 @@
   /* rail */
   .rail{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);scrollbar-width:none;}
   .rail::-webkit-scrollbar{display:none;}
-  .rail button{white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--stone);padding:6px 12px;border-radius:2px;border:0;background:none;cursor:pointer;}
+  .rail button{white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--stone);padding:6px 12px;border-radius:14px;border:0;background:none;cursor:pointer;}
   .rail button.on{background:var(--olive-wash);color:var(--accent);}
   section.blk{border-top:1px solid rgba(224,213,192,.6);padding:32px 0;scroll-margin-top:110px;}
   .theme{margin-top:10px;}
   .theme .tp{display:flex;justify-content:space-between;align-items:baseline;}
-  .track{height:6px;border-radius:2px;background:var(--rule);overflow:hidden;margin-top:8px;}
-  .fill{height:100%;border-radius:2px;}
+  .track{height:6px;border-radius:999px;background:var(--rule);overflow:hidden;margin-top:8px;}
+  .fill{height:100%;border-radius:999px;}
   .t-Dominant{color:var(--accent)}.b-Dominant{background:var(--accent)}
   .t-Strong{color:var(--accent-2)}.b-Strong{background:var(--accent-2)}
   .t-Supporting{color:var(--stone-2)}.b-Supporting{background:var(--stone-2)}
@@ -154,19 +154,19 @@
   .disc summary{color:var(--stone);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;list-style:none;}
   .disc summary::-webkit-details-marker{display:none;}
   .disc summary::marker{content:'';}
-  .disc pre{margin:10px 0 0;background:var(--surface-2);border-radius:2px;padding:12px;font-size:.72rem;color:var(--stone);white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;max-width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace;}
+  .disc pre{margin:10px 0 0;background:var(--surface-2);border-radius:14px;padding:12px;font-size:.72rem;color:var(--stone);white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;max-width:100%;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace;}
   .pin{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
   .pin.now{border-color:var(--accent);background:var(--surface);}
-  .here{background:var(--accent);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;border-radius:2px;}
+  .here{background:var(--accent);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:5px 10px;border-radius:999px;}
   /* year wheel */
   .wheel{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:14px 0;}
-  .yr{width:46px;height:50px;border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--rule);background:var(--surface-2);font-family:var(--display);font-weight:500;font-size:1.1rem;}
+  .yr{width:46px;height:50px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--rule);background:var(--surface-2);font-family:var(--display);font-weight:500;font-size:1.1rem;}
   .yr small{font-size:.46rem;font-weight:700;color:var(--stone);letter-spacing:.02em;margin-top:2px;}
   .yr.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
   .yr.on small{color:var(--on-accent);}
   .trio{display:grid;gap:10px;margin-top:12px;}
   @media(min-width:600px){.trio{grid-template-columns:repeat(3,1fr);}}
-  .trio .t{border:1px solid var(--rule);border-radius:2px;padding:13px;background:var(--surface);}
+  .trio .t{border:1px solid var(--rule);border-radius:14px;padding:13px;background:var(--surface);}
   .trio .t.mid{border-color:var(--accent);}
   .beam{position:relative;overflow:hidden;}
   .beam::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--olive-fill);}
@@ -251,16 +251,38 @@
   .rkey{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.7rem;color:var(--stone-2);}
   .rkey span{width:22px;height:10px;border-radius:3px;}
 
-  /* The landing gallery. Real screens of the running app — captured from it, not drawn — so it
-     swipes on a phone and sits in a row on a desktop. */
-  .gal{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
-    padding:20px 4px 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-  .gal::-webkit-scrollbar{display:none;}
-  .gal figure{flex:0 0 200px;scroll-snap-align:center;margin:0;}
-  .gal img{width:100%;height:auto;display:block;border-radius:20px;border:1px solid var(--rule);
-    background:var(--surface);box-shadow:0 10px 26px rgba(35,26,21,.09);}
-  .gal figcaption{font-size:.78rem;color:var(--stone);margin-top:10px;text-align:center;line-height:1.45;}
-  @media(min-width:820px){.gal{overflow:visible;justify-content:center;}.gal figure{flex:0 0 208px;}}
+  /* Naming a need and stopping there is a dead end — every one of these opens the number it came
+     from. Rounded to match every other surface in the app; 2px was left over from an older pass. */
+  .needchip{background:var(--surface-2);border:1px solid var(--rule);border-radius:16px;padding:12px 14px;
+    cursor:pointer;transition:border-color .15s,transform .12s;}
+  .needchip:hover{border-color:var(--accent);}
+  .needchip:active{transform:scale(.97);}
+  .needchip b{font-family:var(--display);}
+
+  /* The story, told by scrolling, on the landing page itself rather than behind a button.
+     Below 900px each beat carries its own screen inline; above it the screens stack in a sticky
+     frame and cross-fade as the beat beside them becomes the one you are reading. */
+  .story{position:relative;margin-top:26px;}
+  .sbeat{padding:30px 0;border-top:1px solid var(--rule);max-width:520px;}
+  .sbeat:first-child{border-top:0;}
+  .sidx{font-family:var(--ui);font-size:.68rem;font-weight:800;letter-spacing:.16em;color:var(--accent-2);}
+  .sbeat h3{font-family:var(--display);font-weight:600;font-size:1.55rem;margin:8px 0 0;line-height:1.15;}
+  .sbeat p{color:var(--ink-2);margin-top:10px;font-size:1rem;line-height:1.6;}
+  .shot{display:block;width:100%;max-width:270px;height:auto;margin:18px 0 0;border-radius:20px;
+    border:1px solid var(--rule);background:var(--surface);box-shadow:0 10px 26px rgba(35,26,21,.09);}
+  .stage{display:none;}
+  @media(min-width:900px){
+    .story{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:52px;align-items:start;}
+    .sbeat{padding:56px 0;}
+    .shot{display:none;}
+    .stage{display:block;position:sticky;top:96px;height:640px;}
+    .stage img{position:absolute;top:0;left:0;width:100%;height:auto;border-radius:22px;
+      border:1px solid var(--rule);background:var(--surface);box-shadow:0 14px 34px rgba(35,26,21,.11);
+      opacity:0;transform:scale(.985) translateY(6px);
+      transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1);}
+    .stage img.on{opacity:1;transform:none;}
+  }
+  @media(prefers-reduced-motion:reduce){.stage img{transition:none;}}
 
   /* Desktop: the mockup's three columns. Below this it stays the single column it already was.
      The base rule has to come FIRST — a media query adds no specificity, so a later `display:block`
@@ -833,7 +855,7 @@ const CAL_MARKER_SHORT={'High resonance':'High res','Supportive':'Support','Stre
 const YEAR_SHORT={BEGIN:'BEGIN',DEVELOP:'DEVLP',EXPRESS:'EXPRS',BUILD:'BUILD',CHANGE:'CHNGE',COMMIT:'CMMIT',UNDERSTAND:'UNDST',MATERIALISE:'MATRL',COMPLETE:'CMPLT'};
 /* family */
 const strong=m=>(m.intel.themes||[]).filter(t=>t.band==='Dominant'||t.band==='Strong');
-function familyBlueprint(members){if(members.length<2)return null;const map={};members.forEach(m=>strong(m).forEach(t=>{map[t.theme]=map[t.theme]||{theme:t.theme,label:t.label,members:[],score:0};if(!map[t.theme].members.includes(m.first))map[t.theme].members.push(m.first);map[t.theme].score+=t.score;}));const ranked=Object.values(map).sort((a,b)=>b.members.length-a.members.length||b.score-a.score);const shared=ranked.filter(t=>t.members.length>=2);let tension=null;for(const[a,b,title]of CONTRA){if(!map[a]||!map[b])continue;const ao=map[a].members.filter(x=>!map[b].members.includes(x)),bo=map[b].members.filter(x=>!map[a].members.includes(x));if(ao.length&&bo.length){tension={title,aLabel:map[a].label,aMembers:ao,bLabel:map[b].label,bMembers:bo};break;}}const nowT={};members.forEach(m=>(m.intel.currentChapter.activated||[]).forEach(t=>nowT[t]=(nowT[t]||0)+1));return{sharedPattern:shared[0]||ranked[0]||null,collectiveStrength:shared[1]||ranked.find(t=>t!==(shared[0]||ranked[0]))||null,tension,householdTheme:Object.entries(nowT).sort((a,b)=>b[1]-a[1])[0]?.[0]||null,needs:members.map(m=>({name:m.first,need:m.intel.need})),themeContributors:ranked};}
+function familyBlueprint(members){if(members.length<2)return null;const map={};members.forEach(m=>strong(m).forEach(t=>{map[t.theme]=map[t.theme]||{theme:t.theme,label:t.label,members:[],score:0};if(!map[t.theme].members.includes(m.first))map[t.theme].members.push(m.first);map[t.theme].score+=t.score;}));const ranked=Object.values(map).sort((a,b)=>b.members.length-a.members.length||b.score-a.score);const shared=ranked.filter(t=>t.members.length>=2);let tension=null;for(const[a,b,title]of CONTRA){if(!map[a]||!map[b])continue;const ao=map[a].members.filter(x=>!map[b].members.includes(x)),bo=map[b].members.filter(x=>!map[a].members.includes(x));if(ao.length&&bo.length){tension={title,aLabel:map[a].label,aMembers:ao,bLabel:map[b].label,bMembers:bo};break;}}const nowT={};members.forEach(m=>(m.intel.currentChapter.activated||[]).forEach(t=>nowT[t]=(nowT[t]||0)+1));return{sharedPattern:shared[0]||ranked[0]||null,collectiveStrength:shared[1]||ranked.find(t=>t!==(shared[0]||ranked[0]))||null,tension,householdTheme:Object.entries(nowT).sort((a,b)=>b[1]-a[1])[0]?.[0]||null,needs:members.map(m=>({name:m.first,need:m.intel.need,drive:m.profile.pyth.soulUrge.display})),themeContributors:ranked};}
 /* year-cycle support guidance — what each person is moving through & how to help */
 const YS={
  1:{moving:'fresh starts and identity',watch:'impatience and trying to do it all alone',help:'New direction is live for them. Back the fresh start, help them commit to one path instead of scattering, and let them lead.',short:"back {name}'s fresh start and help them commit to a direction"},
@@ -1118,15 +1140,15 @@ function openNumModal(label,value,extra){
   if(label==='Day + Month'&&extra.bday&&extra.bmonth){
    const bdRoot=parseInt(String(extra.bday).split('/').pop(),10),bmRoot=parseInt(String(extra.bmonth).split('/').pop(),10);
    const bdT=npFor(bdRoot).t[0],bmT=npFor(bmRoot).t[0];
-   if(bdT&&bmT)body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent);border-radius:2px;background:#F5EFEC"><b style="color:var(--accent);font-size:.88rem">Where this comes from</b><p class="muted" style="font-size:.9rem;margin-top:6px;line-height:1.5">Your Birthday (${esc(extra.bday)}) wants ${bdT}. Your Birth Month (${esc(extra.bmonth)}) wants ${bmT}. Meeting in this birth architecture, those two energies combine into ${esc(value)} — bringing ${LABEL[np.t[0]]?LABEL[np.t[0]].toLowerCase():np.m}. Neither original number disappears; this is what they create together.</p></div>`;
+   if(bdT&&bmT)body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent);border-radius:14px;background:#F5EFEC"><b style="color:var(--accent);font-size:.88rem">Where this comes from</b><p class="muted" style="font-size:.9rem;margin-top:6px;line-height:1.5">Your Birthday (${esc(extra.bday)}) wants ${bdT}. Your Birth Month (${esc(extra.bmonth)}) wants ${bmT}. Meeting in this birth architecture, those two energies combine into ${esc(value)} — bringing ${LABEL[np.t[0]]?LABEL[np.t[0]].toLowerCase():np.m}. Neither original number disappears; this is what they create together.</p></div>`;
   }
  } else {
   // Unreachable in practice — ARCHETYPE covers every possible root — but kept as a hard safety net.
   body+=`<p style="margin-top:12px;font-size:.98rem"><b>Yours is ${esc(value)}:</b> <span class="muted">${np.m}.</span></p>${ti?`<p style="margin-top:12px;font-size:.9rem"><b style="color:var(--accent-2)">At its best:</b> <span class="muted">${ti.best}.</span></p><p style="margin-top:6px;font-size:.9rem"><b style="color:var(--stone-2)">Watch for:</b> <span class="muted">${ti.shadow}.</span></p>`:''}`;
  }
- if(echo){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent-2);border-radius:2px;background:#FBF2EA"><b style="color:var(--accent-2);font-size:.88rem">✦ Carries the ${esc(echo.name)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${echo.line}</p><p style="font-size:.85rem;margin-top:6px;color:var(--stone-2)">${echo.want}</p></div>`;}
- if(kd){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid #8A5A08;border-radius:2px;background:#FCF5E8"><b style="color:#8A5A08;font-size:.88rem">⚡ ${esc(kd.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${kd.lesson}</p></div>`;}
- if(wealth){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent-2);border-radius:2px;background:#FAF0E8"><b style="color:var(--accent-2);font-size:.88rem">💰 ${esc(wealth.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${wealth.lesson}</p></div>`;}
+ if(echo){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent-2);border-radius:14px;background:#FBF2EA"><b style="color:var(--accent-2);font-size:.88rem">✦ Carries the ${esc(echo.name)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${echo.line}</p><p style="font-size:.85rem;margin-top:6px;color:var(--stone-2)">${echo.want}</p></div>`;}
+ if(kd){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid #8A5A08;border-radius:14px;background:#FCF5E8"><b style="color:#8A5A08;font-size:.88rem">⚡ ${esc(kd.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${kd.lesson}</p></div>`;}
+ if(wealth){body+=`<div style="margin-top:14px;padding:12px 14px;border:1px solid var(--accent-2);border-radius:14px;background:#FAF0E8"><b style="color:var(--accent-2);font-size:.88rem">💰 ${esc(wealth.title)}</b><p class="muted" style="font-size:.9rem;margin-top:5px;line-height:1.5">${wealth.lesson}</p></div>`;}
  else if(compound>9&&!echo&&!kd&&root<=9&&root!==compound){
   // Generic compound-differentiation note: any ordinary compound (not master, not karmic, not the
   // wealth number) still isn't just its root — decompose it into its own digits for a bit of its own flavour.
@@ -1622,9 +1644,29 @@ function muPyStrip(M){
          '<div class="pystrip">'+bars+'</div><div class="pyax">'+ax+'</div>';
 }
 
+/* The landing story: the beat crossing the middle of the screen decides which screenshot the sticky
+   frame is showing. Separate from the blur-fade observer because it must fire every time a beat
+   becomes current, not once — and it uses a band around the middle rather than the whole viewport,
+   so the picture changes when you are reading that beat, not when it first peeks in at the bottom. */
+let muStoryIO=null;
+function muStory(root){
+  if(muStoryIO){muStoryIO.disconnect();muStoryIO=null;}
+  const beats=root.querySelectorAll('.sbeat[data-shot]');
+  if(!beats.length||typeof IntersectionObserver==='undefined') return;
+  const show=function(key){
+    root.querySelectorAll('.stage img').forEach(function(im){
+      im.classList.toggle('on',im.id==='stage-'+key);});};
+  muStoryIO=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting) show(en.target.dataset.shot); });
+  },{rootMargin:'-35% 0px -35% 0px',threshold:0});
+  beats.forEach(function(b){muStoryIO.observe(b);});
+  show(beats[0].dataset.shot);   /* something is always showing, including before the first scroll */
+}
+
 function muWire(){
   const root=app(); if(!root) return;
   muObserve(root);
+  muStory(root);
   muBeamsSoon();
 }
 
@@ -1689,31 +1731,64 @@ function vLanding(){return topbar()+`<div class="screen">
     <div style="margin-top:26px;display:flex;gap:16px 24px;flex-wrap:wrap;justify-content:center;font-size:.76rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stone)"><span>⚡ Instant</span><span>◆ One-off payment</span><span>∞ Yours to keep</span><span>✎ We show our working</span></div>
   </div></div>
   <div class="wrap" style="padding:6px 20px 0">
-    <div style="text-align:center;max-width:580px;margin:30px auto 0">
-      <p class="eyebrow">Inside</p>
-      <h2 style="font-size:2rem;margin-top:8px">What you actually get</h2>
-      <p class="muted" style="margin-top:10px;font-size:.95rem">Real screens from the running app.</p>
+    <div style="max-width:580px;margin:34px auto 0;text-align:center">
+      <p class="eyebrow">What this is</p>
+      <h2 style="font-size:2rem;margin-top:8px">Here is exactly what you get</h2>
+      <p class="muted" style="margin-top:10px;font-size:.95rem">Real screens. Keep scrolling.</p>
     </div>
-    <div class="gal">
-      <figure class="bfade"><img src="shot-reveal.jpg" width="585" height="1266" loading="lazy" decoding="async"
-        alt="The reveal screen: Life Path 24/6, Birthday 8, Inner Drive 44/8, Expression 91/10/1, and the layers beneath.">
-        <figcaption>Every number in your date of birth, not just the headline one.</figcaption></figure>
-      <figure class="bfade"><img src="shot-family.jpg" width="585" height="1266" loading="lazy" decoding="async"
-        alt="The family space: a list of people with their Life Paths, two selected, and their comparison opening below.">
-        <figcaption>Pick any two — or three — and read them against each other.</figcaption></figure>
-      <figure class="bfade"><img src="shot-calendar.jpg" width="585" height="1266" loading="lazy" decoding="async"
-        alt="A printed month sheet with every day coloured by how it meets your own numbers.">
-        <figcaption>A month scored against you, so you can time the hard conversation.</figcaption></figure>
-      <figure class="bfade"><img src="shot-reading.jpg" width="585" height="1266" loading="lazy" decoding="async"
-        alt="The reading: a written synthesis of the profile with the key numbers underneath it.">
-        <figcaption>Written out in plain English, with the arithmetic shown.</figcaption></figure>
+    <div class="story">
+      <div>
+      <article class="sbeat bfade" data-shot="reveal">
+        <span class="sidx">01</span>
+        <h3>Nine numbers, not one</h3>
+        <p>Everyone knows their star sign. Almost nobody knows there are nine separate numbers in a single date of birth — or that they argue with each other. That argument is the interesting part.</p>
+        <img class="shot" src="shot-reveal.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="The reveal screen, showing Life Path, Birthday, Inner Drive, Expression and the layers beneath them.">
+      </article>
+      <article class="sbeat bfade" data-shot="reading">
+        <span class="sidx">02</span>
+        <h3>The whole structure, at once</h3>
+        <p>Life Path, Birthday, Birth Month, Day + Month, Birth Year, Expression, Inner Drive, Personality, Personal Year. Not one headline number — the architecture underneath it.</p>
+        <img class="shot" src="shot-reading.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="The written reading, with the profile explained in prose above the key numbers.">
+      </article>
+      <article class="sbeat bfade" data-shot="today">
+        <span class="sidx">03</span>
+        <h3>What today actually is</h3>
+        <p>Your Personal Day read against the wider date, in one line you can act on before breakfast. Not a fortune. A read on the room.</p>
+        <img class="shot" src="shot-today.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="The today screen, with the current Personal Day and what it asks for.">
+      </article>
+      <article class="sbeat bfade" data-shot="calendar">
+        <span class="sidx">04</span>
+        <h3>A month you can plan around</h3>
+        <p>Every date scored against your own profile, so you can put the difficult conversation on a day that will carry it — and stop putting the big ask on a day that will not.</p>
+        <img class="shot" src="shot-calendar.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="A printed month sheet, every day coloured by how it meets your own numbers.">
+      </article>
+      <article class="sbeat bfade" data-shot="family">
+        <span class="sidx">05</span>
+        <h3>Your people, side by side</h3>
+        <p>Partners, children, parents — and friends. Pick any two to read against each other, or three at once, and see every pair you have added laid out together.</p>
+        <img class="shot" src="shot-family.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="The family space, with two people selected and their comparison opening below.">
+      </article>
+      <article class="sbeat bfade" data-shot="working">
+        <span class="sidx">06</span>
+        <h3>And it shows its working</h3>
+        <p>Every number explained in plain English, with the arithmetic on the page. Month, day and year each reduced on their own, then added once. No mysticism you have to take on faith.</p>
+        <img class="shot" src="shot-working.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="The calculation panel, showing each component reduced and then summed.">
+      </article>
+      </div>
+      <div class="stage" aria-hidden="true">
+        <img id="stage-reveal" src="shot-reveal.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-reading" src="shot-reading.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-today" src="shot-today.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-calendar" src="shot-calendar.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-family" src="shot-family.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+        <img id="stage-working" src="shot-working.jpg" width="585" height="1266" loading="lazy" decoding="async" alt="">
+      </div>
     </div>
-    <p style="text-align:center;margin-top:6px"><a class="btn btn-ghost" href="story.html" style="text-decoration:none">See the whole story &rarr;</a></p>
   </div>
   <div class="wrap" id="pricing" style="padding-bottom:20px">
     <div style="text-align:center;max-width:560px;margin:20px auto 0"><p class="eyebrow">Two ways in</p><h2 style="font-size:2rem;margin-top:8px">Just you, or your whole family</h2></div>
     <div class="journeys">
-      <div class="jcard fam" style="box-shadow:0 0 0 1px var(--accent-2)"><span style="position:absolute;top:16px;right:16px;background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:2px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--accent-2)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family Reading</h3><div class="price">£28</div>
+      <div class="jcard fam" style="box-shadow:0 0 0 1px var(--accent-2)"><span style="position:absolute;top:16px;right:16px;background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:999px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--accent-2)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family Reading</h3><div class="price">£28</div>
         <ul><li><b>✦</b> The full profile for everyone you love</li><li><b>✦</b> How to support each person through their year</li><li><b>✦</b> Partners, parents, kids, siblings &amp; friends — any two or three compared side by side</li><li><b>✦</b> Your whole family's timing in one place</li></ul>
         <p class="muted" style="font-size:.8rem;margin:-4px 0 14px">Cheaper than 4 single readings — and it's unlimited.</p>
         <button class="btn btn-glow btn-block" data-act="start-fam">Map my family — £28</button></div>
@@ -2199,20 +2274,20 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
       ${muRadar([M[sel[0]],M[sel[1]]])}${muLegend([M[sel[0]],M[sel[1]]])}
       <p class="eyebrow" style="margin-top:18px;color:var(--accent-2)">How to support each other right now</p>
       <div style="display:grid;gap:12px;margin-top:10px">
-      ${cmp.support.map(s=>`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;background:#F0EADE">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:2px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--display)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div>
+      ${cmp.support.map(s=>`<div style="border:1px solid var(--rule);border-radius:14px;padding:14px;background:#F0EADE">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--display)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div>
         <p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--ink)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p>
         <p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p>
       </div>`).join('')}
       </div>
       <div class="card beam" style="margin-top:14px;background:#E8DEDE"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
-      <div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px">
+      <div style="border:1px solid var(--rule);border-radius:14px;padding:14px;margin-top:14px">
         <p class="eyebrow" style="color:var(--stone-2)">Chinese astrology</p>
         <p style="margin-top:8px"><b style="font-family:var(--display)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--display)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p>
         <p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p>
         <p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p>
       </div>
-      ${cmp.tension?`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--display)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
+      ${cmp.tension?`<div style="border:1px solid var(--rule);border-radius:14px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--display)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
       <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>
     </div>`;}
   else if(sel.length===1){const m=M[sel[0]];panel=`<div class="card" style="margin-top:16px"><h3 style="font-size:1.3rem">${esc(m.first)}'s pattern</h3><div class="keys" style="margin-top:12px">${m.intel.keyNumbers.map(k=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}" data-who="${esc(m.first)}"><div class="l">${k.label} ⓘ</div><div class="v">${k.value}</div></div>`).join('')}</div><p class="muted" style="margin-top:12px;font-size:.9rem">${esc(m.intel.corePattern)}</p><div style="margin-top:14px"><button class="btn btn-glow" data-act="fam-view-full" data-favidx="${sel[0]}">See ${esc(m.first)}'s full profile &rarr;</button></div><p class="muted" style="font-size:.82rem;margin-top:10px">Tap a number to learn it · tap a second person to compare.</p></div>`;}
@@ -2242,10 +2317,10 @@ function vFamSpace(){const M=famMembers();const bp=familyBlueprint(M);const ys=M
        <p style="font-family:var(--display);font-weight:500;margin-top:4px;font-size:1.15rem">Every pair at once</p>
        <p class="muted" style="font-size:.84rem;margin-top:6px">The whole household compared to itself, so the closest connection is visible without choosing anyone first.</p>
        ${muMatrix(M)}</div>`:''}</div>
-     <div class="famside">${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--rule);border-radius:2px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--display)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}</div>
+     <div class="famside">${closest.length?`<div class="card beam" style="margin-top:16px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">${closest.length>1?'Closest connections':'Closest connection'}</p><p class="muted" style="margin-top:6px;font-size:.85rem">${closest.length>1?'These pairs are the most alike in your family right now — a genuine tie, not one winner.':'The most alike pairing in your family right now.'}</p><div style="display:grid;gap:10px;margin-top:12px">${closest.map(c=>{const A=M[c.i],B=M[c.j];return `<div style="border:1px solid var(--rule);border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><b style="font-family:var(--display)">${esc(A.first)} &amp; ${esc(B.first)}</b><div class="muted" style="font-size:.82rem;margin-top:3px">${esc(capS(joinL(c.why)))}</div></div><span class="btn btn-ghost" style="padding:7px 14px;font-size:.8rem;cursor:pointer" data-act="fam-compare-pair" data-i="${c.i}" data-j="${c.j}">Compare &rarr;</span></div>`;}).join('')}</div></div>`:''}</div>
    </div>
    ${bp?`<div class="card" style="margin-top:16px"><p style="font-family:var(--display);font-weight:500">Your family in ${YEARNOW}</p>${M.map(m=>`<div style="display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding:8px 0"><b style="font-family:var(--display)">${esc(m.first)}</b><span class="muted" style="font-size:.85rem">Year ${m.profile.personalYear} · ${YEAR[m.profile.personalYear].t.toLowerCase()}</span></div>`).join('')}</div>
-   ${bp.needs?`<div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">What each person needs</p><div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));margin-top:10px">${bp.needs.map(n=>`<div style="background:#F0EADE;border:1px solid var(--rule);border-radius:2px;padding:8px"><b>${esc(n.name)}</b><div class="muted" style="font-size:.85rem">${n.need}</div></div>`).join('')}</div></div>`:''}`:''}
+   ${bp.needs?`<div class="card" style="margin-top:14px"><p style="font-family:var(--display);font-weight:500">What each person needs</p><div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));margin-top:10px">${bp.needs.map(n=>`<div class="needchip num-tap" data-info data-label="Inner Drive" data-value="${esc(n.drive)}" data-who="${esc(n.name)}" role="button" tabindex="0" aria-label="What ${esc(n.name)} needs, and why"><b>${esc(n.name)}</b><div class="muted" style="font-size:.85rem">${esc(n.need)} <span aria-hidden="true" style="opacity:.55">&#9432;</span></div></div>`).join('')}</div></div>`:''}`:''}
    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><button class="btn btn-ghost" data-act="fam-add-more">+ Add someone</button><button class="btn btn-ghost" data-act="name-match">Name a child</button><button class="btn btn-ghost" data-act="compat">Who suits you</button><button class="btn btn-ghost" data-act="dashboard">Home</button></div>
   </div></div>`;}
 
@@ -2268,7 +2343,7 @@ function vNameMatch(){
    <h3 style="font-size:1.2rem;margin-top:20px">${bHead}</h3><div class="opts" style="margin-top:10px">${boy.map(r=>`<span class="opt" data-name="${esc(r.name)}">${r.name} <span class="muted" style="font-size:.72rem">· ${r.expr.display} ${r.themeLabel}</span></span>`).join('')}</div>
    <p style="margin-top:22px"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="dashboard">Back</span></p>
  </div></div>`;}
-function nameResultCard(r){return `<div class="card beam" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3 style="font-size:1.4rem">${esc(r.name)}</h3><span style="background:var(--accent-2);color:var(--on-accent);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:2px">${r.verdict}</span></div>
+function nameResultCard(r){return `<div class="card beam" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><h3 style="font-size:1.4rem">${esc(r.name)}</h3><span style="background:var(--accent-2);color:var(--on-accent);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:999px">${r.verdict}</span></div>
  <p class="muted" style="margin-top:8px">${esc(r.why)}</p>
  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
   ${[['Expression',r.expr],['Soul urge',r.soul],['Personality',r.pers]].map(([l,c])=>`<div style="text-align:center"><div class="muted" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em">${l}</div><div style="font-family:var(--display);font-weight:500;font-size:1.5rem;color:var(--accent)">${c.display}</div></div>`).join('')}
@@ -2321,10 +2396,10 @@ function renderCompare(cmp){return `
  <h3 style="font-size:1.3rem;margin-top:2px">${esc(cmp.na)} &amp; ${esc(cmp.nb)}</h3>
  <p class="muted" style="margin-top:8px;font-size:.92rem">${esc(cmp.core)}</p>
  <p class="eyebrow" style="margin-top:16px;color:var(--accent-2)">How to support each other</p>
- <div style="display:grid;gap:12px;margin-top:10px">${cmp.support.map(s=>`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;background:#F0EADE"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:2px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--display)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div><p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--ink)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p><p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p></div>`).join('')}</div>
+ <div style="display:grid;gap:12px;margin-top:10px">${cmp.support.map(s=>`<div style="border:1px solid var(--rule);border-radius:14px;padding:14px;background:#F0EADE"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="num-tap" data-info data-label="Personal Year" data-value="${s.year}" data-who="${esc(s.name)}" style="background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:4px 9px;border-radius:999px">Year ${s.year} · ${s.title} ⓘ</span><b style="font-family:var(--display)">Supporting ${esc(s.name)} <span class="muted" style="font-weight:600;font-size:.78rem">· ${s.stage}, age ${s.age}</span></b></div><p class="muted" style="margin-top:8px;font-size:.9rem"><b style="color:var(--ink)">${esc(s.name)} is moving through ${esc(s.moving)}.</b> ${esc(s.help)}</p><p class="muted" style="font-size:.8rem;margin-top:6px">Watch for: ${esc(s.watch)}.</p></div>`).join('')}</div>
  <div class="card beam" style="margin-top:14px;background:#E8DEDE"><p class="eyebrow">Under one roof</p><p style="margin-top:8px;font-size:.95rem">${esc(cmp.together)}</p></div>
- <div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px"><p class="eyebrow" style="color:var(--stone-2)">Chinese astrology</p><p style="margin-top:8px"><b style="font-family:var(--display)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--display)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p></div>
- ${cmp.tension?`<div style="border:1px solid var(--rule);border-radius:2px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--display)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
+ <div style="border:1px solid var(--rule);border-radius:14px;padding:14px;margin-top:14px"><p class="eyebrow" style="color:var(--stone-2)">Chinese astrology</p><p style="margin-top:8px"><b style="font-family:var(--display)">${cmp.chinese.a.yinYang} ${cmp.chinese.a.element} ${cmp.chinese.a.animal}</b> <span class="muted">&amp;</span> <b style="font-family:var(--display)">${cmp.chinese.b.yinYang} ${cmp.chinese.b.element} ${cmp.chinese.b.animal}</b></p><p class="muted" style="margin-top:8px;font-size:.9rem">${esc(cmp.chinese.animal)}</p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.chinese.element)}</p></div>
+ ${cmp.tension?`<div style="border:1px solid var(--rule);border-radius:14px;padding:14px;margin-top:14px"><p class="eyebrow">The tension to watch</p><p style="margin-top:6px"><b style="font-family:var(--display)">${esc(cmp.tension.title)}</b></p><p class="muted" style="margin-top:6px;font-size:.9rem">${esc(cmp.tension.ex)}</p></div>`:''}
  <p class="muted" style="font-size:.85rem;margin-top:12px">${esc(cmp.diff)}</p>`;}
 /* ---------- who suits you (numbers + chinese) ---------- */
 const LP_COMPAT={1:[3,5,9],2:[6,8,9],3:[1,5,9],4:[2,6,7],5:[1,3,7],6:[2,3,9],7:[4,5],8:[2,4,6],9:[1,3,6]};
