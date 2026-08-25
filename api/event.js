@@ -1,0 +1,46 @@
+// POST /api/event — records one anonymous milestone so completion and conversion can be
+// counted for everyone, not only for the people who opt in to sharing a profile.
+//
+// This endpoint holds no personal data by construction. There is no field for a name, a date
+// of birth, an email or a device id, and it rejects any request that tries to add one. It does
+// not read or store the caller's IP address and sets no cookie.
+import { sql } from '@vercel/postgres';
+
+const NAMES = ['profile_completed', 'reading_opened', 'checkout_started', 'purchase'];
+const TIERS = ['personal', 'family'];
+const AGE_BANDS = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+const SOURCES = ['app', 'web'];
+const ROOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44];
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const b = req.body || {};
+
+  if (!NAMES.includes(b.name)) {
+    return res.status(400).json({ error: 'unknown event name' });
+  }
+  // Defence in depth: nothing identifying gets in here even if a client sends it.
+  if (b.fullName || b.name === undefined || b.dob || b.email || b.phone || b.contact || b.id) {
+    return res.status(400).json({ error: 'this endpoint does not accept identifying information' });
+  }
+
+  const tier = TIERS.includes(b.tier) ? b.tier : null;
+  const root = ROOTS.includes(b.lifePathRoot) ? b.lifePathRoot : null;
+  const band = AGE_BANDS.includes(b.ageBand) ? b.ageBand : null;
+  const source = SOURCES.includes(b.source) ? b.source : null;
+
+  try {
+    await sql`
+      INSERT INTO events (name, tier, life_path_root, age_band, source)
+      VALUES (${b.name}, ${tier}, ${root}, ${band}, ${source})
+    `;
+    return res.status(204).end();
+  } catch (e) {
+    // A missed count must never break someone's reading, so this always answers quietly.
+    return res.status(204).end();
+  }
+}

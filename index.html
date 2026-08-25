@@ -270,6 +270,12 @@
   /* Same surface as .card, so a panelled paragraph and a real card read as one
      material rather than two. */
   .paperpanel{position:relative;z-index:1;}
+  /* An explicit, unticked choice: a pre-ticked box is not consent under UK GDPR,
+     so this has to be read and acted on rather than merely not un-ticked. */
+  .optin{display:flex;gap:12px;align-items:flex-start;text-align:left;cursor:pointer;
+    border:1px solid var(--rule);background:var(--surface-2);border-radius:22px;padding:16px 18px;}
+  .optin input{width:20px;height:20px;flex-shrink:0;margin:1px 0 0;accent-color:var(--accent);}
+  .optin span{font-size:.82rem;line-height:1.5;color:var(--stone-2);}
   /* Thirteen numbers with the full read open at once is a wall. Collapsed, the
      page becomes a list you can scan; the depth is one tap away and unchanged. */
   .numdet{margin-top:12px;}
@@ -1019,6 +1025,84 @@ const hasMe=()=>S.me.dob&&S.me.first&&S.me.last;
    them out of a page they already had would be a regression, not a gate. */
 const unlocked=()=>!!(S.paidMe||S.paidFam||hasMe());
 
+/* ============ CAPTURE ==================================================
+   Two separate things, deliberately kept apart.
+
+   beacon() records an anonymous milestone for everyone who reaches it. It
+   carries no name, no date of birth, no email and no identifier of any kind —
+   a Life Path root is one of nine values and an age band one of six, so
+   neither narrows to a person. That is what makes a real completion rate
+   knowable rather than merely an opt-in rate.
+
+   shareProfile() sends the calculated profile itself, and only ever after an
+   explicit opt-in, because a name and a date of birth are personal data. The
+   token that comes back is kept on the device so the person can withdraw and
+   have the row erased: consent that cannot be withdrawn is not consent.
+   ====================================================================== */
+function ageBandOf(age){
+  if(!Number.isFinite(age)) return null;
+  if(age<25) return '18-24';
+  if(age<35) return '25-34';
+  if(age<45) return '35-44';
+  if(age<55) return '45-54';
+  if(age<65) return '55-64';
+  return '65+';
+}
+function meFacts(){
+  try{
+    const p=meProfile(), I=buildIntelligence(p);
+    const dom=I.themes.filter(t=>t.band==='Dominant');
+    return {p, I, root:p.lifePath.root, band:ageBandOf(I.age),
+            dom1:(dom[0]||{}).label||null, dom2:(dom[1]||{}).label||null};
+  }catch(e){ return null; }
+}
+function beacon(name,extra){
+  try{
+    const body=Object.assign({name:name,source:isStandaloneApp()?'app':'web'},extra||{});
+    const json=JSON.stringify(body);
+    /* sendBeacon survives the page being closed mid-navigation, which is exactly
+       when a completion would otherwise go uncounted. */
+    if(navigator.sendBeacon){
+      const blob=new Blob([json],{type:'application/json'});
+      if(navigator.sendBeacon('/api/event',blob)) return;
+    }
+    fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},body:json,keepalive:true}).catch(function(){});
+  }catch(e){}
+}
+function beaconProfile(name){
+  const f=meFacts();
+  beacon(name, f?{tier:S.paidFam?'family':'personal',lifePathRoot:f.root,ageBand:f.band}:{tier:S.paidFam?'family':'personal'});
+}
+function shareProfile(){
+  const f=meFacts(); if(!f) return;
+  const p=f.p;
+  const body={
+    consent:true,
+    fullName:fullName(),
+    dob:S.me.dob,
+    lifePathDisplay:p.lifePath.display, lifePathRoot:p.lifePath.root,
+    birthdayDisplay:p.birthday.display, birthMonthDisplay:p.birthMonth.display,
+    dayMonthDisplay:p.dayMonth.display, birthYearDisplay:p.birthYear.display,
+    expressionDisplay:p.pyth.expression.display, soulUrgeDisplay:p.pyth.soulUrge.display,
+    personalityDisplay:p.pyth.personality.display,
+    personalYear:p.personalYear,
+    dominantTheme1:f.dom1, dominantTheme2:f.dom2,
+    coreNeed:f.I.need||null,
+    ageBand:f.band, tier:S.paidFam?'family':'personal'
+  };
+  fetch('/api/submit-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(r=>r.ok?r.json():null)
+    .then(function(j){ if(j&&j.ok){ S.share={id:j.id,token:j.deleteToken}; save(); } })
+    .catch(function(){});
+}
+function withdrawProfile(done){
+  const sh=S.share;
+  if(!sh){ if(done)done(); return; }
+  fetch('/api/delete-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:sh.id,deleteToken:sh.token})})
+    .catch(function(){})
+    .then(function(){ delete S.share; save(); if(done)done(); });
+}
+
 // Every navigation goes through go(), so this is the one place we need to also push browser history --
 // that's what makes the phone's native back gesture/button (and a desktop back button) step back through
 // the app's own screens instead of just leaving the page.
@@ -1340,7 +1424,8 @@ function vReady(){const c=S.me.context;const items=[['Your numerical blueprint',
   return topbar()+stages('me_ready')+`<div class="screen"><div class="wrap" style="padding:40px 20px 60px;max-width:520px;text-align:center">
    <p class="eyebrow">Your profile is ready</p><h1 style="font-size:2.2rem;margin-top:10px">NUMIO now understands ${esc(S.me.first)}</h1>
    <div class="card" style="text-align:left;margin-top:22px">${items.map(([t,on])=>`<div style="display:flex;gap:10px;padding:6px 0;color:${on?'var(--ink)':'var(--stone)'}">${on?'✓':'○'} ${t}</div>`).join('')}</div>
-   <button class="btn btn-glow btn-block" style="margin-top:22px" data-act="build-reading">Build my deep reading →</button>
+   ${S.share?'':`<label class="optin" style="margin-top:14px"><input type="checkbox" id="shareOptIn"><span>Add my profile to NUMIO's research set. Your name, date of birth and calculated numbers only — never your email, your payment, or anything that could be used to contact you. It is read in aggregate, to learn which patterns show up across everyone. You can undo this any time from your dashboard.</span></label>`}
+   <button class="btn btn-glow btn-block" style="margin-top:18px" data-act="build-reading">Build my deep reading →</button>
   </div></div>`;}
 
 /* ---------- reading ---------- */
@@ -1480,7 +1565,8 @@ function vDashboard(){const p=meProfile();const arch=dailyArchitecture(p,todaySt
   <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:22px"><button class="btn btn-glow" data-act="open-reading">Open my reading</button><button class="btn btn-ghost" data-act="start-fam">My family</button></div>
   <div style="margin-top:22px"><p class="eyebrow">Explore</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-ghost" data-act="compat">Who suits you</button><button class="btn btn-ghost" data-act="name-match">Name a child</button><button class="btn btn-ghost" data-act="glossary">Number meanings</button>${isStandaloneApp()?'':'<button class="btn btn-ghost" data-act="show-install">📲 Get the app</button>'}</div></div>
   <div class="card" style="margin-top:22px"><p style="font-family:var(--display);font-weight:500">Has anything important changed?</p><div class="opts" style="margin-top:10px">${['Relationship','Work','Family','Home','Money','Nothing major'].map(o=>`<span class="opt" data-changed="${o}">${o}</span>`).join('')}</div><p class="muted" style="font-size:.8rem;margin-top:10px">Your numbers never change — only the context around them.</p></div>
-  <p style="margin-top:26px"><span style="cursor:pointer;font-size:.85rem;color:#9B3520;text-decoration:underline" data-act="reset">Clear all my data &amp; start over</span></p>
+  ${S.share?`<p style="margin-top:20px"><span style="cursor:pointer;font-size:.85rem;color:var(--stone-2);text-decoration:underline" data-act="unshare">Stop sharing my profile for research &amp; erase it</span></p>`:''}
+  <p style="margin-top:${S.share?'10px':'26px'}"><span style="cursor:pointer;font-size:.85rem;color:#9B3520;text-decoration:underline" data-act="reset">Clear all my data &amp; start over</span></p>
 </div></div>`;}
 
 /* ---------- daily energy calendar ---------- */
@@ -1817,21 +1903,27 @@ document.addEventListener('click',e=>{
   else if(act==='dashboard')go('dashboard');
   else if(act==='teaser')teaser();
   else if(act==='choose'){document.getElementById('pricing')?.scrollIntoView({behavior:'smooth'});}
-  else if(act==='start-me'){S.journey='me';track('begin_checkout',{plan:'single',value:8.88});go('me_unlock');}
+  else if(act==='start-me'){S.journey='me';track('begin_checkout',{plan:'single',value:8.88});beacon('checkout_started',{tier:'personal'});go('me_unlock');}
   else if(act==='start-fam'){S.journey='fam';track('begin_checkout',{plan:'family',value:28});go('fam_unlock');}
-  else if(act==='unlocked-me'){S.paidMe=true;save();track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
-  else if(act==='unlocked-fam'){S.paidFam=true;save();track('purchase',{plan:'family',value:28,currency:'GBP'});go(hasMe()?'fam_anchor':'me_dob');}
+  else if(act==='unlocked-me'){S.paidMe=true;save();beacon('purchase',{tier:'personal'});track('purchase',{plan:'single',value:8.88,currency:'GBP'});go('me_dob');}
+  else if(act==='unlocked-fam'){S.paidFam=true;save();beacon('purchase',{tier:'family'});track('purchase',{plan:'family',value:28,currency:'GBP'});go(hasMe()?'fam_anchor':'me_dob');}
   else if(act==='dob-next'){const v=document.getElementById('m_dob').value;if(!v){notify('Please choose your date of birth to continue — tap the date field above.');document.getElementById('m_dob').focus();return;}S.me.dob=v;save();go('me_name');}
   else if(act==='name-next'){S.me.first=val('n_first');S.me.middle=val('n_middle');S.me.last=val('n_last');S.me.currentName=val('n_current');if(!S.me.first||!S.me.last){notify('First name and surname help build your name profile.');return;}save();go('me_reveal');}
   else if(act==='go-deeper'){S.me.iStep=0;save();go('me_interview');}
   else if(act==='show-reading'){S.famReadingIdx=null;go('me_reading');}
   else if(act==='iq-next')iqNext(false);
   else if(act==='iq-skip')iqNext(true);
-  else if(act==='build-reading'){S.famReadingIdx=null;go('me_reading');}
+  else if(act==='build-reading'){
+    /* The completion point. The count goes for everyone; the profile itself only
+       if the box on this screen was actually ticked. */
+    beaconProfile('profile_completed');
+    const box=document.getElementById('shareOptIn');
+    if(box&&box.checked&&!S.share) shareProfile();
+    S.famReadingIdx=null;go('me_reading');}
   else if(act==='save-done'){if(S.journey==='fam'){save();go('fam_add');}else if(!S.upsellShown&&!(S.family&&S.family.length)){S.upsellShown=true;save();go('me_upsell');}else{save();go('dashboard');}}
   else if(act==='upsell-yes'){track('upsell_click',{plan:'family'});S.journey='fam';go('fam_unlock');}
   else if(act==='upsell-no')go('dashboard');
-  else if(act==='open-reading'){S.famReadingIdx=null;go('me_reading');}
+  else if(act==='open-reading'){S.famReadingIdx=null;beaconProfile('reading_opened');go('me_reading');}
   else if(act==='fam-view-full'){S.famReadingIdx=+a.dataset.favidx;save();go('me_reading');}
   else if(act==='fam-compare-pair'){S.famSel=[+a.dataset.i,+a.dataset.j];save();render();document.getElementById('fam-compare-panel')?.scrollIntoView({behavior:'smooth',block:'start'});}
   else if(act==='go-today')go('today');
@@ -1849,6 +1941,7 @@ document.addEventListener('click',e=>{
   else if(act.indexOf('nm-num-')===0){S.nm={...(S.nm||{}),mode:'number',targetNum:+act.slice(7)};save();render();}
   else if(act==='test-compat'){S.compat={name:val('cw_name'),dob:val('cw_dob')};save();render();window.scrollTo(0,0);}
   else if(act==='save-pairing'){const c=S.compat;if(c&&c.name&&c.dob){S.savedPairings=S.savedPairings||[];if(!S.savedPairings.some(x=>x.name===c.name&&x.dob===c.dob)){S.savedPairings.push({name:c.name,dob:c.dob});save();}render();}}
+  else if(act==='unshare'){confirmDialog("Your shared profile will be deleted from NUMIO's research set. Your own reading on this device is untouched.\n\nStop sharing and erase it?",()=>{withdrawProfile(function(){notify('Your shared profile has been erased.');render();});});}
   else if(act==='reset'){confirmDialog('This permanently erases everything saved on this device — your profile, your whole family, saved pairings and your account. It cannot be undone.\n\nClear all data and start fresh?',()=>{clearAllData();go('landing');notify('All data cleared. Starting fresh.');});}
   else if(act==='anchor-me'){S.anchorEditMode=false;go('fam_add');}
   else if(act==='anchor-edit'){S.anchorEditMode=true;save();render();}

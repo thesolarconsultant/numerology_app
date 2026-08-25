@@ -18,7 +18,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [total, byLifePath, byTheme1, byTheme2, byPersonalYear, byAgeBand, byNeed, byTier, recentDaily] =
+    const [total, byLifePath, byTheme1, byTheme2, byPersonalYear, byAgeBand, byNeed, byTier, recentDaily,
+           funnel, funnelDaily, eventsByRoot] =
       await Promise.all([
         sql`SELECT COUNT(*)::int AS n FROM profiles`,
         sql`SELECT life_path_root, COUNT(*)::int AS n FROM profiles WHERE life_path_root IS NOT NULL GROUP BY life_path_root ORDER BY n DESC`,
@@ -29,7 +30,16 @@ export default async function handler(req, res) {
         sql`SELECT core_need, COUNT(*)::int AS n FROM profiles WHERE core_need IS NOT NULL GROUP BY core_need ORDER BY n DESC`,
         sql`SELECT tier, COUNT(*)::int AS n FROM profiles GROUP BY tier`,
         sql`SELECT date_trunc('day', created_at)::date AS day, COUNT(*)::int AS n FROM profiles WHERE created_at > now() - interval '30 days' GROUP BY day ORDER BY day`,
+        // The events table covers everyone, not only the people who opted in, so these are the
+        // numbers that answer "how many finished" rather than "how many finished and shared".
+        sql`SELECT name, COUNT(*)::int AS n FROM events GROUP BY name`,
+        sql`SELECT date_trunc('day', created_at)::date AS day, name, COUNT(*)::int AS n FROM events WHERE created_at > now() - interval '30 days' GROUP BY day, name ORDER BY day`,
+        sql`SELECT life_path_root, COUNT(*)::int AS n FROM events WHERE name = 'profile_completed' AND life_path_root IS NOT NULL GROUP BY life_path_root ORDER BY n DESC`,
       ]);
+
+    // Opt-in rate: how much of the whole picture the consented profiles actually represent.
+    const completed = (funnel.rows.find(r => r.name === 'profile_completed') || {}).n || 0;
+    const shared = total.rows[0]?.n || 0;
 
     return res.status(200).json({
       total: total.rows[0]?.n || 0,
@@ -41,6 +51,11 @@ export default async function handler(req, res) {
       byNeed: byNeed.rows,
       byTier: byTier.rows,
       recentDaily: recentDaily.rows,
+      funnel: funnel.rows,
+      funnelDaily: funnelDaily.rows,
+      completionsByLifePath: eventsByRoot.rows,
+      completed,
+      optInRate: completed ? Math.round((shared / completed) * 100) : null,
     });
   } catch (e) {
     return res.status(500).json({ error: 'server error' });

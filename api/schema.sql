@@ -49,3 +49,29 @@ CREATE INDEX IF NOT EXISTS idx_profiles_life_path_root ON profiles(life_path_roo
 CREATE INDEX IF NOT EXISTS idx_profiles_dominant_theme_1 ON profiles(dominant_theme_1);
 CREATE INDEX IF NOT EXISTS idx_profiles_personal_year ON profiles(personal_year);
 CREATE INDEX IF NOT EXISTS idx_profiles_age_band ON profiles(age_band);
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Anonymous completion events.
+--
+-- The profiles table above needs consent, because a name and a date of birth
+-- are personal data. This table deliberately holds neither, so it can record
+-- every completion rather than only the ones people opt in to — which is the
+-- only way to know a real conversion rate rather than an opt-in rate.
+--
+-- Nothing here identifies a person: no name, no date of birth, no email, no IP,
+-- no device or advertising id, and no cookie. A Life Path root is one of nine
+-- values and an age band one of six, so neither narrows to an individual.
+CREATE TABLE IF NOT EXISTS events (
+  id BIGSERIAL PRIMARY KEY,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  name TEXT NOT NULL,          -- 'profile_completed' | 'reading_opened' | 'checkout_started' | 'purchase'
+  tier TEXT,                   -- 'personal' | 'family'
+  life_path_root INTEGER,      -- 1-9, or 11/22/33/44 reduced — one of nine, not identifying
+  age_band TEXT,               -- one of six bands
+  source TEXT                  -- 'app' when installed to the home screen, else 'web'
+);
+
+CREATE INDEX IF NOT EXISTS idx_events_name ON events(name);
+CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);

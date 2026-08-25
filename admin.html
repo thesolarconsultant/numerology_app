@@ -89,6 +89,19 @@ async function load(token) {
     <p class="muted" style="margin-top:4px">Aggregated, anonymised patterns across everyone who opted in to sharing their profile. No names, no contact details — see SETUP.md for exactly what this is and isn't.</p>
 
     <div class="card">
+     <p class="eyebrow">Everyone — not just opt-ins</p>
+     <p class="muted" style="font-size:.82rem;margin-top:6px">Anonymous counts, recorded for every person who reaches each step. No names, no dates of birth, no contact details, no cookies.</p>
+     <div class="stats" style="margin-top:12px">
+      ${['checkout_started','purchase','profile_completed','reading_opened'].map(k=>{
+        const row=(data.funnel||[]).find(r=>r.name===k)||{n:0};
+        const LAB={checkout_started:'Started checkout',purchase:'Paid',profile_completed:'Finished profile',reading_opened:'Opened reading'};
+        return `<div><div class="stat" style="font-size:1.6rem">${row.n}</div><p class="muted" style="font-size:.8rem">${LAB[k]}</p></div>`;
+      }).join('')}
+     </div>
+     ${data.optInRate==null?'':`<p class="muted" style="font-size:.82rem;margin-top:14px">Of the <b>${data.completed}</b> people who finished a profile, <b>${data.optInRate}%</b> opted in to sharing it — so every chart below describes that share of the whole, not all of it.</p>`}
+    </div>
+
+    <div class="card">
      <p class="eyebrow">Opted-in profiles</p>
      <div class="stats" style="margin-top:12px">
       <div><div class="stat">${data.total}</div><p class="muted" style="font-size:.8rem">total</p></div>
