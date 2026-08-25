@@ -796,10 +796,10 @@ const YEAR=[null,{t:'BEGIN',k:'initiation · identity · new direction',b:'This 
    invisible plumbing, and renaming them at the rebrand would orphan every saved
    profile already on a user's device — everyone would silently reappear as brand new. */
 const KEY='numeraflow_app_v1';
-let S=load()||{screen:'landing',journey:null,me:{dob:'',first:'',middle:'',last:'',currentName:'',door:'',context:{}},family:[],readingTab:'overview'};
+let S=load()||{screen:'landing',journey:null,me:{dob:'',first:'',middle:'',last:'',currentName:'',gender:'',door:'',context:{}},family:[],readingTab:'overview'};
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
-function freshState(){return{screen:'landing',journey:null,me:{dob:'',first:'',middle:'',last:'',currentName:'',door:'',context:{}},family:[],readingTab:'overview'};}
+function freshState(){return{screen:'landing',journey:null,me:{dob:'',first:'',middle:'',last:'',currentName:'',gender:'',door:'',context:{}},family:[],readingTab:'overview'};}
 function clearAllData(){
  // Wipe every trace of this person from the device — profile, family, pairings, account, analytics.
  try{
@@ -1100,7 +1100,7 @@ function meFacts(){
   try{
     const p=meProfile(), I=buildIntelligence(p);
     const dom=I.themes.filter(t=>t.band==='Dominant');
-    return {p, I, root:p.lifePath.root, band:ageBandOf(I.age),
+    return {p, I, root:p.lifePath.root, band:ageBandOf(I.age), gender:S.me.gender||null,
             dom1:(dom[0]||{}).label||null, dom2:(dom[1]||{}).label||null};
   }catch(e){ return null; }
 }
@@ -1119,7 +1119,7 @@ function beacon(name,extra){
 }
 function beaconProfile(name){
   const f=meFacts();
-  beacon(name, f?{tier:S.paidFam?'family':'personal',lifePathRoot:f.root,ageBand:f.band}:{tier:S.paidFam?'family':'personal'});
+  beacon(name, f?{tier:S.paidFam?'family':'personal',lifePathRoot:f.root,ageBand:f.band,gender:f.gender}:{tier:S.paidFam?'family':'personal'});
 }
 function shareProfile(){
   const f=meFacts(); if(!f) return;
@@ -1136,7 +1136,7 @@ function shareProfile(){
     personalYear:p.personalYear,
     dominantTheme1:f.dom1, dominantTheme2:f.dom2,
     coreNeed:f.I.need||null,
-    ageBand:f.band, tier:S.paidFam?'family':'personal'
+    ageBand:f.band, gender:f.gender, tier:S.paidFam?'family':'personal'
   };
   fetch('/api/submit-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     .then(r=>r.ok?r.json():null)
@@ -1451,6 +1451,10 @@ function vName(){return topbar()+stages('me_name')+`<div class="screen"><div cla
     <div><label class="fl">Middle name(s) — optional</label><input id="n_middle" value="${esc(S.me.middle)}" placeholder="Middle"></div>
     <div><label class="fl">Surname</label><input id="n_last" value="${esc(S.me.last)}" placeholder="Surname"></div>
     <div><label class="fl">Do you use a different name now? — optional</label><input id="n_current" value="${esc(S.me.currentName)}" placeholder="Name you use today"></div>
+    <div><label class="fl">How do you describe yourself? — optional</label>
+      <div class="opts" id="n_gender">${GENDERS.map(g=>`<span class="opt ${S.me.gender===g.v?'sel':''}" data-gender="${g.v}">${g.label}</span>`).join('')}</div>
+      <p class="muted" style="font-size:.78rem;margin-top:8px">It changes nothing in your reading. It tells us who NUMIO is actually for, and it is counted with everyone else's — never against your name.</p>
+    </div>
   </div>
   <button class="btn btn-glow btn-block" style="margin-top:20px" data-act="name-next">See what's taking shape →</button>
 </div></div>`;}
@@ -1478,6 +1482,10 @@ function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return t
 function vDeeper(){return vInterview();}
 
 /* ---------- interview ---------- */
+/* Asked once, on the identity screen, and skippable by simply not answering. It is never used in a
+   calculation — it exists so the archetypes dashboard can say who the app is actually reaching,
+   which "prefer not to say" answers just as usefully as the other two. */
+const GENDERS=[{v:'man',label:'Man'},{v:'woman',label:'Woman'},{v:'prefer-not-to-say',label:'Prefer not to say'}];
 const IQ=[
  {id:'world',q:"Who currently makes up your world?",hint:'Choose all that apply.',multi:true,opts:['Partner','Children','Parents','Siblings','Friends','Pets','Mostly me']},
  {id:'work',q:'What does work look like for you right now?',multi:false,opts:['Employed','Self-employed','Business owner','Building a business','Between jobs','Studying','Full-time parent/carer','Retired','Something else']},
@@ -1994,6 +2002,14 @@ document.addEventListener('click',e=>{
   const savedPair=e.target.closest('[data-savedpair]');
   if(nameChip){S.nm={name:nameChip.dataset.name,dob:(S.nm&&S.nm.dob)||''};save();render();window.scrollTo(0,0);return;}
   if(savedPair){const sp=(S.savedPairings||[])[+savedPair.dataset.savedpair];if(sp){S.compat={...sp};save();render();window.scrollTo(0,0);}return;}
+  const gsel=e.target.closest('[data-gender]');
+  if(gsel){
+    /* Deliberately not a render(): this sits among four text inputs that have not been read yet,
+       and re-rendering the screen would throw away whatever is half-typed in them. */
+    S.me.gender=S.me.gender===gsel.dataset.gender?'':gsel.dataset.gender;save();
+    gsel.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.gender===S.me.gender));
+    return;
+  }
   if(opt){toggleOpt(opt.dataset.opt);return;}
   if(rel){rel.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));rel.classList.add('sel');return;}
   if(rail){document.getElementById(rail.dataset.rail)?.scrollIntoView({behavior:'smooth',block:'start'});return;}

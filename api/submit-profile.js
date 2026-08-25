@@ -7,6 +7,7 @@ import { sql, withSchema } from './_db.js';
 const DOB_RE = /^\d{4}-\d{2}-\d{2}$/;
 const AGE_BANDS = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
 const TIERS = ['personal', 'family'];
+const GENDERS = ['man', 'woman', 'prefer-not-to-say'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -31,6 +32,9 @@ export default async function handler(req, res) {
   if (b.tier != null && !TIERS.includes(b.tier)) {
     return res.status(400).json({ error: 'invalid tier' });
   }
+  if (b.gender != null && !GENDERS.includes(b.gender)) {
+    return res.status(400).json({ error: 'invalid gender' });
+  }
   // Defense in depth: this endpoint stores no contact info, ever, no matter what a client sends.
   if (b.email || b.phone || b.contact) {
     return res.status(400).json({ error: 'this endpoint does not accept contact information' });
@@ -47,14 +51,14 @@ export default async function handler(req, res) {
         birthday_display, birth_month_display, day_month_display, birth_year_display,
         expression_display, soul_urge_display, personality_display,
         personal_year, dominant_theme_1, dominant_theme_2, core_need,
-        age_band, tier, consent
+        age_band, gender, tier, consent
       ) VALUES (
         ${b.fullName.trim().slice(0, 200)}, ${b.dob},
         ${str(b.lifePathDisplay)}, ${int(b.lifePathRoot)},
         ${str(b.birthdayDisplay)}, ${str(b.birthMonthDisplay)}, ${str(b.dayMonthDisplay)}, ${str(b.birthYearDisplay)},
         ${str(b.expressionDisplay)}, ${str(b.soulUrgeDisplay)}, ${str(b.personalityDisplay)},
         ${int(b.personalYear)}, ${str(b.dominantTheme1)}, ${str(b.dominantTheme2)}, ${str(b.coreNeed)},
-        ${b.ageBand || null}, ${b.tier || 'personal'}, true
+        ${b.ageBand || null}, ${b.gender || null}, ${b.tier || 'personal'}, true
       )
       RETURNING id, delete_token
     `);

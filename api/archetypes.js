@@ -19,7 +19,8 @@ export default async function handler(req, res) {
 
   try {
     const [total, byLifePath, byTheme1, byTheme2, byPersonalYear, byAgeBand, byNeed, byTier, recentDaily,
-           funnel, funnelDaily, eventsByRoot] =
+           funnel, funnelDaily, eventsByRoot,
+           byGender, completionsByGender, genderByAge, themeByGender] =
       await withSchema(() => Promise.all([
         sql`SELECT COUNT(*)::int AS n FROM profiles`,
         sql`SELECT life_path_root, COUNT(*)::int AS n FROM profiles WHERE life_path_root IS NOT NULL GROUP BY life_path_root ORDER BY n DESC`,
@@ -35,6 +36,19 @@ export default async function handler(req, res) {
         sql`SELECT name, COUNT(*)::int AS n FROM events GROUP BY name`,
         sql`SELECT date_trunc('day', created_at)::date AS day, name, COUNT(*)::int AS n FROM events WHERE created_at > now() - interval '30 days' GROUP BY day, name ORDER BY day`,
         sql`SELECT life_path_root, COUNT(*)::int AS n FROM events WHERE name = 'profile_completed' AND life_path_root IS NOT NULL GROUP BY life_path_root ORDER BY n DESC`,
+
+        // Who is actually using this. The profiles table only covers the people who opted in, so
+        // the number that describes the whole audience is the one from events.
+        sql`SELECT gender, COUNT(*)::int AS n FROM profiles WHERE gender IS NOT NULL GROUP BY gender ORDER BY n DESC`,
+        sql`SELECT gender, COUNT(*)::int AS n FROM events WHERE name = 'profile_completed' AND gender IS NOT NULL GROUP BY gender ORDER BY n DESC`,
+        // Age band against gender is the pair every ad platform actually targets on, so it is worth
+        // having as a grid rather than as two separate bars.
+        sql`SELECT age_band, gender, COUNT(*)::int AS n FROM events
+            WHERE name = 'profile_completed' AND gender IS NOT NULL AND age_band IS NOT NULL
+            GROUP BY age_band, gender ORDER BY age_band`,
+        sql`SELECT gender, dominant_theme_1 AS theme, COUNT(*)::int AS n FROM profiles
+            WHERE gender IS NOT NULL AND dominant_theme_1 IS NOT NULL
+            GROUP BY gender, dominant_theme_1 ORDER BY gender, n DESC`,
       ]));
 
     // Opt-in rate: how much of the whole picture the consented profiles actually represent.
@@ -54,6 +68,11 @@ export default async function handler(req, res) {
       funnel: funnel.rows,
       funnelDaily: funnelDaily.rows,
       completionsByLifePath: eventsByRoot.rows,
+      byGender: byGender.rows,
+      completionsByGender: completionsByGender.rows,
+      genderByAge: genderByAge.rows,
+      themeByGender: themeByGender.rows,
+      genderKnown: completionsByGender.rows.reduce((a, r) => a + r.n, 0),
       completed,
       optInRate: completed ? Math.round((shared / completed) * 100) : null,
     });

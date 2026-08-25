@@ -72,7 +72,7 @@ footer{margin-top:clamp(40px,7vw,64px);padding:24px 0 44px;border-top:1px solid 
     <table>
       <thead><tr><th>What</th><th>Contains</th></tr></thead>
       <tbody>
-        <tr><td><strong>Your profile</strong></td><td>Your name, date of birth, the numbers calculated from them, and each family member you have added</td></tr>
+        <tr><td><strong>Your profile</strong></td><td>Your name, date of birth, the numbers calculated from them, how you answered the optional question about yourself, and each family member you have added</td></tr>
         <tr><td><strong>Usage log</strong></td><td>The last 300 things you did in the app — which screens, in what order. Never leaves the device</td></tr>
         <tr><td><strong>A dismissal note</strong></td><td>Whether you closed the "add to home screen" prompt, so it stops asking</td></tr>
       </tbody>
@@ -89,16 +89,23 @@ footer{margin-top:clamp(40px,7vw,64px);padding:24px 0 44px;border-top:1px solid 
   <div class="card">
     <p><strong>1. Anonymous counts — from everyone</strong></p>
     <p>So we know how many people finish a reading rather than only how many volunteer to tell us, the app records four moments: checkout started, paid, profile finished, reading opened.</p>
-    <p>Each record holds only the name of that moment, which plan it was, your Life Path root (one of nine possible values), an age band (one of six), and whether you were using the app or the website. <strong>No name, no date of birth, no email, no device identifier, no advertising ID, and no cookie.</strong> We do not log your IP address against it. None of it can be traced back to a person, including by us.</p>
+    <p>Each record holds only the name of that moment, which plan it was, your Life Path root (one of nine possible values), an age band (one of six), how you answered the optional “how do you describe yourself” question (man, woman, or prefer not to say), and whether you were using the app or the website. <strong>No name, no date of birth, no email, no device identifier, no advertising ID, and no cookie.</strong> We do not log your IP address against it. None of it can be traced back to a person, including by us.</p>
   </div>
 
   <div class="card">
     <p><strong>2. Your calculated profile — only if you tick the box</strong></p>
-    <p>At the end of building your reading there is an unticked box offering to add your profile to our research set, so we can see which patterns are common across everyone. If you tick it, we store your name, your date of birth, the numbers calculated from them, your dominant themes, your age band and which plan you are on.</p>
+    <p>At the end of building your reading there is an unticked box offering to add your profile to our research set, so we can see which patterns are common across everyone. If you tick it, we store your name, your date of birth, the numbers calculated from them, your dominant themes, your age band, that same optional answer about how you describe yourself, and which plan you are on.</p>
     <p>If you do not tick it, none of that is ever sent. The box is never pre-ticked.</p>
     <p><strong>Family members are never included</strong>, even if you opt in. Only your own profile is sent. Anyone else you have added — partner, children, parents — stays on your device only.</p>
     <p>That endpoint has no field for an email address or phone number and rejects any attempt to add one, so it cannot quietly become a marketing list.</p>
   </div>
+</section>
+
+<section>
+  <h2>The one question about you, not your numbers</h2>
+  <p>On the step where you enter your name we ask, optionally, whether you would describe yourself as a man, a woman, or would prefer not to say. You can simply not answer it, and nothing in the app treats you differently either way — it changes no part of your reading.</p>
+  <p>It exists for one reason: so we can see who NUMIO is actually reaching. In the anonymous counts it sits alongside the age band, as one of three possible answers next to one of six — neither narrows to a person, and there is no name or date of birth in that record to attach it to. In the research set it is stored with the rest of your profile, and only if you ticked the box.</p>
+  <p>We do not use it to target you, and we do not sell it. Changing or removing your answer is the same as everything else on your device: open the app and change it, or clear your data.</p>
 </section>
 
 <section>

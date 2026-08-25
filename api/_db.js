@@ -117,6 +117,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   dominant_theme_2 TEXT,
   core_need TEXT,
   age_band TEXT,       -- '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | '65+'
+  gender TEXT,         -- 'man' | 'woman' | 'prefer-not-to-say', self-described, always skippable
   tier TEXT,           -- 'personal' | 'family'
 
   consent BOOLEAN NOT NULL DEFAULT true,
@@ -148,11 +149,22 @@ CREATE TABLE IF NOT EXISTS events (
   tier TEXT,                   -- 'personal' | 'family'
   life_path_root INTEGER,      -- one of nine roots, not identifying
   age_band TEXT,               -- one of six bands
+  gender TEXT,                 -- one of three answers, and the third one is a refusal
   source TEXT                  -- 'app' when installed to the home screen, else 'web'
 );
 
 CREATE INDEX IF NOT EXISTS idx_events_name ON events(name);
 CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at);
+
+-- Columns added after the tables were first created. CREATE TABLE IF NOT EXISTS does nothing to a
+-- table that already exists, so anything added later has to say so here as well. ADD COLUMN IF NOT
+-- EXISTS is idempotent, so this stays correct for a brand new database and an old one alike, and
+-- withSchema re-runs all of this when a query hits a column that isn't there yet.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS gender TEXT;
+ALTER TABLE events   ADD COLUMN IF NOT EXISTS gender TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_profiles_gender ON profiles(gender);
+CREATE INDEX IF NOT EXISTS idx_events_gender ON events(gender);
 `;
 
 // Strip -- comments, then split on the semicolons that are left. The schema contains no string
@@ -167,9 +179,13 @@ export function statementsFrom(sqlText) {
     .filter(Boolean);
 }
 
-// 42P01 undefined_table — the one error that means "the schema hasn't been applied yet".
-export function isMissingTable(e) {
-  return !!e && (e.code === '42P01' || /relation ".*" does not exist/i.test(String(e.message || '')));
+// The two errors that mean "this database is behind the schema in this file", rather than
+// "the query is wrong": 42P01 undefined_table on a database that has never been set up, and 42703
+// undefined_column on one that was set up before a column existed. Both are fixed by applying the
+// schema above, so both are worth one retry.
+export function isMissingSchema(e) {
+  return !!e && (e.code === '42P01' || e.code === '42703' ||
+    /relation ".*" does not exist/i.test(String(e.message || '')));
 }
 
 // Two functions can race to create the same table, and IF NOT EXISTS is checked before the lock is
@@ -214,13 +230,14 @@ export function ensureSchema() {
   return ensuring;
 }
 
-// Run a query. If it failed only because the tables aren't there yet, create them and run it once
-// more. Any other error is the caller's to handle.
+// Run a query. If it failed only because this database is behind the schema — no tables yet, or a
+// column added since it was set up — apply the schema and run it once more. Anything else is the
+// caller's to handle.
 export async function withSchema(run) {
   try {
     return await run();
   } catch (e) {
-    if (!isMissingTable(e)) throw e;
+    if (!isMissingSchema(e)) throw e;
     await ensureSchema();
     return await run();
   }

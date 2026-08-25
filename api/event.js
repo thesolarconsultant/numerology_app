@@ -9,6 +9,9 @@ import { sql, withSchema } from './_db.js';
 const NAMES = ['profile_completed', 'reading_opened', 'checkout_started', 'purchase'];
 const TIERS = ['personal', 'family'];
 const AGE_BANDS = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
+// One of three answers, one of which is a refusal — the same shape as an age band, and no more
+// identifying than one. Anything not on this list is dropped rather than stored.
+const GENDERS = ['man', 'woman', 'prefer-not-to-say'];
 const SOURCES = ['app', 'web'];
 const ROOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44];
 
@@ -32,12 +35,13 @@ export default async function handler(req, res) {
   const root = ROOTS.includes(b.lifePathRoot) ? b.lifePathRoot : null;
   const band = AGE_BANDS.includes(b.ageBand) ? b.ageBand : null;
   const source = SOURCES.includes(b.source) ? b.source : null;
+  const gender = GENDERS.includes(b.gender) ? b.gender : null;
 
   try {
     // withSchema creates the tables on the very first event, so there is no migration to run.
     await withSchema(() => sql`
-      INSERT INTO events (name, tier, life_path_root, age_band, source)
-      VALUES (${b.name}, ${tier}, ${root}, ${band}, ${source})
+      INSERT INTO events (name, tier, life_path_root, age_band, gender, source)
+      VALUES (${b.name}, ${tier}, ${root}, ${band}, ${gender}, ${source})
     `);
     return res.status(204).end();
   } catch (e) {

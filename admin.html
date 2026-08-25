@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>NumeraFlow — Archetypes</title>
+<title>NUMIO — Archetypes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
@@ -37,7 +37,7 @@
 <div id="app"><div class="gate">
  <div class="mk" style="margin:0 auto 14px;width:44px;height:44px;font-size:1.5rem">✦</div>
  <h1 style="justify-content:center">Archetypes</h1>
- <p class="muted" style="margin-top:6px;font-size:.9rem">Internal view — aggregated, anonymised NumeraFlow user patterns. Not linked to names or contact details.</p>
+ <p class="muted" style="margin-top:6px;font-size:.9rem">Internal view — aggregated, anonymised NUMIO user patterns. Not linked to names or contact details.</p>
  <div style="margin-top:20px"><input id="tok" type="password" placeholder="Admin token"></div>
  <div style="margin-top:12px"><button id="go">View archetypes</button></div>
  <p id="err" class="err"></p>
@@ -46,10 +46,35 @@
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+const GENDER_LABEL = { 'man': 'Men', 'woman': 'Women', 'prefer-not-to-say': 'Prefer not to say' };
+const genderName = g => GENDER_LABEL[g] || g || '—';
+
+/* Age band against gender. Rows come back one cell at a time, so they are pivoted here rather than
+   in SQL — a crosstab in Postgres would have to name the columns up front, and this way an answer
+   added later shows up on its own. */
+function grid(rows) {
+  if (!rows.length) return '<p class="muted" style="margin-top:8px;font-size:.85rem">Nothing yet.</p>';
+  const bands = [...new Set(rows.map(r => r.age_band))].sort();
+  const genders = [...new Set(rows.map(r => r.gender))];
+  const at = (b, g) => (rows.find(r => r.age_band === b && r.gender === g) || {}).n || 0;
+  const max = Math.max(1, ...rows.map(r => r.n));
+  return `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem">
+    <thead><tr><th style="text-align:left;padding:6px 8px;color:var(--muted);font-weight:600">Age</th>
+    ${genders.map(g => `<th style="text-align:right;padding:6px 8px;color:var(--muted);font-weight:600">${esc(genderName(g))}</th>`).join('')}
+    <th style="text-align:right;padding:6px 8px;color:var(--muted);font-weight:600">All</th></tr></thead>
+    <tbody>${bands.map(b => {
+      const cells = genders.map(g => at(b, g));
+      return `<tr><td style="padding:6px 8px;border-top:1px solid var(--border)">${esc(b)}</td>
+        ${cells.map(n => `<td style="text-align:right;padding:6px 8px;border-top:1px solid var(--border);background:rgba(167,139,250,${(n / max * .35).toFixed(3)})">${n}</td>`).join('')}
+        <td style="text-align:right;padding:6px 8px;border-top:1px solid var(--border);color:var(--muted)">${cells.reduce((a, n) => a + n, 0)}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
 function bar(rows, keyField, total) {
   const max = Math.max(1, ...rows.map(r => r.n));
   return rows.map(r => {
-    const label = r[keyField] == null ? '—' : r[keyField];
+    const label = keyField === 'gender' ? genderName(r[keyField])
+                : r[keyField] == null ? '—' : r[keyField];
     const pct = total ? Math.round((r.n / total) * 100) : 0;
     return `<div class="row"><span class="rowlabel">${esc(label)}</span><div class="track"><div class="fill" style="width:${Math.round(r.n / max * 100)}%"></div></div><span class="rowval">${r.n} · ${pct}%</span></div>`;
   }).join('');
@@ -119,6 +144,10 @@ async function load(token) {
   if (data.total >= 5) {
     if (topLifePath) takeaways.push(`Your single biggest segment is Life Path ${topLifePath.life_path_root} (${Math.round(topLifePath.n / data.total * 100)}% of everyone who's shared a profile) — messaging that speaks to that number's themes will land with the largest slice of your audience.`);
     if (topTheme) takeaways.push(`"${topTheme.theme}" is the most common dominant theme — worth leaning into directly in ad copy and content, since it's already what most of your users' profiles are built around.`);
+    const topGender = top(data.completionsByGender || []);
+    if (topGender && data.genderKnown >= 5) {
+      takeaways.push(`${genderName(topGender.gender)} are ${Math.round(topGender.n / data.genderKnown * 100)}% of everyone who has answered — ${data.genderKnown} answers out of ${data.completed} finished profiles, so treat it as a strong signal rather than a settled fact until that coverage climbs.`);
+    }
     if (topYear != null) takeaways.push(`Personal Year ${topYear.personal_year} is the most common cycle right now — timing-relevant content or offers pitched at that year's themes will be relevant to the largest group at once.`);
   } else {
     takeaways.push('Not enough opted-in profiles yet for these patterns to be meaningful — check back once more people have shared theirs.');
@@ -140,6 +169,21 @@ async function load(token) {
       }).join('')}
      </div>
      ${data.optInRate==null?'':`<p class="muted" style="font-size:.82rem;margin-top:14px">Of the <b>${data.completed}</b> people who finished a profile, <b>${data.optInRate}%</b> opted in to sharing it — so every chart below describes that share of the whole, not all of it.</p>`}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Who is using NUMIO</p>
+     <p class="muted" style="font-size:.82rem;margin-top:6px">Asked once, optional, and counted for everyone who finishes a profile — not only the people who opt in to sharing one. "Prefer not to say" is an answer, and is counted as one.</p>
+     ${data.completionsByGender && data.completionsByGender.length
+        ? bar(data.completionsByGender, 'gender', data.genderKnown) +
+          `<p class="muted" style="font-size:.78rem;margin-top:12px">${data.genderKnown} of ${data.completed} finished profiles answered — ${data.completed ? Math.round(data.genderKnown / data.completed * 100) : 0}% coverage. Anyone who skipped it is not in these bars.</p>`
+        : '<p class="muted" style="margin-top:8px;font-size:.85rem">Nobody has answered this yet. It appears on the identity step, so it will start filling up with the next profile built.</p>'}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Age against gender</p>
+     <p class="muted" style="font-size:.82rem;margin-top:6px">The pair every ad platform targets on. Everyone who finished a profile and answered both.</p>
+     ${grid(data.genderByAge || [])}
     </div>
 
     <div class="card">
@@ -168,6 +212,18 @@ async function load(token) {
     <div class="card">
      <p class="eyebrow">Dominant theme (secondary)</p>
      ${bar(data.byTheme2, 'theme', data.total)}
+    </div>
+
+    <div class="card">
+     <p class="eyebrow">Dominant theme, by gender</p>
+     <p class="muted" style="font-size:.82rem;margin-top:6px">What each group's profile is actually built around — the copy angle that will land with each of them.</p>
+     ${(data.themeByGender && data.themeByGender.length)
+        ? [...new Set(data.themeByGender.map(r => r.gender))].map(g => {
+            const rows = data.themeByGender.filter(r => r.gender === g);
+            const n = rows.reduce((a, r) => a + r.n, 0);
+            return `<p class="eyebrow" style="margin-top:16px;color:var(--lilac)">${esc(genderName(g))} · ${n}</p>` + bar(rows.slice(0, 6), 'theme', n);
+          }).join('')
+        : '<p class="muted" style="margin-top:8px;font-size:.85rem">Needs opted-in profiles that answered the question. Nothing yet.</p>'}
     </div>
 
     <div class="card">
