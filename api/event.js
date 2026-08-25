@@ -4,7 +4,7 @@
 // This endpoint holds no personal data by construction. There is no field for a name, a date
 // of birth, an email or a device id, and it rejects any request that tries to add one. It does
 // not read or store the caller's IP address and sets no cookie.
-import { sql } from '@vercel/postgres';
+import { sql, withSchema } from './_db.js';
 
 const NAMES = ['profile_completed', 'reading_opened', 'checkout_started', 'purchase'];
 const TIERS = ['personal', 'family'];
@@ -34,13 +34,16 @@ export default async function handler(req, res) {
   const source = SOURCES.includes(b.source) ? b.source : null;
 
   try {
-    await sql`
+    // withSchema creates the tables on the very first event, so there is no migration to run.
+    await withSchema(() => sql`
       INSERT INTO events (name, tier, life_path_root, age_band, source)
       VALUES (${b.name}, ${tier}, ${root}, ${band}, ${source})
-    `;
+    `);
     return res.status(204).end();
   } catch (e) {
-    // A missed count must never break someone's reading, so this always answers quietly.
+    // A missed count must never break someone's reading, so this always answers quietly — but it
+    // says so in the runtime logs, otherwise a broken database looks exactly like no traffic.
+    console.error('event insert failed:', e.code || '', e.message);
     return res.status(204).end();
   }
 }

@@ -2,7 +2,7 @@
 // opted in (see the consent UI in index.html). Never accepts an email, phone number, or any other
 // contact channel — this endpoint has no field for one and rejects requests that try to add one,
 // so it can't accidentally become a direct-marketing contact list.
-import { sql } from '@vercel/postgres';
+import { sql, withSchema } from './_db.js';
 
 const DOB_RE = /^\d{4}-\d{2}-\d{2}$/;
 const AGE_BANDS = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'];
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   const int = v => (Number.isInteger(v) ? v : null);
 
   try {
-    const { rows } = await sql`
+    const { rows } = await withSchema(() => sql`
       INSERT INTO profiles (
         full_name, dob,
         life_path_display, life_path_root,
@@ -57,10 +57,11 @@ export default async function handler(req, res) {
         ${b.ageBand || null}, ${b.tier || 'personal'}, true
       )
       RETURNING id, delete_token
-    `;
+    `);
     const row = rows[0];
     return res.status(200).json({ ok: true, id: row.id, deleteToken: row.delete_token });
   } catch (e) {
+    console.error('profile insert failed:', e.code || '', e.message);
     return res.status(500).json({ error: 'server error' });
   }
 }

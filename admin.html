@@ -55,16 +55,22 @@ function bar(rows, keyField, total) {
   }).join('');
 }
 
-/* First run: the database is connected but empty. Rather than send someone to a terminal with a
-   live connection string, the app creates its own tables from here — same token, one button. */
-function offerSetup(token, err) {
+/* Something went wrong behind the dashboard. /api/health says what, in words, instead of leaving
+   a bare 500 on screen — and the button is still here for the rare case where the tables need
+   forcing, so nobody ever needs a terminal and a live connection string. */
+async function offerSetup(token, err) {
   err.innerHTML = '';
   const box = document.createElement('div');
   box.style.cssText = 'text-align:left;max-width:420px;margin:0 auto;';
   const p1 = document.createElement('p');
-  p1.textContent = 'The database is reachable but the tables are not there yet. This is expected the first time.';
+  p1.textContent = 'The dashboard could not read the database. Checking why…';
+  let health = null;
+  try { health = await (await fetch('/api/health')).json(); } catch (e) {}
+  p1.textContent = health && health.detail ? health.detail
+    : health && health.ok ? 'The database is fine, so this was a one-off. Try again.'
+    : 'The database could not be reached.';
   const btn = document.createElement('button');
-  btn.textContent = 'Create the tables';
+  btn.textContent = 'Create the tables anyway';
   btn.style.cssText = 'margin-top:14px;padding:12px 20px;cursor:pointer;font:inherit;';
   const out = document.createElement('p');
   out.style.cssText = 'margin-top:12px;font-size:.9rem;';
@@ -97,7 +103,7 @@ async function load(token) {
   try {
     const resp = await fetch('/api/archetypes?token=' + encodeURIComponent(token));
     if (resp.status === 401) { err.textContent = 'Wrong token.'; return; }
-    if (!resp.ok) { offerSetup(token, err); return; }
+    if (!resp.ok) { await offerSetup(token, err); return; }
     data = await resp.json();
   } catch (e) {
     err.textContent = 'Could not reach the server.';

@@ -1,9 +1,9 @@
 {
-  "name": "numeraflow",
+  "name": "numio",
   "private": true,
   "version": "1.0.0",
-  "description": "NumeraFlow — self-contained static app + a small serverless backend for anonymised archetype insights.",
+  "description": "NUMIO — a self-contained static app plus a small serverless backend for anonymised archetype insight.",
   "dependencies": {
-    "@vercel/postgres": "^0.10.0"
+    "pg": "^8.13.1"
   }
 }

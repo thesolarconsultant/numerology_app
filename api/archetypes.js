@@ -1,7 +1,7 @@
 // GET /api/archetypes — returns aggregated counts only (never raw rows, never names or DOBs) for the
 // admin dashboard. Protected by a shared secret (ADMIN_TOKEN, set in Vercel env vars — see SETUP.md).
-import { sql } from '@vercel/postgres';
 import crypto from 'crypto';
+import { sql, withSchema } from './_db.js';
 
 function tokenMatches(provided, expected) {
   if (!expected || typeof provided !== 'string') return false;
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   try {
     const [total, byLifePath, byTheme1, byTheme2, byPersonalYear, byAgeBand, byNeed, byTier, recentDaily,
            funnel, funnelDaily, eventsByRoot] =
-      await Promise.all([
+      await withSchema(() => Promise.all([
         sql`SELECT COUNT(*)::int AS n FROM profiles`,
         sql`SELECT life_path_root, COUNT(*)::int AS n FROM profiles WHERE life_path_root IS NOT NULL GROUP BY life_path_root ORDER BY n DESC`,
         sql`SELECT dominant_theme_1 AS theme, COUNT(*)::int AS n FROM profiles WHERE dominant_theme_1 IS NOT NULL GROUP BY dominant_theme_1 ORDER BY n DESC`,
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         sql`SELECT name, COUNT(*)::int AS n FROM events GROUP BY name`,
         sql`SELECT date_trunc('day', created_at)::date AS day, name, COUNT(*)::int AS n FROM events WHERE created_at > now() - interval '30 days' GROUP BY day, name ORDER BY day`,
         sql`SELECT life_path_root, COUNT(*)::int AS n FROM events WHERE name = 'profile_completed' AND life_path_root IS NOT NULL GROUP BY life_path_root ORDER BY n DESC`,
-      ]);
+      ]));
 
     // Opt-in rate: how much of the whole picture the consented profiles actually represent.
     const completed = (funnel.rows.find(r => r.name === 'profile_completed') || {}).n || 0;
@@ -58,6 +58,7 @@ export default async function handler(req, res) {
       optInRate: completed ? Math.round((shared / completed) * 100) : null,
     });
   } catch (e) {
+    console.error('archetypes query failed:', e.code || '', e.message);
     return res.status(500).json({ error: 'server error' });
   }
 }
