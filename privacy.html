@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F0E4">
+<title>Privacy — NUMIO</title>
+<meta name="description" content="What NUMIO stores, what it never stores, and how to get rid of it.">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192-v3.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180-v3.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --paper:#F6F0E4; --surface:#FFFCF6; --surface-2:#EFE7D6; --rule:#E0D5C0;
+  --ink:#231A15; --ink-2:#4A3B31; --stone:#6B5B4F;
+  --plum:#5C2A4F; --rust:#BE5430;
+  --display:'Fraunces',ui-serif,Georgia,serif;
+  --ui:'Figtree',ui-sans-serif,system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--ui);
+  font-size:17px;line-height:1.66;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{color:var(--plum);text-underline-offset:3px;}
+:focus-visible{outline:3px solid var(--plum);outline-offset:3px;}
+h1,h2{font-family:var(--display);font-weight:600;line-height:1.1;letter-spacing:-.012em;text-wrap:balance;}
+.wrap{max-width:660px;margin:0 auto;padding:0 clamp(20px,6vw,32px);}
+header{padding:clamp(44px,9vw,80px) 0 clamp(22px,4vw,34px);}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--rust);}
+h1{font-size:clamp(2.2rem,7vw,3.1rem);margin-top:14px;}
+.lede{margin-top:16px;font-size:1.06rem;color:var(--ink-2);}
+.meta{margin-top:20px;font-size:.82rem;color:var(--stone);}
+section{padding:clamp(26px,5vw,40px) 0 0;}
+h2{font-size:clamp(1.35rem,3.6vw,1.7rem);}
+section p, section ul{margin-top:12px;color:var(--ink-2);}
+ul{padding-left:20px;} li{margin-top:7px;}
+strong{color:var(--ink);font-weight:600;}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:22px;
+  padding:clamp(18px,3.4vw,26px);margin-top:18px;}
+.card.flag{border-color:var(--rust);}
+.card p:first-child{margin-top:0;}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:.92rem;}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top;}
+th{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);}
+tbody tr:last-child td{border-bottom:0;}
+.tablewrap{overflow-x:auto;}
+footer{margin-top:clamp(40px,7vw,64px);padding:24px 0 44px;border-top:1px solid var(--rule);
+  display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;font-size:.82rem;color:var(--stone);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">NUMIO</p>
+  <h1>What we keep, and what we never touch</h1>
+  <p class="lede">Most of NUMIO never leaves your phone. This page says exactly what does, why, and how to delete it. It is written to be read, not to be survived.</p>
+  <p class="meta">Last updated 25 August 2026 · numerology.lifestyle</p>
+</header>
+
+<section>
+  <h2>Who we are</h2>
+  <p>NUMIO is operated by The Solar Consultant. For anything on this page, including any request to see or delete your data, write to <a href="mailto:support@thesolarconsultant.uk">support@thesolarconsultant.uk</a>. We are the data controller for the information described here.</p>
+</section>
+
+<section>
+  <h2>Your profile stays on your phone</h2>
+  <p>Your date of birth, your name, everyone you add to your family space and every reading built from them are stored <strong>in your own browser</strong>, on your own device. They are not uploaded, not backed up by us, and not visible to us.</p>
+  <p>Three things are kept there:</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>What</th><th>Contains</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Your profile</strong></td><td>Your name, date of birth, the numbers calculated from them, and each family member you have added</td></tr>
+        <tr><td><strong>Usage log</strong></td><td>The last 300 things you did in the app — which screens, in what order. Never leaves the device</td></tr>
+        <tr><td><strong>A dismissal note</strong></td><td>Whether you closed the "add to home screen" prompt, so it stops asking</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Clearing your browser data, or using <strong>Clear all my data</strong> in the app, erases all of it immediately and permanently. We cannot recover it, because we never had it.</p>
+  <p><strong>NUMIO sets no cookies at all.</strong> Not for analytics, not for advertising, not for anything.</p>
+</section>
+
+<section>
+  <h2>What does reach our server</h2>
+  <p>Two things, and they are deliberately kept apart.</p>
+
+  <div class="card">
+    <p><strong>1. Anonymous counts — from everyone</strong></p>
+    <p>So we know how many people finish a reading rather than only how many volunteer to tell us, the app records four moments: checkout started, paid, profile finished, reading opened.</p>
+    <p>Each record holds only the name of that moment, which plan it was, your Life Path root (one of nine possible values), an age band (one of six), and whether you were using the app or the website. <strong>No name, no date of birth, no email, no device identifier, no advertising ID, and no cookie.</strong> We do not log your IP address against it. None of it can be traced back to a person, including by us.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>2. Your calculated profile — only if you tick the box</strong></p>
+    <p>At the end of building your reading there is an unticked box offering to add your profile to our research set, so we can see which patterns are common across everyone. If you tick it, we store your name, your date of birth, the numbers calculated from them, your dominant themes, your age band and which plan you are on.</p>
+    <p>If you do not tick it, none of that is ever sent. The box is never pre-ticked.</p>
+    <p><strong>Family members are never included</strong>, even if you opt in. Only your own profile is sent. Anyone else you have added — partner, children, parents — stays on your device only.</p>
+    <p>That endpoint has no field for an email address or phone number and rejects any attempt to add one, so it cannot quietly become a marketing list.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Changing your mind</h2>
+  <p>If you opted in and want it gone, open your dashboard and use <strong>Stop sharing my profile for research &amp; erase it</strong>. That deletes the record from our database straight away. Your own reading on your device is untouched.</p>
+  <p>You can also email us and we will do it for you. You do not need an account, and you do not need to explain why.</p>
+</section>
+
+<section>
+  <h2>Why we are allowed to hold it</h2>
+  <ul>
+    <li><strong>Your profile in the research set:</strong> your consent, given by ticking that box. You can withdraw it at any time, as above.</li>
+    <li><strong>The anonymous counts:</strong> our legitimate interest in knowing whether the product works. They contain no personal data, so they do not identify you.</li>
+    <li><strong>Payment records:</strong> necessary to perform the contract when you buy a reading, and to meet the tax and accounting rules we are subject to.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>How long we keep it</h2>
+  <ul>
+    <li><strong>On your device:</strong> until you delete it. There is no expiry and no automatic upload.</li>
+    <li><strong>Shared profiles:</strong> until you withdraw. There is no other trigger for deletion, so if you want it gone, tell us.</li>
+    <li><strong>Anonymous counts:</strong> kept indefinitely, because they hold nothing personal to expire.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Who else is involved</h2>
+  <ul>
+    <li><strong>Vercel</strong> — hosts the site and runs the small amount of server code. Like every web host it processes the technical details of a request, including your IP address, in order to serve the page.</li>
+    <li><strong>Prisma</strong> — provides the database the two records above are stored in.</li>
+    <li><strong>Google Fonts</strong> — the two typefaces are served by Google, so loading a page tells Google your IP address and browser. This is the only third party the page itself contacts.</li>
+    <li><strong>Stripe</strong> — will handle payments when checkout goes live. Card details go directly to Stripe and are never seen or stored by us.</li>
+  </ul>
+  <p>There are <strong>no advertising or analytics trackers on this site</strong> — no Google Analytics, no Meta pixel, no TikTok pixel.</p>
+</section>
+
+<section>
+  <h2>Your rights</h2>
+  <p>Under UK data protection law you can ask us for a copy of what we hold about you, ask us to correct it, ask us to delete it, or object to how we use it. Email <a href="mailto:support@thesolarconsultant.uk">support@thesolarconsultant.uk</a> and we will respond within one month.</p>
+  <p>In practice, for most people the answer is short: everything is on your phone, and you can delete it yourself in two taps.</p>
+  <p>If you are unhappy with how we have handled it, you can complain to the Information Commissioner's Office at <a href="https://ico.org.uk" rel="noopener">ico.org.uk</a>.</p>
+</section>
+
+<section>
+  <h2>Children</h2>
+  <p>NUMIO is meant for adults. You can add children to your family space, and their names and dates of birth stay on your device exactly like everyone else's — they are never sent to us, even if you opt in to sharing your own profile. Please only add a child if you are their parent or guardian.</p>
+</section>
+
+<section>
+  <h2>What NUMIO is not</h2>
+  <div class="card flag">
+    <p>NUMIO is an interpretive tool for reflection. It is not medical, legal, psychological or financial advice, and nothing it produces is a prediction. Please do not make decisions that matter on the strength of it alone.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Changes</h2>
+  <p>If we change what we collect, we will change this page and update the date at the top. If the change is significant, we will say so in the app rather than leave you to notice.</p>
+</section>
+
+<footer>
+  <span>NUMIO — the pattern behind your life</span>
+  <span><a href="/">Back to the app</a></span>
+</footer>
+
+</div>
+</body>
+</html>
