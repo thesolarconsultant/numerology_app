@@ -1114,15 +1114,16 @@ function withdrawProfile(done){
 function go(screen){S.screen=screen;save();track('screen_view',{screen});try{history.pushState({navScreen:screen},'','#'+screen);}catch(e){}render();window.scrollTo(0,0);if(screen==='me_reveal')fireConfetti();}
 // A brief celebratory burst for the big reveal moment -- brand colours, gravity, fades and removes
 // itself. Skipped entirely under reduced-motion, same as the existing star-field animation.
-function fireConfetti(){
+function fireConfetti(scale){
  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const N=Math.round(90*(scale||1));
  const c=document.createElement('canvas');
  c.style.cssText='position:fixed;inset:0;z-index:65;pointer-events:none;';
  const dpr=devicePixelRatio||1;c.width=innerWidth*dpr;c.height=innerHeight*dpr;
  document.body.appendChild(c);
  const x=c.getContext('2d');x.scale(dpr,dpr);
  const colors=['#5C2A4F','#BE5430','#D9982B','#A8461F','#F6F0E4'];
- const parts=Array.from({length:90},()=>({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.3,vx:(Math.random()-.5)*3.2,vy:2+Math.random()*3,r:4+Math.random()*4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.35,color:colors[Math.floor(Math.random()*colors.length)],rect:Math.random()<.5}));
+ const parts=Array.from({length:N},()=>({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.3,vx:(Math.random()-.5)*3.2,vy:2+Math.random()*3,r:4+Math.random()*4,rot:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.35,color:colors[Math.floor(Math.random()*colors.length)],rect:Math.random()<.5}));
  let t=0;
  function draw(){
   t++;x.clearRect(0,0,innerWidth,innerHeight);
@@ -1994,7 +1995,7 @@ document.addEventListener('click',e=>{
 function val(id){const el=document.getElementById(id);return el?el.value.trim():'';}
 function toggleOpt(o){const q=currentIQ();if(!q)return;const c=S.me.context;if(q.multi){let arr=c[q.id]||[];if(arr.includes(o))arr=arr.filter(x=>x!==o);else{if(q.max&&arr.length>=q.max)arr=arr.slice(1);arr=[...arr,o];}c[q.id]=arr;}else{c[q.id]=o;}save();render();}
 function iqNext(skip){const q=currentIQ();if(q&&(q.input||q.textarea)&&!skip){S.me.context[q.id]=val('iq_input');if(q.id==='door')S.me.door=val('iq_input');}S.me.iStep=(S.me.iStep||0)+1;save();if(S.me.iStep>=IQ.length)go('me_ready');else render();}
-function fmAdd(){const n=val('fm_name'),d=val('fm_dob');const rel=document.querySelector('#fm_rel .opt.sel')?.dataset.rel||'other';if(!n||!d){notify('Add a name and date of birth.');return;}S.family.push({name:n,dob:d,relationship:rel});save();render();}
+function fmAdd(){const n=val('fm_name'),d=val('fm_dob');const rel=document.querySelector('#fm_rel .opt.sel')?.dataset.rel||'other';if(!n||!d){notify('Add a name and date of birth.');return;}S.family.push({name:n,dob:d,relationship:rel});save();render();fireConfetti(.6);}
 function openFamEditModal(idx){const m=S.family[idx];if(!m)return;const sm=document.getElementById('sysmodal');if(!sm)return;
  sm.innerHTML=`<div class="mbox"><button class="mclose" data-act="sys-cancel" aria-label="Close">✕</button><p class="eyebrow">Edit family member</p>
   <div style="display:grid;gap:12px;margin-top:16px">
