@@ -52,14 +52,24 @@
   /* Restored base rules — these sit between the two :root blocks in the
      original stylesheet and must not be dropped when the palette is swapped. */
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{
+    /* iOS inflates text on rotate unless told not to; the layout is already responsive without it. */
+    -webkit-text-size-adjust:100%;text-size-adjust:100%;
+    /* Installed to the home screen this is an app, so a rubber-band at the edge should not chain
+       into the browser's own pull-to-refresh behind it. */
+    overscroll-behavior-y:contain;
+  }
   html{scroll-behavior:smooth;}
   body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--ui);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
   h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance;line-height:1.12;}
   .aurora{color:var(--accent);}
   @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
-  :root{--topbar-h:56px;}
-  #app{position:relative;z-index:1;min-height:100vh;padding-top:env(safe-area-inset-top);padding-bottom:calc(var(--topbar-h) + env(safe-area-inset-bottom));}
+  /* Reserved space under every screen for the fixed nav. The bar's real height depends on the
+     viewport (its padding tightens below 420px) and on the device's home-indicator inset, so this
+     is a sane default that JS then corrects from the measured bar — see fitTopbar(). */
+  :root{--topbar-h:68px;}
+  #app{position:relative;z-index:1;min-height:100vh;min-height:100dvh;padding-top:env(safe-area-inset-top);padding-bottom:calc(var(--topbar-h) + env(safe-area-inset-bottom));}
   .screen{animation:fade .45s ease;}
   .modal{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(35,26,21,.45);backdrop-filter:blur(4px);}
   .modal.on{display:flex;animation:fade .25s ease;}
@@ -71,14 +81,14 @@
   .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
   .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);}
   .muted{color:var(--stone);}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--display);font-weight:500;border-radius:14px;padding:14px 26px;cursor:pointer;border:1px solid transparent;font-size:.98rem;transition:transform .12s ease,background .2s,box-shadow .2s;user-select:none;touch-action:manipulation;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;gap:8px;font-family:var(--display);font-weight:500;border-radius:14px;padding:14px 26px;cursor:pointer;border:1px solid transparent;font-size:.98rem;transition:transform .12s ease,background .2s,box-shadow .2s;user-select:none;touch-action:manipulation;}
   .btn:hover{transform:translateY(-1px);}
   .btn:active{transform:scale(.95);}
   .btn-primary{background:var(--ink);color:var(--paper);}
   .btn-glow{background:var(--ink);color:var(--paper);box-shadow:0 8px 30px -8px rgba(92,42,79,.7);}
   .btn-ghost{background:transparent;border:1px solid var(--ink);color:var(--ink);}
   .btn-block{width:100%;}
-  input,textarea{width:100%;background:var(--surface-2);border:1px solid var(--rule);border-radius:14px;color:var(--ink);padding:14px;font-family:var(--ui);font-size:1rem;color-scheme:light;}
+  input,textarea{width:100%;min-height:44px;background:var(--surface-2);border:1px solid var(--rule);border-radius:14px;color:var(--ink);padding:14px;font-family:var(--ui);font-size:1rem;color-scheme:light;}
   input:focus,textarea:focus{outline:none;border-color:var(--accent);}
   label.fl{display:block;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin:0 0 7px;}
   .card,.paperpanel{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:20px;}
@@ -94,7 +104,7 @@
   .inststep{display:flex;gap:12px;align-items:flex-start;text-align:left;border-top:1px solid var(--rule);padding:12px 0;}
   .inststep .n{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:#F2EEE9;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;font-family:var(--display);}
   .top .left{display:flex;align-items:center;gap:6px;min-width:0;}
-  .backbtn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;flex-shrink:0;border-radius:50%;background:#EBE5DA;border:1px solid rgba(35,26,21,.14);color:var(--ink);font-size:1.35rem;line-height:1;cursor:pointer;touch-action:manipulation;}
+  .backbtn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;flex-shrink:0;border-radius:50%;background:#EBE5DA;border:1px solid rgba(35,26,21,.14);color:var(--ink);font-size:1.35rem;line-height:1;cursor:pointer;touch-action:manipulation;}
   .backbtn:active{transform:scale(.92);background:#E1DACF;}
   .top .r{display:flex;gap:8px;align-items:center;}
   /* hero */
@@ -140,7 +150,7 @@
   /* rail */
   .rail{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);scrollbar-width:none;}
   .rail::-webkit-scrollbar{display:none;}
-  .rail button{white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--stone);padding:6px 12px;border-radius:14px;border:0;background:none;cursor:pointer;}
+  .rail button{white-space:nowrap;font-size:.72rem;font-weight:700;color:var(--stone);padding:0 14px;min-height:44px;border-radius:14px;border:0;background:none;cursor:pointer;}
   .rail button.on{background:var(--olive-wash);color:var(--accent);}
   section.blk{border-top:1px solid rgba(224,213,192,.6);padding:32px 0;scroll-margin-top:110px;}
   .theme{margin-top:10px;}
@@ -250,6 +260,31 @@
   .rcell.dead:hover{border-color:transparent;transform:none;}
   .rkey{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.7rem;color:var(--stone-2);}
   .rkey span{width:22px;height:10px;border-radius:3px;}
+
+  /* ── Touch targets ────────────────────────────────────────────────────────
+     Apple asks for 44x44 and the whole app is used on a phone, so this is not a
+     nicety. Where a control is small on purpose — an underlined "Cancel", a
+     "Skip", a disclosure — the hit area is grown with an invisible overlay
+     rather than by padding it out, so nothing moves and the design is unchanged.
+     Only pointer-coarse devices get the overlays; a mouse does not need them and
+     they would otherwise sit over neighbouring text on a desktop. */
+  .top .btn,.logo{min-height:44px;}
+  .disc summary{min-height:44px;display:flex;align-items:center;}
+  @media(pointer:coarse){
+    [data-act],[data-info],[data-rel],[data-opt],[data-fsel],[data-rpair],[data-caldate]{
+      position:relative;}
+    span[data-act],span[data-info],span[data-rel]{display:inline-block;}
+    /* 44px tall, centred on the control, and never wider than the control itself so two
+       side-by-side links cannot steal each other's taps. */
+    span[data-act]::after,span[data-info]::after,.foot a::after{
+      content:'';position:absolute;left:-8px;right:-8px;top:50%;transform:translateY(-50%);
+      height:44px;min-height:100%;}
+    .foot a{position:relative;display:inline-block;}
+    summary{min-height:44px;display:flex;align-items:center;}
+    input[type=checkbox]{width:24px;height:24px;min-height:24px;flex:0 0 24px;}
+    /* A label wrapping a checkbox is the real target; make sure it behaves like one. */
+    label.optin{display:flex;align-items:flex-start;gap:10px;padding:6px 0;cursor:pointer;}
+  }
 
   /* Naming a need and stopping there is a dead end — every one of these opens the number it came
      from. Rounded to match every other surface in the app; 2px was left over from an older pass. */
@@ -1724,10 +1759,22 @@ function muStory(root){
   show(beats[0].dataset.shot);   /* something is always showing, including before the first scroll */
 }
 
+/* The nav bar's height is not a constant: its padding tightens below 420px and an iPhone adds the
+   home-indicator inset underneath it. Rather than guess, measure it and hand the number to CSS, so
+   the space reserved at the bottom of every screen is always exactly the bar that is there. */
+function fitTopbar(){
+  const bar=document.querySelector('.top'); if(!bar) return;
+  const h=Math.round(bar.getBoundingClientRect().height);
+  if(h>0) document.documentElement.style.setProperty('--topbar-h',h+'px');
+}
+addEventListener('resize',fitTopbar);
+addEventListener('orientationchange',fitTopbar);
+
 function muWire(){
   const root=app(); if(!root) return;
   muObserve(root);
   muStory(root);
+  fitTopbar();
   muBeamsSoon();
 }
 
