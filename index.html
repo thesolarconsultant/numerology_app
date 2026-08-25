@@ -1100,18 +1100,51 @@ function meBloom(opts){
    =================================================================== */
 
 const app=()=>document.getElementById('app');
-/* The animated wordmark swaps in only once the clip is genuinely playable, so a
-   slow connection, a blocked autoplay policy or a missing file all leave the
-   drawn mark in place rather than a hole in the nav bar. Anyone who has asked
-   for less motion keeps the drawn mark permanently. */
-/* Body copy that sits straight on the field gets its own paper panel. The field
-   is deliberately soft, but soft is still texture, and texture under a long
-   paragraph is what makes it tiring to read. Done here rather than in the
-   markup because the same bare paragraphs occur in twenty-odd views, and doing
-   it once at render time also covers anything added later.
+/* One video element for the whole session, moved from topbar to topbar.
 
-   Eyebrows and short captions are left alone on purpose: they are labels, not
-   copy, and boxing each one turns every screen into a stack of chips. */
+   render() replaces the entire top bar on every screen change, so the clip used
+   to be destroyed and rebuilt each time — visible even in Chromium as the
+   playhead snapping back to zero on every navigation. iOS is stricter about it:
+   a scripted <video> only gets its autoplay grace on the initial page load, so
+   the mark animated on the landing screen and sat frozen everywhere after it.
+   Moving the same live element sidesteps the whole thing — nothing reloads,
+   nothing re-requests autoplay, and the loop simply continues across screens.
+
+   The drawn mark stays underneath and is what you see until the clip reports it
+   can play, so a slow connection, a blocked autoplay or a missing file all land
+   on the static wordmark rather than an empty gap. Anyone who has asked for less
+   motion keeps the drawn mark for good. */
+let _logoVid=null;
+function wireLogoMark(){
+  const host=document.querySelector('.logo');
+  if(!host) return;
+  let reduce=false;
+  try{ reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  const fresh=host.querySelector('.logovid');
+  if(reduce){ if(fresh) fresh.remove(); return; }
+
+  if(!_logoVid){
+    if(!fresh) return;
+    _logoVid=fresh;
+    /* muted has to be set as a property, not just an attribute: iOS checks the
+       property when deciding whether autoplay is allowed. */
+    _logoVid.muted=true;
+    _logoVid.addEventListener('loadeddata',function(){
+      const l=_logoVid.closest('.logo'); if(l) l.classList.add('vid-on');
+    });
+    _logoVid.addEventListener('error',function(){
+      const l=_logoVid.closest('.logo'); if(l) l.classList.remove('vid-on');
+    },{once:true});
+  }else if(fresh!==_logoVid){
+    if(fresh) fresh.remove();
+    host.appendChild(_logoVid);   /* moves the live element; does not reload it */
+  }
+
+  if(_logoVid.readyState>=2) host.classList.add('vid-on');
+  const pl=_logoVid.play&&_logoVid.play();
+  if(pl&&pl.catch) pl.catch(function(){});
+}
+
 const PANEL_SKIP='.card,.pin,.key,.fnode,.trio,.mbox,.jcard,.numdet,.top,.stickyfoot,.rail,.opt,.badge,.paperpanel';
 function panelBareCopy(){
   const root=app(); if(!root) return;
@@ -1120,18 +1153,6 @@ function panelBareCopy(){
     if(el.textContent.trim().length<45) return;
     el.classList.add('paperpanel');
   });
-}
-function wireLogoMark(){
-  const v=document.querySelector('.logo .logovid');
-  if(!v)return;
-  let reduce=false;
-  try{ reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
-  if(reduce){ v.remove(); return; }
-  const show=()=>{ const l=v.closest('.logo'); if(l)l.classList.add('vid-on'); };
-  if(v.readyState>=2) show(); else v.addEventListener('loadeddata',show,{once:true});
-  v.addEventListener('error',()=>{ const l=v.closest('.logo'); if(l)l.classList.remove('vid-on'); v.remove(); },{once:true});
-  const pl=v.play&&v.play();
-  if(pl&&pl.catch) pl.catch(function(){});
 }
 function render(){
   const s=S.screen;let html='';
