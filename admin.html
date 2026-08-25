@@ -55,6 +55,41 @@ function bar(rows, keyField, total) {
   }).join('');
 }
 
+/* First run: the database is connected but empty. Rather than send someone to a terminal with a
+   live connection string, the app creates its own tables from here — same token, one button. */
+function offerSetup(token, err) {
+  err.innerHTML = '';
+  const box = document.createElement('div');
+  box.style.cssText = 'text-align:left;max-width:420px;margin:0 auto;';
+  const p1 = document.createElement('p');
+  p1.textContent = 'The database is reachable but the tables are not there yet. This is expected the first time.';
+  const btn = document.createElement('button');
+  btn.textContent = 'Create the tables';
+  btn.style.cssText = 'margin-top:14px;padding:12px 20px;cursor:pointer;font:inherit;';
+  const out = document.createElement('p');
+  out.style.cssText = 'margin-top:12px;font-size:.9rem;';
+  btn.onclick = async function () {
+    btn.disabled = true; out.textContent = 'Creating…';
+    try {
+      const r = await fetch('/api/migrate?token=' + encodeURIComponent(token), { method: 'POST' });
+      const j = await r.json();
+      if (j && j.ok) {
+        out.textContent = 'Done — ' + j.applied + ' statements applied' +
+          (j.skipped && j.skipped.length ? ', ' + j.skipped.length + ' skipped (that is fine)' : '') + '. Loading…';
+        setTimeout(function () { load(token); }, 900);
+      } else {
+        out.textContent = 'Could not create the tables: ' + ((j && j.error) || r.status);
+        btn.disabled = false;
+      }
+    } catch (e) {
+      out.textContent = 'Could not reach the server.';
+      btn.disabled = false;
+    }
+  };
+  box.appendChild(p1); box.appendChild(btn); box.appendChild(out);
+  err.appendChild(box);
+}
+
 async function load(token) {
   const err = $('#err');
   err.textContent = '';
@@ -62,7 +97,7 @@ async function load(token) {
   try {
     const resp = await fetch('/api/archetypes?token=' + encodeURIComponent(token));
     if (resp.status === 401) { err.textContent = 'Wrong token.'; return; }
-    if (!resp.ok) { err.textContent = 'Something went wrong loading the data.'; return; }
+    if (!resp.ok) { offerSetup(token, err); return; }
     data = await resp.json();
   } catch (e) {
     err.textContent = 'Could not reach the server.';
