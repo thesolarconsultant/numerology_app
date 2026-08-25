@@ -735,8 +735,11 @@ function elementRel(ea,eb,na,nb){if(ea===eb)return 'Two '+ea+' elements amplify 
 const ANIMAL_TRAITS={Rat:'quick, resourceful and charming',Ox:'steady, dependable and quietly determined',Tiger:'bold, competitive and brave',Rabbit:'gentle, diplomatic and sensitive',Dragon:'confident, ambitious and magnetic',Snake:'wise, private and deeply intuitive',Horse:'free-spirited, energetic and a little restless',Goat:'creative, gentle and empathetic',Monkey:'clever, playful and inventive',Rooster:'organised, honest and exacting',Dog:'loyal, fair and protective',Pig:'warm, generous and easygoing'};
 function animalYearRel(A,B){const ai=ANIMALS.indexOf(A),bi=ANIMALS.indexOf(B),gap=((bi-ai)+12)%12;if(gap===0)return 'your own sign year — self-focused and a little exposed, where identity, health and direction all come up for review';if(gap===6)return 'the year of your opposite sign — the classic clash year: expect friction and pressure to choose, and things move whether you push or not';if(gap===4||gap===8)return 'a year in your own trine — the smoothest kind of year for you: allies show up and effort travels further than usual';if(gap===3||gap===9)return 'a testing angle to your sign — progress is real, but it comes with resistance to work through rather than around';return 'a workable, neutral year for your sign — nothing forced and no obvious clash';}
 function elementSelfRel(ea,eb){if(ea===eb)return 'Your '+ea+' doubles with the year\'s '+eb+' — the trait is amplified, strengths and excesses alike.';if(GEN[ea]===eb)return 'Your '+ea+' feeds the year\'s '+eb+' — you give energy outward this year; productive, but mind your reserves.';if(GEN[eb]===ea)return 'The year\'s '+eb+' feeds your '+ea+' — support arrives more easily than usual, so use it.';if(CTRL[ea]===eb)return 'Your '+ea+' controls the year\'s '+eb+' — you can steer conditions, as long as you don\'t force what needs time.';return 'The year\'s '+eb+' controls your '+ea+' — conditions push back this year; pace yourself and pick fewer battles.';}
+/* People do this for their friends as much as their households, so Friend is a first-class
+   relationship rather than something to file under Other. */
+const RELS=['Partner','Child','Parent','Sibling','Friend','Other'];
 const PARENTISH=['self','partner','spouse','parent','mother','father'],CHILDISH=['child','son','daughter'],SIBISH=['child','son','daughter','sibling','brother','sister'];
-function pairType(a,b){const ra=(a.relationship||'other'),rb=(b.relationship||'other'),set=new Set([ra,rb]);if(set.has('self')&&(set.has('partner')||set.has('spouse')))return['partner','As partners'];if((PARENTISH.includes(ra)&&CHILDISH.includes(rb))||(PARENTISH.includes(rb)&&CHILDISH.includes(ra)))return['parent_child','Parent & child'];if((['parent','mother','father'].includes(ra)&&rb==='self')||(['parent','mother','father'].includes(rb)&&ra==='self'))return['parent_child','Parent & child'];if(SIBISH.includes(ra)&&SIBISH.includes(rb))return['sibling','Sibling dynamics'];return['generic','How you two work'];}
+function pairType(a,b){const ra=(a.relationship||'other'),rb=(b.relationship||'other'),set=new Set([ra,rb]);if(set.has('self')&&(set.has('partner')||set.has('spouse')))return['partner','As partners'];if(set.has('friend'))return['friend','As friends'];if((PARENTISH.includes(ra)&&CHILDISH.includes(rb))||(PARENTISH.includes(rb)&&CHILDISH.includes(ra)))return['parent_child','Parent & child'];if((['parent','mother','father'].includes(ra)&&rb==='self')||(['parent','mother','father'].includes(rb)&&ra==='self'))return['parent_child','Parent & child'];if(SIBISH.includes(ra)&&SIBISH.includes(rb))return['sibling','Sibling dynamics'];return['generic','How you two work'];}
 function familyCompare(a,b){
  const na=a.first,nb=b.first,[pt,heading]=pairType(a,b);
  const aT=a.intel.themes.filter(t=>t.band!=='Background'),bT=b.intel.themes.filter(t=>t.band!=='Background');
@@ -753,7 +756,7 @@ function familyCompare(a,b){
  if(isChild(ageA)&&!isChild(ageB))together=`${nb} can help ${na} most right now — ${na} is little (age ${ageA}) and moving through ${sA.moving}. ${cap(sA.short)} Meanwhile ${nb} is in ${sB.moving}.`;
  else if(isChild(ageB)&&!isChild(ageA))together=`${na} can help ${nb} most right now — ${nb} is little (age ${ageB}) and moving through ${sB.moving}. ${cap(sB.short)} Meanwhile ${na} is in ${sA.moving}.`;
  else if(isChild(ageA)&&isChild(ageB))together=`${na} (age ${ageA}) and ${nb} (age ${ageB}) are both young. ${cap(sA.short)} ${cap(sB.short)}`;
- else together=`While ${na} moves through ${sA.moving} and ${nb} through ${sB.moving}, the home works best when ${na} can ${sB.short}, and ${nb} can ${sA.short}.`;
+ else together=`While ${na} moves through ${sA.moving} and ${nb} through ${sB.moving}, ${pt==='friend'?'the friendship':'the home'} works best when ${na} can ${sB.short}, and ${nb} can ${sA.short}.`;
  const core=shared.length?`${na} and ${nb} share ${shared.slice(0,2).join(' and ').toLowerCase()} — the fastest common ground.`:`${na} and ${nb} run on different core themes, so connection here is built deliberately rather than assumed.`;
  const diff=(onlyA[0]||onlyB[0])?`${na} brings ${(onlyA[0]||'—').toLowerCase()} that ${nb} doesn't emphasise; ${nb} brings ${(onlyB[0]||'—').toLowerCase()} that ${na} doesn't — complementary when named, friction when not.`:`Your emphases are closely matched, so the risk is reinforcing each other's blind spots.`;
  return{na,nb,pairType:pt,heading,core,diff,support,together,tension,chinese};
@@ -1451,10 +1454,7 @@ function vName(){return topbar()+stages('me_name')+`<div class="screen"><div cla
     <div><label class="fl">Middle name(s) — optional</label><input id="n_middle" value="${esc(S.me.middle)}" placeholder="Middle"></div>
     <div><label class="fl">Surname</label><input id="n_last" value="${esc(S.me.last)}" placeholder="Surname"></div>
     <div><label class="fl">Do you use a different name now? — optional</label><input id="n_current" value="${esc(S.me.currentName)}" placeholder="Name you use today"></div>
-    <div><label class="fl">How do you describe yourself? — optional</label>
-      <div class="opts" id="n_gender">${GENDERS.map(g=>`<span class="opt ${S.me.gender===g.v?'sel':''}" data-gender="${g.v}">${g.label}</span>`).join('')}</div>
-      <p class="muted" style="font-size:.78rem;margin-top:8px">It changes nothing in your reading. It tells us who NUMIO is actually for, and it is counted with everyone else's — never against your name.</p>
-    </div>
+    ${genderField()}
   </div>
   <button class="btn btn-glow btn-block" style="margin-top:20px" data-act="name-next">See what's taking shape →</button>
 </div></div>`;}
@@ -1486,6 +1486,13 @@ function vDeeper(){return vInterview();}
    calculation — it exists so the archetypes dashboard can say who the app is actually reaching,
    which "prefer not to say" answers just as usefully as the other two. */
 const GENDERS=[{v:'man',label:'Man'},{v:'woman',label:'Woman'},{v:'prefer-not-to-say',label:'Prefer not to say'}];
+/* Both routes into the app collect it. Someone who buys the family plan never sees the personal
+   identity screen — they land straight on the anchor form — so asking in only one place would have
+   left every family customer out of the count. */
+function genderField(){return `<div><label class="fl">How do you describe yourself? — optional</label>
+    <div class="opts">${GENDERS.map(g=>`<span class="opt ${S.me.gender===g.v?'sel':''}" data-gender="${g.v}">${g.label}</span>`).join('')}</div>
+    <p class="muted" style="font-size:.78rem;margin-top:8px">It changes nothing in your reading. It tells us who NUMIO is actually for, and it is counted with everyone else's — never against your name.</p>
+  </div>`;}
 const IQ=[
  {id:'world',q:"Who currently makes up your world?",hint:'Choose all that apply.',multi:true,opts:['Partner','Children','Parents','Siblings','Friends','Pets','Mostly me']},
  {id:'work',q:'What does work look like for you right now?',multi:false,opts:['Employed','Self-employed','Business owner','Building a business','Between jobs','Studying','Full-time parent/carer','Retired','Something else']},
@@ -1770,17 +1777,18 @@ function vPlan(){const p=meProfile();const taskId=S.planTaskId;const task=TASKS.
 function vFamAnchor(){const pre=hasMe()&&!S.anchorEditMode;return topbar()+`<div class="screen"><div class="wrap" style="padding:34px 20px 60px;max-width:520px">
   <p class="eyebrow">Let's map your family</p><h1 style="font-size:2rem;margin-top:8px">Start with you</h1>
   <p class="muted" style="margin-top:8px">Every person brings their own patterns and timing. We'll understand everyone individually, then what happens when they interact.</p>
-  ${pre?`<div class="card" style="margin-top:20px">Using your profile — <b>${esc(S.me.first)}</b> (Life Path ${meProfile().lifePath.display}) as your anchor.</div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-me">Continue → add family</button><p style="margin-top:14px;text-align:center"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="anchor-edit">Not ${esc(S.me.first)}? Use different details</span></p>`:`
-  <div style="display:grid;gap:14px;margin-top:20px"><div><label class="fl">Your birth name</label><input id="fa_name" placeholder="Full name at birth" value="${esc(fullName())}"></div><div><label class="fl">Your date of birth</label><input id="fa_dob" type="date" max="${YEARNOW}-12-31" value="${esc(S.me.dob||'')}"></div></div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-new">Continue → add family</button>${hasMe()?`<p style="margin-top:14px;text-align:center"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="anchor-cancel-edit">Cancel</span></p>`:''}`}
+  ${pre?`<div class="card" style="margin-top:20px">Using your profile — <b>${esc(S.me.first)}</b> (Life Path ${meProfile().lifePath.display}) as your anchor.</div>${S.me.gender?'':`<div style="margin-top:16px">${genderField()}</div>`}<button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-me">Continue → add family</button><p style="margin-top:14px;text-align:center"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="anchor-edit">Not ${esc(S.me.first)}? Use different details</span></p>`:`
+  <div style="display:grid;gap:14px;margin-top:20px"><div><label class="fl">Your birth name</label><input id="fa_name" placeholder="Full name at birth" value="${esc(fullName())}"></div><div><label class="fl">Your date of birth</label><input id="fa_dob" type="date" max="${YEARNOW}-12-31" value="${esc(S.me.dob||'')}"></div>${genderField()}</div><button class="btn btn-glow btn-block" style="margin-top:18px" data-act="anchor-new">Continue → add family</button>${hasMe()?`<p style="margin-top:14px;text-align:center"><span class="muted" style="cursor:pointer;text-decoration:underline;font-size:.85rem" data-act="anchor-cancel-edit">Cancel</span></p>`:''}`}
 </div></div>`;}
 function vFamAdd(){const justFinished=S.journey==='fam'&&hasMe()&&!S.family.length;return topbar()+`<div class="screen"><div class="wrap" style="padding:30px 20px 60px;max-width:560px">
-  <p class="eyebrow">Your family so far · ${S.family.length}</p><h1 style="font-size:1.8rem;margin-top:8px">${justFinished?`That's your profile done, ${esc(S.me.first)}. Now let's add your family.`:'Who should we add next?'}</h1>
+  <p class="eyebrow">Your people so far · ${S.family.length}</p><h1 style="font-size:1.8rem;margin-top:8px">${justFinished?`That's your profile done, ${esc(S.me.first)}. Now let's add your people.`:'Who should we add next?'}</h1>
   <div style="display:grid;gap:10px;margin-top:16px">${S.family.map((m,i)=>`<div class="fnode" style="cursor:default;display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b style="font-family:var(--display)">${esc(m.name.split(' ')[0])}</b> <span class="muted" style="font-size:.85rem">· ${m.relationship} · Life Path ${buildProfile(m.dob,m.name,'',m.door||'',YEARNOW).lifePath.display}</span></div><div style="display:flex;align-items:center;gap:2px;flex-shrink:0"><span class="muted" data-famup="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===0?'opacity:.25;pointer-events:none':''}">↑</span><span class="muted" data-famdown="${i}" style="cursor:pointer;padding:6px 8px;font-size:.9rem;${i===S.family.length-1?'opacity:.25;pointer-events:none':''}">↓</span><span style="cursor:pointer;padding:6px 8px;font-size:.78rem;text-decoration:underline;color:var(--accent)" data-famedit="${i}">Edit</span></div></div>`).join('')||'<p class="muted">No one added yet.</p>'}</div>
   <div class="card" style="margin-top:18px"><p style="font-family:var(--display);font-weight:500">Add a person</p>
    <div style="display:grid;gap:12px;margin-top:12px"><input id="fm_name" placeholder="Full birth name"><input id="fm_dob" type="date" max="${YEARNOW}-12-31">
-   <div class="opts" id="fm_rel">${['Partner','Child','Parent','Sibling','Other'].map((o,i)=>`<span class="opt ${i===0?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
-   <button class="btn btn-ghost btn-block" style="margin-top:14px" data-act="fm-add">Add to family</button></div>
-  <button class="btn btn-glow btn-block" style="margin-top:18px" data-act="fam-explore" ${S.family.length<1?'disabled style="opacity:.5"':''}>Explore our family →</button>
+   <div class="opts" id="fm_rel">${RELS.map((o,i)=>`<span class="opt ${i===0?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div>
+   <p class="muted" style="font-size:.78rem">Partner, children, parents, siblings — and friends. Anyone whose timing you want to read next to your own.</p></div>
+   <button class="btn btn-ghost btn-block" style="margin-top:14px" data-act="fm-add">Add them</button></div>
+  <button class="btn btn-glow btn-block" style="margin-top:18px" data-act="fam-explore" ${S.family.length<1?'disabled style="opacity:.5"':''}>Explore your people →</button>
 </div></div>`;}
 function famMembers(){return S.family.map(m=>{const pr=buildProfile(m.dob,m.name,'',m.door||'',YEARNOW);return{first:m.name.split(' ')[0],relationship:m.relationship,profile:pr,intel:buildIntelligence(pr),raw:m};});}
 // How alike two family members' numbers are, and why — used to surface the closest connection(s) in the family.
@@ -2089,7 +2097,7 @@ function openFamEditModal(idx){const m=S.family[idx];if(!m)return;const sm=docum
   <div style="display:grid;gap:12px;margin-top:16px">
    <div><label class="fl">Full birth name</label><input id="fe_name" value="${esc(m.name)}"></div>
    <div><label class="fl">Date of birth</label><input id="fe_dob" type="date" max="${YEARNOW}-12-31" value="${esc(m.dob)}"></div>
-   <div><label class="fl">Relationship</label><div class="opts" id="fe_rel">${['Partner','Child','Parent','Sibling','Other'].map(o=>`<span class="opt ${o.toLowerCase()===m.relationship?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
+   <div><label class="fl">Relationship</label><div class="opts" id="fe_rel">${RELS.map(o=>`<span class="opt ${o.toLowerCase()===m.relationship?'sel':''}" data-rel="${o.toLowerCase()}">${o}</span>`).join('')}</div></div>
   </div>
   <button class="btn btn-glow btn-block" style="margin-top:16px" data-act="fam-edit-save" data-famidx="${idx}">Save changes</button>
   <button class="btn btn-ghost btn-block" style="margin-top:10px;color:#9B3520" data-act="fam-edit-remove" data-famidx="${idx}">Remove from family</button>
