@@ -267,6 +267,10 @@
      image — an <svg> that slices to fill its frame. */
   .bloom{position:absolute;inset:0;width:100%;height:100%;display:block;}
   .onart{position:relative;z-index:1;}
+  /* Same surface as .card, so a panelled paragraph and a real card read as one
+     material rather than two. */
+  .paperpanel{background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+    padding:14px 16px;position:relative;z-index:1;}
   /* Thirteen numbers with the full read open at once is a wall. Collapsed, the
      page becomes a list you can scan; the depth is one tap away and unchanged. */
   .numdet{margin-top:12px;}
@@ -1100,6 +1104,23 @@ const app=()=>document.getElementById('app');
    slow connection, a blocked autoplay policy or a missing file all leave the
    drawn mark in place rather than a hole in the nav bar. Anyone who has asked
    for less motion keeps the drawn mark permanently. */
+/* Body copy that sits straight on the field gets its own paper panel. The field
+   is deliberately soft, but soft is still texture, and texture under a long
+   paragraph is what makes it tiring to read. Done here rather than in the
+   markup because the same bare paragraphs occur in twenty-odd views, and doing
+   it once at render time also covers anything added later.
+
+   Eyebrows and short captions are left alone on purpose: they are labels, not
+   copy, and boxing each one turns every screen into a stack of chips. */
+const PANEL_SKIP='.card,.pin,.key,.fnode,.trio,.mbox,.jcard,.numdet,.top,.stickyfoot,.rail,.opt,.badge,.paperpanel';
+function panelBareCopy(){
+  const root=app(); if(!root) return;
+  root.querySelectorAll('p.sub,p.muted,p.foot,p.lede').forEach(el=>{
+    if(el.closest(PANEL_SKIP)) return;
+    if(el.textContent.trim().length<45) return;
+    el.classList.add('paperpanel');
+  });
+}
 function wireLogoMark(){
   const v=document.querySelector('.logo .logovid');
   if(!v)return;
@@ -1140,6 +1161,7 @@ function render(){
   else html=vLanding();
   app().innerHTML=html;
   wireLogoMark();
+  panelBareCopy();
   if(s==='me_reading')wireRail();
 }
 // Screens outside ROOT_SCREENS get a visible back button (tapping it just calls history.back(), so it
