@@ -181,6 +181,11 @@
   .beam{position:relative;overflow:hidden;}
   .beam::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--olive-fill);}
   @keyframes spin{to{transform:rotate(360deg)}}
+  /* The half-second of weight a counted-up number gets when it finishes landing on its final
+     value — a small overshoot and settle, the difference between a number appearing and arriving. */
+  @keyframes landpop{0%{transform:scale(1);}55%{transform:scale(1.14);}100%{transform:scale(1);}}
+  .key .v.landed,.bignum.landed{animation:landpop .5s cubic-bezier(.34,1.56,.64,1);}
+  @media(prefers-reduced-motion:reduce){.key .v.landed,.bignum.landed{animation:none;}}
   /* family */
   .fnode{border:1px solid var(--rule);background:var(--surface);border-radius:3px;padding:16px;cursor:pointer;transition:transform .12s ease,border-color .15s;touch-action:manipulation;}
   .fnode:hover{border-color:var(--accent);}
@@ -260,6 +265,17 @@
   .rcell.dead:hover{border-color:transparent;transform:none;}
   .rkey{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.7rem;color:var(--stone-2);}
   .rkey span{width:22px;height:10px;border-radius:3px;}
+
+  /* .jcard already carries an unconditional entrance (.journeys .jcard{animation:fade .4s ease
+     backwards}) that fires the instant the screen renders, regardless of scroll position — right
+     for a two-card picker that is always on screen at once, wrong for a pricing section 5000px down
+     the landing page: by the time someone actually scrolled to it the animation had long finished,
+     so .bfade's own opacity:0 was fighting a keyframe animation that had already won and showing
+     the card fully visible on load. Cancelling the old animation lets the scroll-triggered one work. */
+  /* !important because two later rules in this file (a bare .jcard entrance, and
+     .journeys .jcard specifically) both re-set this animation and would otherwise win the
+     cascade by being later in source order despite tying on specificity. */
+  .jcard.bfade{animation:none!important;}
 
   /* ── Touch targets ────────────────────────────────────────────────────────
      Apple asks for 44x44 and the whole app is used on a phone, so this is not a
@@ -1849,15 +1865,15 @@ function topbar(){const returning=hasMe();const acct=S.account;const label=acct?
 /* ---------- landing ---------- */
 function vLanding(){return topbar()+`<div class="screen">
   <div class="hero"><div class="halo"></div><div class="wrap" style="position:relative">
-    <span class="badge">One number never explains a whole person</span>
-    <h1>You are more<br>than <span class="aurora">one number</span>.</h1>
-    <p class="sub">Your date of birth is not a single number. It is an architecture — and it is still audible in how you handle a Tuesday. NUMIO keeps the whole structure on the table.</p>
-    <div class="teaser card">
+    <span class="badge bfade">One number never explains a whole person</span>
+    <h1 class="bfade" style="transition-delay:.08s">You are more<br>than <span class="aurora">one number</span>.</h1>
+    <p class="sub bfade" style="transition-delay:.16s">Your date of birth is not a single number. It is an architecture — and it is still audible in how you handle a Tuesday. NUMIO keeps the whole structure on the table.</p>
+    <div class="teaser card bfade" style="transition-delay:.24s">
       <label class="fl">Start with your date of birth</label>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><input id="t_dob" type="date" max="${YEARNOW}-12-31" style="flex:1;min-width:160px"><button class="btn btn-glow" data-act="teaser">Reveal my Life Path</button></div>
       <div class="reveal" id="t_reveal"><div class="bignum" id="t_num">0</div><div style="color:var(--stone-2);font-weight:700;margin-top:4px" id="t_kw"></div><div class="muted" style="font-size:.9rem;margin-top:8px" id="t_mean"></div><div style="margin-top:16px"><button class="btn btn-primary" data-act="choose">This is one number. Unlock the whole picture →</button></div></div>
     </div>
-    <div style="margin-top:26px;display:flex;gap:16px 24px;flex-wrap:wrap;justify-content:center;font-size:.76rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stone)"><span>⚡ Instant</span><span>◆ One-off payment</span><span>∞ Yours to keep</span><span>✎ We show our working</span></div>
+    <div class="bfade" style="transition-delay:.32s;margin-top:26px;display:flex;gap:16px 24px;flex-wrap:wrap;justify-content:center;font-size:.76rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stone)"><span>⚡ Instant</span><span>◆ One-off payment</span><span>∞ Yours to keep</span><span>✎ We show our working</span></div>
   </div></div>
   <div class="wrap" style="padding:6px 20px 0">
     <div style="max-width:580px;margin:34px auto 0;text-align:center">
@@ -1917,11 +1933,11 @@ function vLanding(){return topbar()+`<div class="screen">
   <div class="wrap" id="pricing" style="padding-bottom:20px">
     <div style="text-align:center;max-width:560px;margin:20px auto 0"><p class="eyebrow">Two ways in</p><h2 style="font-size:2rem;margin-top:8px">Just you, or your whole family</h2></div>
     <div class="journeys">
-      <div class="jcard fam" style="box-shadow:0 0 0 1px var(--accent-2)"><span style="position:absolute;top:16px;right:16px;background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:999px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--accent-2)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family Reading</h3><div class="price">£28</div>
+      <div class="jcard fam bfade" style="box-shadow:0 0 0 1px var(--accent-2)"><span style="position:absolute;top:16px;right:16px;background:var(--accent-2);color:var(--on-accent);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:999px;z-index:1">★ Most popular</span><p class="eyebrow" style="color:var(--accent-2)">My family</p><h3 style="font-size:1.4rem;margin-top:4px">Family Reading</h3><div class="price">£28</div>
         <ul><li><b>✦</b> The full profile for everyone you love</li><li><b>✦</b> How to support each person through their year</li><li><b>✦</b> Partners, parents, kids, siblings &amp; friends — any two or three compared side by side</li><li><b>✦</b> Your whole family's timing in one place</li></ul>
         <p class="muted" style="font-size:.8rem;margin:-4px 0 14px">Cheaper than 4 single readings — and it's unlimited.</p>
         <button class="btn btn-glow btn-block" data-act="start-fam">Map my family — £28</button></div>
-      <div class="jcard me"><p class="eyebrow">Just me</p><h3 style="font-size:1.4rem;margin-top:4px">Personal Reading</h3><div class="price">£8.88</div>
+      <div class="jcard me bfade" style="transition-delay:.1s"><p class="eyebrow">Just me</p><h3 style="font-size:1.4rem;margin-top:4px">Personal Reading</h3><div class="price">£8.88</div>
         <ul><li>✦ Your full blueprint &amp; what drives you</li><li>✦ Strengths, shadows &amp; contradictions</li><li>✦ Life cycles &amp; where you are now</li></ul>
         <button class="btn btn-primary btn-block" data-act="start-me">Just do mine — £8.88</button></div>
     </div>
@@ -2003,13 +2019,13 @@ function vReveal(){const p=meProfile();const intel=buildIntelligence(p);return t
   
   <div class="onart" style="text-align:center"><p class="eyebrow">Your pattern is taking shape</p><h1 style="font-size:2rem;margin-top:8px">${esc(S.me.first)}, here's the structure</h1></div>
 
-  <div class="keys">${intel.keyNumbers.map((k,i)=>`<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v" data-count="${/^\d+$/.test(k.value)?k.value:''}" data-final="${k.value}">${/^\d+$/.test(k.value)?'0':k.value}</div>${echoBadge(k.value)||kdBadge(k.raw)?`<div style="text-align:center;margin-top:-4px">${echoBadge(k.value)}${kdBadge(k.raw)}${wealthBadge(k.raw)}</div>`:''}</div>`).join('')}</div>
+  <div class="keys">${intel.keyNumbers.map((k,i)=>{const lead=(/^\d+/.exec(k.value)||[])[0];return `<div class="key num-tap" data-info data-label="${esc(k.label)}" data-value="${esc(k.value)}"><div class="l">${k.label} <span style="opacity:.5">&#9432;</span></div><div class="v" data-count="${lead||''}" data-final="${esc(k.value)}" data-delay="${i*140}">${lead?'0':esc(k.value)}</div>${echoBadge(k.value)||kdBadge(k.raw)?`<div style="text-align:center;margin-top:-4px">${echoBadge(k.value)}${kdBadge(k.raw)}${wealthBadge(k.raw)}</div>`:''}</div>`;}).join('')}</div>
   <p class="muted" style="text-align:center;font-size:.76rem;margin-top:8px">Tap any number to learn what it means</p>
   <p class="eyebrow" style="text-align:center;margin-top:22px">The layers beneath your Life Path</p>
   <div class="keys" style="grid-template-columns:repeat(3,1fr);margin-top:10px">
-   <div class="key num-tap" data-info data-label="Birth Month" data-value="${esc(p.birthMonth.display)}"><div class="l">Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.birthMonth.display}${echoBadge(p.birthMonth.display)}</div></div>
-   <div class="key num-tap" data-info data-label="Day + Month" data-value="${esc(p.dayMonth.display)}" data-bday="${esc(p.birthday.display)}" data-bmonth="${esc(p.birthMonth.display)}"><div class="l">Day+Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.dayMonth.display}${echoBadge(p.dayMonth.display)}</div></div>
-   <div class="key num-tap" data-info data-label="Birth Year" data-value="${esc(p.birthYear.display)}"><div class="l">Birth Year <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem">${p.birthYear.display}${echoBadge(p.birthYear.display)}</div></div>
+   <div class="key num-tap" data-info data-label="Birth Month" data-value="${esc(p.birthMonth.display)}"><div class="l">Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem" data-count="${(/^\d+/.exec(p.birthMonth.display)||[])[0]||''}" data-final="${esc(p.birthMonth.display)}" data-delay="700">0</div>${echoBadge(p.birthMonth.display)?`<div style="text-align:center;margin-top:-2px">${echoBadge(p.birthMonth.display)}</div>`:''}</div>
+   <div class="key num-tap" data-info data-label="Day + Month" data-value="${esc(p.dayMonth.display)}" data-bday="${esc(p.birthday.display)}" data-bmonth="${esc(p.birthMonth.display)}"><div class="l">Day+Month <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem" data-count="${(/^\d+/.exec(p.dayMonth.display)||[])[0]||''}" data-final="${esc(p.dayMonth.display)}" data-delay="840">0</div>${echoBadge(p.dayMonth.display)?`<div style="text-align:center;margin-top:-2px">${echoBadge(p.dayMonth.display)}</div>`:''}</div>
+   <div class="key num-tap" data-info data-label="Birth Year" data-value="${esc(p.birthYear.display)}"><div class="l">Birth Year <span style="opacity:.5">&#9432;</span></div><div class="v" style="font-size:1.5rem" data-count="${(/^\d+/.exec(p.birthYear.display)||[])[0]||''}" data-final="${esc(p.birthYear.display)}" data-delay="980">0</div>${echoBadge(p.birthYear.display)?`<div style="text-align:center;margin-top:-2px">${echoBadge(p.birthYear.display)}</div>`:''}</div>
   </div>
   <div class="card beam" style="margin-top:16px;border-color:var(--accent-2)"><p class="eyebrow" style="color:var(--accent-2)">Putting it all together</p><p style="margin-top:8px;font-size:.92rem;line-height:1.6">${birthArchNarrative(p,esc(S.me.first))}</p></div>
   <div class="card beam" style="margin-top:20px"><p class="eyebrow" style="color:var(--accent-2)">One pattern already stands out</p><p style="margin-top:8px">${esc(intel.reinforcements[0]?intel.reinforcements[0].explanation:intel.corePattern)}</p></div>
@@ -2735,14 +2751,31 @@ function famEditSave(idx){const n=val('fe_name'),d=val('fe_dob');const rel=docum
  S.family[idx]={...S.family[idx],name:n,dob:d,relationship:rel};save();closeSysModal();render();}
 function famMove(idx,dir){const j=idx+dir;if(j<0||j>=S.family.length)return;const arr=S.family;[arr[idx],arr[j]]=[arr[j],arr[idx]];save();render();}
 function teaser(){const v=document.getElementById('t_dob').value;if(!v){notify('Please choose your date of birth to continue — tap the date field above.');document.getElementById('t_dob').focus();return;}const lp=lifePathFromDob(v);const meta=npFor(lp.number);document.getElementById('t_reveal').classList.add('on');document.getElementById('t_kw').textContent=meta.m.split(',').slice(0,2).join(' ·');document.getElementById('t_mean').textContent='Your Life Path speaks to '+meta.m+'. But this is only one part of the picture.';S.me.dob=v;save();countTo(document.getElementById('t_num'),lp.number,lp.display);}
-function countTo(el,target,disp){const dur=900;let s=null;const ease=t=>1-Math.pow(1-t,3);function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/dur,1);el.textContent=Math.round(ease(p)*target);if(p<1)requestAnimationFrame(step);else el.textContent=disp||target;}requestAnimationFrame(step);}
+/* Counts up to a number and lands with a bit of weight, rather than just arriving. disp is what
+   is left showing once the count finishes — the full compound ("24/6"), not just the digits that
+   were counted. delay lets a row of numbers arrive one after another instead of all at once. */
+function countTo(el,target,disp,delay){
+  if(!Number.isFinite(target)){el.textContent=disp!=null?disp:'';return;}
+  const land=function(){
+    el.classList.remove('landed');
+    if(muReduce()){el.textContent=disp!=null?disp:target;return;}
+    void el.offsetWidth; el.classList.add('landed');           // restart the CSS animation on repeat visits
+    const dur=760,start=performance.now(),ease=t=>1-Math.pow(1-t,3);
+    (function step(ts){
+      const p=Math.min((ts-start)/dur,1);
+      el.textContent=Math.round(ease(p)*target);
+      if(p<1)requestAnimationFrame(step); else el.textContent=disp!=null?disp:target;
+    })(start);
+  };
+  if(delay&&!muReduce()) setTimeout(land,delay); else land();
+}
 function wireRail(){const ids=RSEC.map(r=>r[0]);const btns=[...document.querySelectorAll('.rail button')];const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){btns.forEach(b=>b.classList.toggle('on',b.dataset.rail===en.target.id));}}),{rootMargin:'-45% 0px -50% 0px'});ids.forEach(id=>{const el=document.getElementById(id);if(el)io.observe(el);});
   // animate key numbers with data-count
-  document.querySelectorAll('[data-count]').forEach(el=>{if(el.dataset.count)countTo(el,+el.dataset.count,el.dataset.final);});}
+  document.querySelectorAll('[data-count]').forEach(el=>{if(el.dataset.count)countTo(el,+el.dataset.count,el.dataset.final,+el.dataset.delay||0);});}
 
 /* first-reveal count animation (non-reading screens) */
 const _origRender=render;
-render=function(){_origRender();if(S.screen==='me_reveal'){document.querySelectorAll('[data-count]').forEach(el=>{if(el.dataset.count)countTo(el,+el.dataset.count,el.dataset.final);});}};
+render=function(){_origRender();if(S.screen==='me_reveal'){document.querySelectorAll('[data-count]').forEach(el=>{if(el.dataset.count)countTo(el,+el.dataset.count,el.dataset.final,+el.dataset.delay||0);});}};
 
 /* particles */
 /* The ambient field. Was a drifting starfield — floating particles and cosmic imagery,
